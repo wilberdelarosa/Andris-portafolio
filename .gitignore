@@ -1,0 +1,29 @@
+# Futuros artefactos de la aplicación
+app/node_modules/
+app/dist/
+app/.next/
+app/coverage/
+app/.env
+app/.env.*
+!app/.env.example
+
+# Archivos locales
+*.log
+.DS_Store
+Thumbs.db
+
+# Local validation and build state
+.playwright-cli/
+output/playwright/
+app/tsconfig.tsbuildinfo
+.mcp.json
+.21st/portfolio-hero-9037.json
+
+# Índices, copias locales de investigación y archivos temporales: no son parte
+# de la aplicación ni del punto de restauración de la entrega.
+.gitnexus/
+.playwright-cli/
+referencias-web/
+web/
+tmp/
+output/playwright/

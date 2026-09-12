@@ -1,0 +1,565 @@
+[
+  {
+    "source": "ASSETS/content/broker/portraits/andris-suit-cutout.png",
+    "output": "app/public/derived/andris-suit.webp",
+    "source_dimensions": [
+      1024,
+      1536
+    ],
+    "dimensions": [
+      910,
+      1478
+    ],
+    "bytes": 127666,
+    "crop": null,
+    "trimmed_bbox": [
+      86,
+      30,
+      1013,
+      1536
+    ]
+  },
+  {
+    "source": "ASSETS/content/broker/portraits/andris-white-shirt-cutout.png",
+    "output": "app/public/derived/andris-white-shirt.webp",
+    "source_dimensions": [
+      1024,
+      1536
+    ],
+    "dimensions": [
+      794,
+      1519
+    ],
+    "bytes": 127456,
+    "crop": null,
+    "trimmed_bbox": [
+      113,
+      17,
+      907,
+      1536
+    ]
+  },
+  {
+    "source": "ASSETS/content/broker/portraits/andris-coast-portrait-01.png",
+    "output": "app/public/derived/andris-coast.webp",
+    "source_dimensions": [
+      1086,
+      1448
+    ],
+    "dimensions": [
+      800,
+      1067
+    ],
+    "bytes": 74466,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/content/broker/hero-compositions/resort-hero-background.png",
+    "output": "app/public/derived/resort-backdrop.webp",
+    "source_dimensions": [
+      1672,
+      941
+    ],
+    "dimensions": [
+      1672,
+      941
+    ],
+    "bytes": 145128,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/content/broker/backgrounds/coast-background.png",
+    "output": "app/public/derived/coast-backdrop.webp",
+    "source_dimensions": [
+      1024,
+      1536
+    ],
+    "dimensions": [
+      800,
+      1200
+    ],
+    "bytes": 214726,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/brand/logos/01_logo_completo_color_principal.png",
+    "output": "app/public/derived/logo-full.webp",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      520,
+      368
+    ],
+    "bytes": 39808,
+    "crop": null,
+    "trimmed_bbox": [
+      37,
+      235,
+      1217,
+      1069
+    ]
+  },
+  {
+    "source": "ASSETS/brand/logos/05_imagotipo_monograma_ap_navy.png",
+    "output": "app/public/derived/logo-navy.webp",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      246,
+      256
+    ],
+    "bytes": 10944,
+    "crop": null,
+    "trimmed_bbox": [
+      152,
+      123,
+      1160,
+      1174
+    ]
+  },
+  {
+    "source": "ASSETS/brand/logos/06_imagotipo_monograma_ap_blanco_para_fondo_oscuro.png",
+    "output": "app/public/derived/logo-white.webp",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      256,
+      255
+    ],
+    "bytes": 8878,
+    "crop": null,
+    "trimmed_bbox": [
+      102,
+      123,
+      1145,
+      1163
+    ]
+  },
+  {
+    "source": "ASSETS/brand/logos/01_logo_completo_color_principal.png",
+    "output": "app/public/derived/wordmark-navy.webp",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      650,
+      150
+    ],
+    "bytes": 32206,
+    "crop": [
+      25,
+      790,
+      1225,
+      1085
+    ],
+    "trimmed_bbox": [
+      12,
+      7,
+      1192,
+      279
+    ]
+  },
+  {
+    "source": "ASSETS/brand/logos/03_wordmark_nombre_y_subtitulo_navy.png",
+    "output": "app/public/derived/wordmark-white.webp",
+    "source_dimensions": [
+      2172,
+      724
+    ],
+    "dimensions": [
+      650,
+      135
+    ],
+    "bytes": 24992,
+    "crop": null,
+    "trimmed_bbox": [
+      72,
+      143,
+      2100,
+      565
+    ]
+  },
+  {
+    "source": "ASSETS/brand/logos/04_imagotipo_monograma_ap_dorado.png",
+    "output": "app/public/derived/icon-192.png",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 8411,
+    "crop": [
+      80,
+      76,
+      1162,
+      1187
+    ],
+    "background": "#0B1F3A",
+    "mark_max_fraction": 0.68,
+    "purpose": "any"
+  },
+  {
+    "source": "ASSETS/brand/logos/04_imagotipo_monograma_ap_dorado.png",
+    "output": "app/public/derived/icon-512.png",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      512,
+      512
+    ],
+    "bytes": 39832,
+    "crop": [
+      80,
+      76,
+      1162,
+      1187
+    ],
+    "background": "#0B1F3A",
+    "mark_max_fraction": 0.68,
+    "purpose": "any"
+  },
+  {
+    "source": "ASSETS/brand/logos/04_imagotipo_monograma_ap_dorado.png",
+    "output": "app/public/derived/apple-touch-icon.png",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      180,
+      180
+    ],
+    "bytes": 7669,
+    "crop": [
+      80,
+      76,
+      1162,
+      1187
+    ],
+    "background": "#0B1F3A",
+    "mark_max_fraction": 0.68,
+    "purpose": "any"
+  },
+  {
+    "source": "ASSETS/brand/logos/04_imagotipo_monograma_ap_dorado.png",
+    "output": "app/public/derived/icon-maskable-512.png",
+    "source_dimensions": [
+      1254,
+      1254
+    ],
+    "dimensions": [
+      512,
+      512
+    ],
+    "bytes": 29904,
+    "crop": [
+      80,
+      76,
+      1162,
+      1187
+    ],
+    "background": "#0B1F3A",
+    "mark_max_fraction": 0.56,
+    "purpose": "maskable"
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (2).jpeg",
+    "output": "app/public/derived/melcon-hero.webp",
+    "source_dimensions": [
+      1183,
+      785
+    ],
+    "dimensions": [
+      1183,
+      785
+    ],
+    "bytes": 166668,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (2).jpeg",
+    "output": "app/public/derived/melcon-hero-small.webp",
+    "source_dimensions": [
+      1183,
+      785
+    ],
+    "dimensions": [
+      640,
+      425
+    ],
+    "bytes": 47504,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (1).jpeg",
+    "output": "app/public/derived/melcon-masterplan.webp",
+    "source_dimensions": [
+      1175,
+      783
+    ],
+    "dimensions": [
+      1175,
+      783
+    ],
+    "bytes": 250298,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (3).jpeg",
+    "output": "app/public/derived/melcon-facade.webp",
+    "source_dimensions": [
+      1165,
+      785
+    ],
+    "dimensions": [
+      1165,
+      785
+    ],
+    "bytes": 179744,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (4).jpeg",
+    "output": "app/public/derived/melcon-gardens.webp",
+    "source_dimensions": [
+      1169,
+      783
+    ],
+    "dimensions": [
+      1169,
+      783
+    ],
+    "bytes": 185790,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (4).jpeg",
+    "output": "app/public/derived/melcon-gardens-small.webp",
+    "source_dimensions": [
+      1169,
+      783
+    ],
+    "dimensions": [
+      640,
+      429
+    ],
+    "bytes": 51176,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (5).jpeg",
+    "output": "app/public/derived/melcon-river.webp",
+    "source_dimensions": [
+      1173,
+      781
+    ],
+    "dimensions": [
+      1173,
+      781
+    ],
+    "bytes": 169438,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (6).jpeg",
+    "output": "app/public/derived/melcon-promenade.webp",
+    "source_dimensions": [
+      1177,
+      786
+    ],
+    "dimensions": [
+      1177,
+      786
+    ],
+    "bytes": 206990,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM.jpeg",
+    "output": "app/public/derived/melcon-aerial.webp",
+    "source_dimensions": [
+      1178,
+      787
+    ],
+    "dimensions": [
+      1178,
+      787
+    ],
+    "bytes": 227030,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (1).jpeg",
+    "output": "app/public/derived/melcon-pool.webp",
+    "source_dimensions": [
+      1164,
+      787
+    ],
+    "dimensions": [
+      1164,
+      787
+    ],
+    "bytes": 194202,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (1).jpeg",
+    "output": "app/public/derived/melcon-pool-small.webp",
+    "source_dimensions": [
+      1164,
+      787
+    ],
+    "dimensions": [
+      640,
+      433
+    ],
+    "bytes": 54844,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (2).jpeg",
+    "output": "app/public/derived/melcon-living.webp",
+    "source_dimensions": [
+      1169,
+      1185
+    ],
+    "dimensions": [
+      1169,
+      1185
+    ],
+    "bytes": 95018,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (2).jpeg",
+    "output": "app/public/derived/melcon-living-small.webp",
+    "source_dimensions": [
+      1169,
+      1185
+    ],
+    "dimensions": [
+      631,
+      640
+    ],
+    "bytes": 32994,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (3).jpeg",
+    "output": "app/public/derived/melcon-lounge.webp",
+    "source_dimensions": [
+      1183,
+      1174
+    ],
+    "dimensions": [
+      1183,
+      1174
+    ],
+    "bytes": 137732,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (4).jpeg",
+    "output": "app/public/derived/melcon-kitchen.webp",
+    "source_dimensions": [
+      1166,
+      1176
+    ],
+    "dimensions": [
+      1166,
+      1176
+    ],
+    "bytes": 86902,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (5).jpeg",
+    "output": "app/public/derived/melcon-bedroom.webp",
+    "source_dimensions": [
+      1173,
+      1177
+    ],
+    "dimensions": [
+      1173,
+      1177
+    ],
+    "bytes": 133230,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (6).jpeg",
+    "output": "app/public/derived/melcon-interior.webp",
+    "source_dimensions": [
+      1167,
+      1183
+    ],
+    "dimensions": [
+      1167,
+      1183
+    ],
+    "bytes": 100624,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (7).jpeg",
+    "output": "app/public/derived/melcon-suite.webp",
+    "source_dimensions": [
+      1181,
+      1177
+    ],
+    "dimensions": [
+      1181,
+      1177
+    ],
+    "bytes": 115756,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM.jpeg",
+    "output": "app/public/derived/melcon-poolside.webp",
+    "source_dimensions": [
+      1180,
+      786
+    ],
+    "dimensions": [
+      1180,
+      786
+    ],
+    "bytes": 185568,
+    "crop": null,
+    "trimmed_bbox": null
+  }
+]

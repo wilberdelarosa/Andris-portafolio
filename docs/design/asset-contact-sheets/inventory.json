@@ -1,0 +1,1362 @@
+[
+  {
+    "group": "01-brand",
+    "index": 1,
+    "path": "ASSETS/brand/logos/01_logo_completo_color_principal.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      46,
+      21,
+      1208,
+      1213
+    ],
+    "bytes": 265827,
+    "sha256": "139079540505da14e8da37489ba5db8f71185dd61bd6553fc06c11aa11c32291"
+  },
+  {
+    "group": "01-brand",
+    "index": 2,
+    "path": "ASSETS/brand/logos/02_logo_completo_version_alternativa.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      25,
+      168,
+      1204,
+      1186
+    ],
+    "bytes": 270419,
+    "sha256": "593f4e60b55be0f28ba7be1312e349a2ac9d71a673de44c77993a3551208a046"
+  },
+  {
+    "group": "01-brand",
+    "index": 3,
+    "path": "ASSETS/brand/logos/03_wordmark_nombre_y_subtitulo_navy.png",
+    "width": 2172,
+    "height": 724,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      81,
+      25,
+      2091,
+      684
+    ],
+    "bytes": 332741,
+    "sha256": "082c77dfea7da6a2563150fd59395c3262a89985d57624aa82a394e106381548"
+  },
+  {
+    "group": "01-brand",
+    "index": 4,
+    "path": "ASSETS/brand/logos/04_imagotipo_monograma_ap_dorado.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      33,
+      33,
+      1238,
+      1239
+    ],
+    "bytes": 378601,
+    "sha256": "50a878490600ed65334d82cda123ec73d451ee84bb9c8014da200db3240d5b56"
+  },
+  {
+    "group": "01-brand",
+    "index": 5,
+    "path": "ASSETS/brand/logos/05_imagotipo_monograma_ap_navy.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      89,
+      132,
+      1151,
+      1170
+    ],
+    "bytes": 268903,
+    "sha256": "be9b59319ad7ef5a6d6325cb910219781f2bc702a0ac450835d7e2922a0bd966"
+  },
+  {
+    "group": "01-brand",
+    "index": 6,
+    "path": "ASSETS/brand/logos/06_imagotipo_monograma_ap_blanco_para_fondo_oscuro.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      73,
+      52,
+      1206,
+      1254
+    ],
+    "bytes": 272003,
+    "sha256": "446f4d7a69a7d0015b1e723f9453bf92e6e3aad21fbd9c12b040552c9d944a4d"
+  },
+  {
+    "group": "01-brand",
+    "index": 7,
+    "path": "ASSETS/brand/logos/07_icono_app_ap_dorado_sobre_navy.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1254,
+      1254
+    ],
+    "bytes": 1190026,
+    "sha256": "206f2546e4a462f18ebc5ab4d337fc7140a2468678784571d58f29e1c97a4f24"
+  },
+  {
+    "group": "01-brand",
+    "index": 8,
+    "path": "ASSETS/brand/logos/08_logo_completo_dorado_sobre_oscuro.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      33,
+      21,
+      1224,
+      1212
+    ],
+    "bytes": 299260,
+    "sha256": "b5edac5d40120ca2f6a0b2b8218b4f8c939d2a1d46df3ffde42d87a420633e94"
+  },
+  {
+    "group": "01-brand",
+    "index": 9,
+    "path": "ASSETS/brand/logos/09_logo_completo_ligero_alternativo.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      0,
+      21,
+      1240,
+      1206
+    ],
+    "bytes": 301617,
+    "sha256": "88226688d5fcb82329753718fdce80f003307e78d4175e470cfbf27cda566859"
+  },
+  {
+    "group": "01-brand",
+    "index": 10,
+    "path": "ASSETS/brand/logos/10_logo_con_monograma_y_wordmark_alternativo.png",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      57,
+      53,
+      1187,
+      1196
+    ],
+    "bytes": 248988,
+    "sha256": "e753b6df733b764dd6d8b65fc1fde198688f520d10d9fb733153f74f1f0534a4"
+  },
+  {
+    "group": "01-brand",
+    "index": 11,
+    "path": "ASSETS/brand/logos/logo-reference.jpeg",
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1254,
+      1254
+    ],
+    "bytes": 56152,
+    "sha256": "c0263ffde7b37bbc62f5ea2ad268f4219925b465c2628321c80eee7f742849c4"
+  },
+  {
+    "group": "01-brand",
+    "index": 12,
+    "path": "ASSETS/brand/palettes/palette-blue-navy-beige.jpg",
+    "width": 1600,
+    "height": 1000,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1600,
+      1000
+    ],
+    "bytes": 83041,
+    "sha256": "ab72512d47f29990947462840183c6ca4e74bdf5f9d86b6a79fee43bd299d34a"
+  },
+  {
+    "group": "01-brand",
+    "index": 13,
+    "path": "ASSETS/brand/palettes/palette-navy-beige-expanded.jpg",
+    "width": 1400,
+    "height": 900,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1400,
+      900
+    ],
+    "bytes": 77391,
+    "sha256": "2598a2a46765c7baab59d69244cc725f18189a1de911e258bf5f87dd4ca0a51e"
+  },
+  {
+    "group": "01-brand",
+    "index": 14,
+    "path": "ASSETS/brand/palettes/palette-navy-warm-beige.jpeg",
+    "width": 1400,
+    "height": 900,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1400,
+      900
+    ],
+    "bytes": 45440,
+    "sha256": "eea2e3a26678708391ece89564d899d6eaef34dddd1ecc111def496c068c52ed"
+  },
+  {
+    "group": "02-broker",
+    "index": 1,
+    "path": "ASSETS/content/broker/backgrounds/coast-background.png",
+    "width": 1024,
+    "height": 1536,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1024,
+      1536
+    ],
+    "bytes": 2805550,
+    "sha256": "489806b3b4e495e004825ebfb949d02214aa1a0f190a66037a1704564ec6aeec"
+  },
+  {
+    "group": "02-broker",
+    "index": 2,
+    "path": "ASSETS/content/broker/hero-compositions/andris-hero-resort.png",
+    "width": 1672,
+    "height": 941,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1672,
+      941
+    ],
+    "bytes": 1837831,
+    "sha256": "3e44b3b93e48c2def2450d6e58d972658bf2368532e179703c9fc41799c45b43"
+  },
+  {
+    "group": "02-broker",
+    "index": 3,
+    "path": "ASSETS/content/broker/hero-compositions/resort-hero-background.png",
+    "width": 1672,
+    "height": 941,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1672,
+      941
+    ],
+    "bytes": 1961557,
+    "sha256": "236635955e4f900e41c3879a05502b7e80095d1c120f9ef9f3456422c36f271c"
+  },
+  {
+    "group": "02-broker",
+    "index": 4,
+    "path": "ASSETS/content/broker/portraits/andris-coast-portrait-01.png",
+    "width": 1086,
+    "height": 1448,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1086,
+      1448
+    ],
+    "bytes": 1965699,
+    "sha256": "b6ab24987ae8f960b2ee43f8a35d54a15b4e9e87f31a21654eec279bc95f076b"
+  },
+  {
+    "group": "02-broker",
+    "index": 5,
+    "path": "ASSETS/content/broker/portraits/andris-coast-portrait-02.png",
+    "width": 1024,
+    "height": 1536,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1024,
+      1536
+    ],
+    "bytes": 2261863,
+    "sha256": "a203a2bb3efe2c9882150e71f2846a05203a6a425b896f2924dc19932f7e04f1"
+  },
+  {
+    "group": "02-broker",
+    "index": 6,
+    "path": "ASSETS/content/broker/portraits/andris-suit-cutout.png",
+    "width": 1024,
+    "height": 1536,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      96,
+      33,
+      1006,
+      1536
+    ],
+    "bytes": 1820099,
+    "sha256": "3da5ef3e9daa81afd49c480e426356a5e98cc3d501b8ebb1206a01f4f16c3795"
+  },
+  {
+    "group": "02-broker",
+    "index": 7,
+    "path": "ASSETS/content/broker/portraits/andris-white-shirt-cutout.png",
+    "width": 1024,
+    "height": 1536,
+    "mode": "RGBA",
+    "alpha_min": 0,
+    "bbox": [
+      65,
+      17,
+      898,
+      1536
+    ],
+    "bytes": 1888434,
+    "sha256": "f18eaec162b130cfdb40ce582626d0962c7776cdd84ef79dc0ae7a7ce6bae744"
+  },
+  {
+    "group": "03-melcon",
+    "index": 1,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (1).jpeg",
+    "width": 1175,
+    "height": 783,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1175,
+      783
+    ],
+    "bytes": 266076,
+    "sha256": "9d30ad6b6899d9135e81b2c093345bafd64dd589070893f6a96e76411fd83565"
+  },
+  {
+    "group": "03-melcon",
+    "index": 2,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (2).jpeg",
+    "width": 1183,
+    "height": 785,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1183,
+      785
+    ],
+    "bytes": 192934,
+    "sha256": "5078f3b1eedd2219fd082791bb8266b7390c92d348c4bf1dffde77c272ff70f3"
+  },
+  {
+    "group": "03-melcon",
+    "index": 3,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (3).jpeg",
+    "width": 1165,
+    "height": 785,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1165,
+      785
+    ],
+    "bytes": 206999,
+    "sha256": "c6349a3d914f357b3dbed2085ff179d3cb0fae9c5092ca0b3ecc1a1e6d031f37"
+  },
+  {
+    "group": "03-melcon",
+    "index": 4,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (4).jpeg",
+    "width": 1169,
+    "height": 783,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1169,
+      783
+    ],
+    "bytes": 204846,
+    "sha256": "b8d5cb3218ca65c2edb77fd6660040ad38d0070720d0e235e498eb5f0b1de2f0"
+  },
+  {
+    "group": "03-melcon",
+    "index": 5,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (5).jpeg",
+    "width": 1173,
+    "height": 781,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1173,
+      781
+    ],
+    "bytes": 197778,
+    "sha256": "3b573d2624debc90855f3d5df14173778b504f41875d77744a7b7dee90a9344b"
+  },
+  {
+    "group": "03-melcon",
+    "index": 6,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM (6).jpeg",
+    "width": 1177,
+    "height": 786,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1177,
+      786
+    ],
+    "bytes": 228934,
+    "sha256": "28c19959abf40ff3bb0eefcc626895be4e606e5b804a309551006a9682755b12"
+  },
+  {
+    "group": "03-melcon",
+    "index": 7,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.36 PM.jpeg",
+    "width": 1178,
+    "height": 787,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1178,
+      787
+    ],
+    "bytes": 245815,
+    "sha256": "459b3da2bc38790a616249fac0b4bbe6198e603451766bae65911d3556d319f9"
+  },
+  {
+    "group": "03-melcon",
+    "index": 8,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (1).jpeg",
+    "width": 1164,
+    "height": 787,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1164,
+      787
+    ],
+    "bytes": 217740,
+    "sha256": "3d562e444c3ee941147b8c2ea1d63042a15bf759873bd83d318a259938b864eb"
+  },
+  {
+    "group": "03-melcon",
+    "index": 9,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (2).jpeg",
+    "width": 1169,
+    "height": 1185,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1169,
+      1185
+    ],
+    "bytes": 150728,
+    "sha256": "4d0ef7ed3f1cf0c6eb7594de8e9061d2e3e98e459cde5b379513df76504c1c33"
+  },
+  {
+    "group": "03-melcon",
+    "index": 10,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (3).jpeg",
+    "width": 1183,
+    "height": 1174,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1183,
+      1174
+    ],
+    "bytes": 186893,
+    "sha256": "11d4f0af86a5e64f18a17c4cd0fad669c756153825adca6a0b4d17958771cb16"
+  },
+  {
+    "group": "03-melcon",
+    "index": 11,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (4).jpeg",
+    "width": 1166,
+    "height": 1176,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1166,
+      1176
+    ],
+    "bytes": 138512,
+    "sha256": "d0213ae2e02f81159fd73f43830983e2d2dac29a5c5ff5852261f70f5e4d56ce"
+  },
+  {
+    "group": "03-melcon",
+    "index": 12,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (5).jpeg",
+    "width": 1173,
+    "height": 1177,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1173,
+      1177
+    ],
+    "bytes": 186981,
+    "sha256": "2e94703464f9b2b4b5554c364b1ecaf56be7fe63a782f29b215643f0e83bd308"
+  },
+  {
+    "group": "03-melcon",
+    "index": 13,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (6).jpeg",
+    "width": 1167,
+    "height": 1183,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1167,
+      1183
+    ],
+    "bytes": 151508,
+    "sha256": "98905d252868292faf7736e364caa4c008e8880fbb29e6c651f552963c4fc1ad"
+  },
+  {
+    "group": "03-melcon",
+    "index": 14,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM (7).jpeg",
+    "width": 1181,
+    "height": 1177,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1181,
+      1177
+    ],
+    "bytes": 170219,
+    "sha256": "15a52911537d2e76192aec37c4f0229208a2d1cd5d6d36e1d60d8e3b5ee0e06c"
+  },
+  {
+    "group": "03-melcon",
+    "index": 15,
+    "path": "ASSETS/projects/melcon-paradise/WhatsApp Image 2026-09-10 at 11.16.37 PM.jpeg",
+    "width": 1180,
+    "height": 786,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1180,
+      786
+    ],
+    "bytes": 215326,
+    "sha256": "01116cfc54b89711a6e8f0ea2d4987e8a828251d6930605ad1f2139e1f60bb3b"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 1,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (1).jpeg",
+    "width": 1290,
+    "height": 929,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      929
+    ],
+    "bytes": 241177,
+    "sha256": "c1ec56f77087b8abcad96c62c9753861fd8ba58b9afb5900c53d09e7fe6f7a52"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 2,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (2).jpeg",
+    "width": 1290,
+    "height": 930,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      930
+    ],
+    "bytes": 284411,
+    "sha256": "17b808a71eb9cf3f56b3cb0d8782ccda9e8bd84adca7c702bf6f67a9e2a6281e"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 3,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (3).jpeg",
+    "width": 1290,
+    "height": 924,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      924
+    ],
+    "bytes": 272000,
+    "sha256": "4b86ee9124ed3bae2c8371ec19c87d01fc6ba91cef8cd1011ed9d2dee1d49b0c"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 4,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (4).jpeg",
+    "width": 1290,
+    "height": 934,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      934
+    ],
+    "bytes": 254767,
+    "sha256": "9692cf3153ee395ef8eb459f7a5b1aa868ff4688d3252428debd12f90f623305"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 5,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (5).jpeg",
+    "width": 1290,
+    "height": 926,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      926
+    ],
+    "bytes": 228840,
+    "sha256": "543e69607edaa201821dad4908e1e45464fa45caa3c2d45143ab87130267fd35"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 6,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (6).jpeg",
+    "width": 1290,
+    "height": 923,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      923
+    ],
+    "bytes": 258126,
+    "sha256": "b46fa26dd740bb73415761363eab29cb2d9bca19bf25cba487396257dc80f731"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 7,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (7).jpeg",
+    "width": 1290,
+    "height": 925,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      925
+    ],
+    "bytes": 213209,
+    "sha256": "8f7fb06095bf86fb94d562da4cc5ae3791aee817a2741570907d07343c18d03c"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 8,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM.jpeg",
+    "width": 1290,
+    "height": 848,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      848
+    ],
+    "bytes": 281414,
+    "sha256": "1b550c3c1552756ee5d64a0f65ced5896c663d4e2b86e24cfb854fe53fbba7c1"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 9,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (1).jpeg",
+    "width": 1290,
+    "height": 924,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      924
+    ],
+    "bytes": 230648,
+    "sha256": "0f7e0186b3ce9b41fae23aeaae27c1dc5af52af3efc68a0295f64c039339de12"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 10,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (2).jpeg",
+    "width": 1290,
+    "height": 889,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      889
+    ],
+    "bytes": 101431,
+    "sha256": "90d2540db4679beae63b2ce51a2fc95df7903717d6f77d5e423239d40aed7cbf"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 11,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (3).jpeg",
+    "width": 1290,
+    "height": 889,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      889
+    ],
+    "bytes": 115943,
+    "sha256": "8c0e9689caa3dba13ca030461378f5b77573b9d69dbcfd5b51b3ec4e775ace6c"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 12,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (4).jpeg",
+    "width": 1290,
+    "height": 891,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      891
+    ],
+    "bytes": 85706,
+    "sha256": "0330df17a15ee61d81aa69f417f1c1f2cc1aafcbde0b0361a9b5316de3f9e51d"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 13,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (5).jpeg",
+    "width": 1290,
+    "height": 898,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      898
+    ],
+    "bytes": 97395,
+    "sha256": "472cae84f2eab332a4c299820325048e22d071db795c3005191c324af46643eb"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 14,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (6).jpeg",
+    "width": 1290,
+    "height": 886,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      886
+    ],
+    "bytes": 90793,
+    "sha256": "1c77cbf68e752fba41cf7932480f7567bd5c375a6cddb746747c768c6e491471"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 15,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (7).jpeg",
+    "width": 1290,
+    "height": 1338,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      1338
+    ],
+    "bytes": 145075,
+    "sha256": "1654f22df14a55c75631fecaaf449d655f651ca306816faa44c85f6a0322d865"
+  },
+  {
+    "group": "04-unidentified-01",
+    "index": 16,
+    "path": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM.jpeg",
+    "width": 1290,
+    "height": 920,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1290,
+      920
+    ],
+    "bytes": 231409,
+    "sha256": "205f9f8a333e100592c8c9f5eeb9732059a9fccbe5f7522051be05671d6017e5"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 1,
+    "path": "ASSETS/projects/project-03-unidentified/IMG01.jpeg",
+    "width": 1024,
+    "height": 683,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1024,
+      683
+    ],
+    "bytes": 164124,
+    "sha256": "95a0451146ca14b073deafd3b92781f80a61362cbabc1fc7796d4097317963c9"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 2,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM (1).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 165005,
+    "sha256": "3884fc04a60a1c19938b3fda2e0f6b6a5947b871e62c9338ab27e989cefc0bad"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 3,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM (2).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 199489,
+    "sha256": "bc2bd19806a2fccda0acae1563dd18d23c6f731e71b916d001e9e6fdba9f3fa7"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 4,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM (3).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 191383,
+    "sha256": "34b89f036b45bbddf32b3f5b32cff98f81239505085468dc5efc775fe7257656"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 5,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM.jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 197118,
+    "sha256": "8c6ff3789afb614c938998c025ec6e860114f41c3f7d932cb13c25529fb9483d"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 6,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (1).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 195479,
+    "sha256": "c41bb58dfa1df169769b07b959bdebd25b2a42932e6630dc5535b66e891de442"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 7,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (2).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 96745,
+    "sha256": "958d27463501d90077a5070ed0f474c8fb744377af4f934a08a0edee369a6a98"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 8,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (3).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 100219,
+    "sha256": "39b56cf1f4a9ec59c6a07b97639baefcd1fcfec8110018ebcee1d3c7c102a341"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 9,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (4).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 139985,
+    "sha256": "5a42e9ece1514015992b2eda0fdc345d0bfd898daa27b8a97dcdfed33b87b1ed"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 10,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (5).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 96960,
+    "sha256": "220f0ab239729c5f34bb338551649b9eb0f0aa77540be854f69ab2f5d81cfd36"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 11,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (6).jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 110348,
+    "sha256": "2d0421283c85d3ce3084f56fe941576af88e1bbf137c27e03c2ee901b7837271"
+  },
+  {
+    "group": "05-unidentified-03",
+    "index": 12,
+    "path": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM.jpeg",
+    "width": 1280,
+    "height": 720,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1280,
+      720
+    ],
+    "bytes": 191383,
+    "sha256": "34b89f036b45bbddf32b3f5b32cff98f81239505085468dc5efc775fe7257656"
+  },
+  {
+    "group": "06-references-web",
+    "index": 1,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (1).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 108931,
+    "sha256": "3aabba9b603043de2d36ee69bddebbc704d62053b15439ea534f4309a7533c46"
+  },
+  {
+    "group": "06-references-web",
+    "index": 2,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (10).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 118545,
+    "sha256": "e0fbc56946d5ed48494b0c71589ffad5f876e59256ca62d92128b683e9d92539"
+  },
+  {
+    "group": "06-references-web",
+    "index": 3,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (2).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 85568,
+    "sha256": "7b368f7ba7248f0b0ff026fd7e88a36c49505c441980c123f65485e7b2e93a69"
+  },
+  {
+    "group": "06-references-web",
+    "index": 4,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (3).jpeg",
+    "width": 1080,
+    "height": 773,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      773
+    ],
+    "bytes": 71277,
+    "sha256": "26560cc2dd44deb1a2a093aab91810f2db05a88f06604e434e4afbc991d0f747"
+  },
+  {
+    "group": "06-references-web",
+    "index": 5,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (4).jpeg",
+    "width": 1080,
+    "height": 651,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      651
+    ],
+    "bytes": 80420,
+    "sha256": "7fd6819e62d7abe72a3929c628da1c95c7d73cfcbef4a5367bafdd5fc5c9033a"
+  },
+  {
+    "group": "06-references-web",
+    "index": 6,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (5).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 121398,
+    "sha256": "01a023a5486575ca93ddb9a9325d9eb401749ff059fcadb042aa9cc7db0075c6"
+  },
+  {
+    "group": "06-references-web",
+    "index": 7,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (6).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 119216,
+    "sha256": "fc2c71b5269e0065e473103c268bf8f7b7c461ac76c72beb48cebd7d1a6c41d6"
+  },
+  {
+    "group": "06-references-web",
+    "index": 8,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (7).jpeg",
+    "width": 1080,
+    "height": 518,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      518
+    ],
+    "bytes": 30689,
+    "sha256": "9d43d7d620c39562b3f5135ded5e61c72fdbd968fb70b035dd8ee162f902b7a9"
+  },
+  {
+    "group": "06-references-web",
+    "index": 9,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (8).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 121807,
+    "sha256": "043acf3588cbe7d93a3120ac7454cb943cf2993d893a0759f46151f1316501c6"
+  },
+  {
+    "group": "06-references-web",
+    "index": 10,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM (9).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 112182,
+    "sha256": "ccfc49e108900e84ac23d0085d88584b3c859441a9592ce206ed6b89bcdec8e7"
+  },
+  {
+    "group": "06-references-web",
+    "index": 11,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.31 PM.jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 104695,
+    "sha256": "f0b5d3091a9467206926761d50d6823b30a1b1f252d609d78047867c67405d3c"
+  },
+  {
+    "group": "06-references-web",
+    "index": 12,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.32 PM (1).jpeg",
+    "width": 738,
+    "height": 1600,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      738,
+      1600
+    ],
+    "bytes": 126327,
+    "sha256": "5d3625ef5a5a65d13c1537bc4a1014472d2b7c5c2e467a47204c81e912dbda9f"
+  },
+  {
+    "group": "06-references-web",
+    "index": 13,
+    "path": "ASSETS/references/web-inspiration/WhatsApp Image 2026-09-12 at 3.51.32 PM.jpeg",
+    "width": 1080,
+    "height": 1258,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      1258
+    ],
+    "bytes": 92176,
+    "sha256": "56f337a31325c0f15262681e70cd417567faab2d5ec7833861f04e7e821ac467"
+  },
+  {
+    "group": "07-references-pwa-location",
+    "index": 1,
+    "path": "ASSETS/content/project-location-reference/project-locations.png",
+    "width": 891,
+    "height": 1077,
+    "mode": "RGBA",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      891,
+      1077
+    ],
+    "bytes": 699627,
+    "sha256": "1dbc3408fc20c63d046753f7218dc05cdd0651992eba9da770428c5221dd25e0"
+  },
+  {
+    "group": "07-references-pwa-location",
+    "index": 2,
+    "path": "ASSETS/references/pwa/REF01.jpg",
+    "width": 1080,
+    "height": 2340,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      2340
+    ],
+    "bytes": 284189,
+    "sha256": "a4bc00957774c04711524bfae62a89cfe87761ed1809c409025dd6e1e37e9dee"
+  },
+  {
+    "group": "07-references-pwa-location",
+    "index": 3,
+    "path": "ASSETS/references/pwa/REF02.jpg",
+    "width": 1080,
+    "height": 2340,
+    "mode": "RGB",
+    "alpha_min": 255,
+    "bbox": [
+      0,
+      0,
+      1080,
+      2340
+    ],
+    "bytes": 244662,
+    "sha256": "4d5cb61b8dc9de0bb051c3ecbba45df8cda39f15bff53f2f34ba86be5723f5f2"
+  }
+]

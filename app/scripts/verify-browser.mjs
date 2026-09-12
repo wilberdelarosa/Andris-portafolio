@@ -1,0 +1,465 @@
+import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright-core";
+
+// Standalone browser checks: no test runner, production data writes or messages.
+const baseURL = new URL(process.env.BASE_URL || "http://localhost:3000");
+const appRoot = fileURLToPath(new URL("../", import.meta.url));
+const output = path.resolve(appRoot, "../output/playwright/browser-checks");
+const widths = [320, 375, 768, 1440];
+const routes = [
+  { name: "home", pathname: "/" },
+  { name: "melcon", pathname: "/proyectos/melcon-paradise" },
+];
+const report = {
+  baseURL: baseURL.href,
+  startedAt: new Date().toISOString(),
+  checks: [],
+  screenshots: [],
+  consoleErrors: [],
+  pageErrors: [],
+};
+let browser;
+let page;
+let expected404 = false;
+
+async function capture(name) {
+  const filename = `${name}.png`;
+  await page.evaluate(async () => {
+    for (const image of document.images) image.loading = "eager";
+    await Promise.all(
+      [...document.images].map((image) => image.decode().catch(() => {})),
+    );
+    for (const animation of document.getAnimations()) {
+      if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) {
+        try {
+          animation.finish();
+        } catch {
+          /* An idle animation has nothing to finish. */
+        }
+      }
+    }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)),
+    );
+  });
+  await page.screenshot({
+    path: path.join(output, filename),
+    fullPage: true,
+    caret: "initial",
+  });
+  report.screenshots.push(filename);
+}
+
+async function check(name, action) {
+  process.stdout.write(`${name} ... `);
+  try {
+    const details = await action();
+    report.checks.push({ name, passed: true, details });
+    process.stdout.write("OK\n");
+  } catch (error) {
+    report.checks.push({ name, passed: false, error: error.message });
+    process.stdout.write(`ERROR: ${error.message}\n`);
+    if (page && !page.isClosed()) {
+      await capture(`error-${report.checks.length}`).catch(() => {});
+      await page.keyboard.press("Escape").catch(() => {});
+    }
+  }
+}
+
+async function navigate(pathname, locale = "es") {
+  const url = new URL(pathname, baseURL);
+  url.searchParams.set("lang", locale);
+  const response = await page.goto(url.href, { waitUntil: "domcontentloaded" });
+  assert.ok(response?.ok(), `HTTP ${response?.status()} en ${url.pathname}`);
+  await page.locator("main h1").waitFor();
+  await page.waitForFunction(
+    (lang) => document.documentElement.lang === lang,
+    locale,
+  );
+  await page.evaluate(() => document.fonts.ready);
+  return response;
+}
+
+async function revealAndCheckImages() {
+  // Scroll through the actual page so native lazy-loading and reveals run.
+  await page.evaluate(async () => {
+    const step = Math.max(250, Math.floor(innerHeight * 0.75));
+    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+      window.scrollTo({ top: y, behavior: "instant" });
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      );
+    }
+    for (const image of document.images) image.loading = "eager";
+    await Promise.all(
+      [...document.images].map((image) => image.decode().catch(() => {})),
+    );
+  });
+  await page.waitForFunction(
+    () => {
+      const rendered = [...document.images].filter((image) => {
+        const style = getComputedStyle(image);
+        return image.getClientRects().length && style.visibility !== "hidden";
+      });
+      return (
+        rendered.length > 0 &&
+        rendered.every((image) => image.complete && image.naturalWidth > 0)
+      );
+    },
+    undefined,
+    { timeout: 20000 },
+  );
+  const images = await page.evaluate(() =>
+    [...document.images]
+      .filter(
+        (image) =>
+          image.getClientRects().length &&
+          getComputedStyle(image).visibility !== "hidden",
+      )
+      .map((image) => ({
+        src: image.currentSrc,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      })),
+  );
+  assert.ok(
+    images.some(
+      (image) =>
+        decodeURIComponent(image.src).includes("/derived/melcon-") &&
+        image.width > 0 &&
+        image.height > 0,
+    ),
+    "La ruta debe mostrar al menos una imagen real de Melcon cargada",
+  );
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  return images;
+}
+
+async function layoutDetails() {
+  const layout = await page.evaluate(() => ({
+    viewport: innerWidth,
+    documentWidth: document.documentElement.scrollWidth,
+    h1: document.querySelectorAll("main h1").length,
+    main: document.querySelectorAll("main").length,
+    overflow: [...document.querySelectorAll("body *")]
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return (
+          rect.width > 0 && (rect.right > innerWidth + 1 || rect.left < -1)
+        );
+      })
+      .slice(0, 12)
+      .map(
+        (element) => `${element.tagName.toLowerCase()}.${element.className}`,
+      ),
+  }));
+  assert.equal(layout.main, 1, "Debe haber un único main");
+  assert.equal(layout.h1, 1, "Debe haber un único h1 principal");
+  assert.ok(
+    layout.documentWidth <= layout.viewport + 1,
+    `Overflow ${layout.documentWidth}px / ${layout.viewport}px: ${layout.overflow.join(", ")}`,
+  );
+  return layout;
+}
+
+async function checkGallery(route) {
+  await navigate(route.pathname);
+  const opener =
+    route.name === "home"
+      ? page.locator(".featured-gallery-link")
+      : page.locator(".detail-gallery > button").first();
+  await opener.click();
+  const dialog = page.getByRole("dialog", {
+    name: "Melcon Paradise",
+    exact: true,
+  });
+  await dialog.waitFor();
+  const stage = dialog.locator(".gallery-stage");
+  const initialSource = await stage.locator("img").getAttribute("src");
+  await stage.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.waitForFunction((previous) => {
+    const image = document.querySelector(".gallery-stage img");
+    return (
+      image?.getAttribute("src") !== previous &&
+      image?.complete &&
+      image?.naturalWidth > 0
+    );
+  }, initialSource);
+  const nextSource = await stage.locator("img").getAttribute("src");
+  assert.notEqual(
+    nextSource,
+    initialSource,
+    "La flecha debe cambiar la imagen real",
+  );
+  await capture(`gallery-${route.name}-375`);
+  await page.keyboard.press("ArrowLeft");
+  await page.waitForFunction(
+    (source) =>
+      document.querySelector(".gallery-stage img")?.getAttribute("src") ===
+      source,
+    initialSource,
+  );
+  await page.keyboard.press("Escape");
+  await dialog.waitFor({ state: "hidden" });
+  return { keyboard: "ArrowRight / ArrowLeft / Escape", imagesChanged: true };
+}
+
+async function checkCalculator() {
+  await navigate("/");
+  const calculator = page.locator("#inversion");
+  await calculator.locator("#property-price").fill("180000");
+  await calculator.locator("#months-value").fill("36");
+  await calculator.locator(".percentage-controls input").nth(0).fill("20");
+  await calculator.locator(".percentage-controls input").nth(1).fill("30");
+  const expected = new Intl.NumberFormat("es-DO", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(1500);
+  await page.waitForFunction(
+    (amount) =>
+      document.querySelector(".monthly-amount")?.textContent === amount,
+    expected,
+  );
+  const values = await calculator
+    .locator(".payment-breakdown strong")
+    .allTextContents();
+  assert.equal(
+    values.length,
+    3,
+    "Deben existir pagos a firma, construcción y entrega",
+  );
+  const actualValues = values.map((value) =>
+    Number(value.replace(/[^0-9.]/g, "")),
+  );
+  assert.deepEqual(
+    actualValues,
+    [36000, 54000, 90000],
+    "La distribución debe sumar el valor de la propiedad",
+  );
+  await calculator.locator(".percentage-controls input").nth(0).fill("90");
+  await calculator.locator(".calculator-error").waitFor();
+  assert.equal(
+    await calculator.locator(".monthly-amount").count(),
+    0,
+    "Un plan inválido no debe conservar resultados previos",
+  );
+  await calculator
+    .getByRole("button", { name: "Restablecer", exact: true })
+    .click();
+  await page.waitForFunction(
+    () =>
+      document.querySelector("#property-price")?.value === "150000" &&
+      !document.querySelector(".calculator-error"),
+  );
+  return {
+    monthly: expected,
+    breakdown: actualValues,
+    invalidPercentagesRejected: true,
+    reset: true,
+  };
+}
+
+async function checkContactPreview() {
+  await navigate("/");
+  const form = page.locator(".contact-form");
+  await form.locator('button[type="submit"]').click();
+  assert.equal(
+    await form.evaluate((element) => element.checkValidity()),
+    false,
+    "El formulario vacío debe ser inválido",
+  );
+  assert.equal(await page.getByRole("dialog").count(), 0);
+  await form.locator('input[name="name"]').fill("Prueba navegador");
+  await form.locator('input[name="email"]').fill("qa@example.com");
+  await form
+    .locator('textarea[name="message"]')
+    .fill("Consulta automatizada local. No enviar.");
+  await form.locator('input[type="checkbox"]').check();
+  const mutationRequests = [];
+  const track = (request) => {
+    if (!["GET", "HEAD", "OPTIONS"].includes(request.method()))
+      mutationRequests.push(`${request.method()} ${request.url()}`);
+  };
+  page.on("request", track);
+  try {
+    await form.locator('button[type="submit"]').click();
+    const dialog = page.getByRole("dialog", {
+      name: "Tu consulta está preparada",
+      exact: true,
+    });
+    await dialog.waitFor();
+    const summary = await dialog.locator("pre").textContent();
+    assert.ok(
+      summary.includes("Prueba navegador") &&
+        summary.includes("qa@example.com"),
+    );
+    assert.ok((await dialog.textContent()).includes("Aún no se ha enviado"));
+    const whatsapp = await dialog
+      .locator('a[href^="https://wa.me/"]')
+      .getAttribute("href");
+    const email = await dialog
+      .locator('a[href^="mailto:"]')
+      .getAttribute("href");
+    assert.ok(
+      new URL(whatsapp).searchParams
+        .get("text")
+        .includes("Consulta automatizada local"),
+    );
+    assert.ok(email.includes("body=") && email.includes("subject="));
+    await capture("contact-preview-375");
+    assert.deepEqual(
+      mutationRequests,
+      [],
+      "Preparar la consulta no debe enviar datos",
+    );
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+    return {
+      nativeValidation: true,
+      preview: true,
+      externalChannelsNotOpened: true,
+      mutationRequests,
+    };
+  } finally {
+    page.off("request", track);
+  }
+}
+
+async function checkLanguages() {
+  await navigate("/");
+  const roles = {
+    en: "Real estate advisor",
+    fr: "Conseiller immobilier",
+    es: "Asesor inmobiliario",
+  };
+  for (const [locale, role] of Object.entries(roles)) {
+    await page.locator(".language-control select").selectOption(locale);
+    await page.waitForFunction(
+      (lang) => document.documentElement.lang === lang,
+      locale,
+    );
+    assert.equal(
+      (await page.locator(".brand-copy small").textContent()).trim(),
+      role,
+    );
+    assert.equal(new URL(page.url()).searchParams.get("lang"), locale);
+  }
+  return {
+    languages: ["es", "en", "fr"],
+    changedThroughUI: true,
+    urlAndDocumentLanguage: true,
+  };
+}
+
+await mkdir(output, { recursive: true });
+try {
+  const health = await fetch(new URL("/api/v1/health", baseURL), {
+    signal: AbortSignal.timeout(10000),
+  });
+  assert.ok(
+    health.ok,
+    `El servidor respondió ${health.status} al comprobar disponibilidad`,
+  );
+  browser = await chromium.launch({
+    headless: process.env.HEADED !== "1",
+    channel: process.env.BROWSER_CHANNEL || "chrome",
+    ...(process.env.BROWSER_EXECUTABLE
+      ? { executablePath: process.env.BROWSER_EXECUTABLE }
+      : {}),
+  });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    reducedMotion: "no-preference",
+    colorScheme: "light",
+    locale: "es-DO",
+    serviceWorkers: "allow",
+  });
+  page = await context.newPage();
+  page.setDefaultTimeout(15000);
+  page.setDefaultNavigationTimeout(45000);
+  page.on("pageerror", (error) => report.pageErrors.push(error.message));
+  page.on("console", (message) => {
+    if (
+      message.type() === "error" &&
+      !(expected404 && message.text().includes("404"))
+    )
+      report.consoleErrors.push(message.text());
+  });
+  for (const route of routes) {
+    for (const width of widths) {
+      await check(`${route.pathname} @ ${width}px`, async () => {
+        await page.setViewportSize({ width, height: width < 768 ? 844 : 1000 });
+        await navigate(route.pathname);
+        const images = await revealAndCheckImages();
+        const layout = await layoutDetails();
+        await capture(`${route.name}-${width}`);
+        return { layout, loadedImages: images.length };
+      });
+    }
+  }
+  await page.setViewportSize({ width: 375, height: 844 });
+  for (const route of routes)
+    await check(`Galería ${route.pathname}`, () => checkGallery(route));
+  await check(
+    "Simulador: importes, estado inválido y recuperación",
+    checkCalculator,
+  );
+  await check(
+    "Formulario: validación y resumen sin envío",
+    checkContactPreview,
+  );
+  await check("Idiomas ES / EN / FR desde la interfaz", checkLanguages);
+  await check("Ruta inexistente devuelve 404", async () => {
+    expected404 = true;
+    try {
+      const response = await page.goto(
+        new URL("/proyectos/no-existe", baseURL).href,
+        { waitUntil: "domcontentloaded" },
+      );
+      assert.equal(response?.status(), 404);
+      await page.locator(".not-found h1").waitFor();
+      assert.ok(
+        (await page.locator(".not-found").textContent()).includes("404"),
+      );
+      await capture("not-found-375");
+      return { status: 404 };
+    } finally {
+      expected404 = false;
+    }
+  });
+  await check("Consola y errores de ejecución", async () => {
+    assert.deepEqual(report.pageErrors, [], "Hay excepciones de JavaScript");
+    assert.deepEqual(report.consoleErrors, [], "Hay errores de consola");
+    return { errors: 0 };
+  });
+} catch (error) {
+  report.checks.push({
+    name: "Preparación del navegador",
+    passed: false,
+    error: error.message,
+  });
+  console.error(`No se pudo completar la verificación: ${error.message}`);
+  console.error(
+    "Inicia la app, comprueba BASE_URL y usa Chrome instalado o BROWSER_CHANNEL=chromium con su navegador instalado.",
+  );
+} finally {
+  await browser?.close();
+  report.finishedAt = new Date().toISOString();
+  report.passed =
+    report.checks.length > 0 && report.checks.every((item) => item.passed);
+  await writeFile(
+    path.join(output, "report.json"),
+    `${JSON.stringify(report, null, 2)}\n`,
+  );
+  console.log(
+    `${report.passed ? "PASS" : "FAIL"}: ${report.checks.filter((item) => item.passed).length}/${report.checks.length} comprobaciones. ${output}`,
+  );
+  if (!report.passed) process.exitCode = 1;
+}

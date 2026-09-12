@@ -1,0 +1,50 @@
+{
+  "reviewedAt": "2026-09-12",
+  "sourceAsset": "ASSETS/content/project-location-reference/project-locations.png",
+  "precisionDefinition": "Named source pin; not a cadastral verification.",
+  "locations": [
+    {
+      "referenceOrder": 1,
+      "name": "Terra Serena",
+      "candidateAssetDirectory": "ASSETS/projects/project-01-unidentified",
+      "assetAssociationStatus": "pending-approval",
+      "editorialStatus": "draft",
+      "latitude": 18.6486529,
+      "longitude": -68.4372208,
+      "coordinatePrecision": "exact",
+      "coordinateSource": "https://maps.app.goo.gl/6AVZ98JtS5XG9Yhy7?g_st=iw",
+      "verificationUrl": "https://maps.google.com/maps?q=Terra%20Serena%2C%20Punta%20Cana&output=embed",
+      "sourcePlaceId": "0x8ea8950025c4820f:0x2c1387b9ccff7f86",
+      "identityEvidence": "Named preview in supplied screenshot and matching Google Maps place identifier."
+    },
+    {
+      "referenceOrder": 2,
+      "name": "Melcon Paradise",
+      "candidateAssetDirectory": "ASSETS/projects/melcon-paradise",
+      "assetAssociationStatus": "documented",
+      "editorialStatus": "project-profile-ready-commercial-terms-pending",
+      "latitude": 18.637918,
+      "longitude": -68.444033,
+      "coordinatePrecision": "exact",
+      "coordinateSource": "https://maps.app.goo.gl/htoJVFhZERHas7Kw7?g_st=iw",
+      "verificationUrl": "https://maps.google.com/maps?q=Melcon%20Paradise%2C%20Punta%20Cana&ftid=0x8ea895988afa25db:0x5152a0de856636c8&output=embed",
+      "sourcePlaceId": "0x8ea895988afa25db:0x5152a0de856636c8",
+      "identityEvidence": "Named preview, matching supplied project description, official developer identity and matching Google Maps place identifier.",
+      "note": "Use the named place coordinate above. The center of the JHQ4+G5P plus code is a different point."
+    },
+    {
+      "referenceOrder": 3,
+      "name": "The Beach at Punta Cana City Place",
+      "candidateAssetDirectory": "ASSETS/projects/project-03-unidentified",
+      "assetAssociationStatus": "pending-approval",
+      "editorialStatus": "draft",
+      "latitude": 18.6337522,
+      "longitude": -68.3834561,
+      "coordinatePrecision": "exact",
+      "coordinateSource": "https://maps.app.goo.gl/fFaGb7cYhyBHwNJY8?g_st=iw",
+      "verificationUrl": "https://maps.google.com/maps?q=The%20Beach%20at%20Punta%20Cana%20City%20Place&output=embed",
+      "sourcePlaceId": "0x8ea892d87ae03157:0xffb858df48cde81d",
+      "identityEvidence": "Third supplied link resolves to named project; Google Maps coordinates match the independently documented Quisqueya reference point. The screenshot has no visible preview associating this link with project-03 renders."
+    }
+  ]
+}

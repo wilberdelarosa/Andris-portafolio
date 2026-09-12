@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#FBF9F4" />
+    <title>Sin conexión | Andris Peña</title>
+    <style>
+      body {
+        margin: 0;
+        background: #fbf9f4;
+        color: #0b1f3a;
+        font-family: system-ui, sans-serif;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+      main {
+        max-width: 440px;
+        padding: 35px;
+        text-align: center;
+      }
+      img {
+        border-radius: 22px;
+      }
+      h1 {
+        font-family: Georgia, serif;
+        font-weight: 400;
+        font-size: 42px;
+        letter-spacing: -1px;
+      }
+      p {
+        color: #4e5a6b;
+        line-height: 1.8;
+        font-size: 14px;
+      }
+      a {
+        display: inline-block;
+        background: #0b1f3a;
+        color: #fff;
+        padding: 15px 25px;
+        border-radius: 6px;
+        margin-top: 20px;
+        text-decoration: none;
+        font-size: 13px;
+      }
+      a:focus-visible {
+        outline: 3px solid #316692;
+        outline-offset: 5px;
+      }
+      small {
+        display: block;
+        margin-top: 25px;
+        color: #4e5a6b;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img
+        src="/derived/icon-192.png"
+        width="80"
+        height="80"
+        alt="Andris Peña"
+      />
+      <h1 id="title">Tus planes siguen aquí.</h1>
+      <p id="description">
+        Estás sin conexión. Vuelve a una página que ya hayas visitado o
+        reintenta cuando tengas internet.
+      </p>
+      <a href="/" id="retry">Volver al portafolio</a
+      ><small>Andris Peña · Punta Cana</small>
+    </main>
+    <script>
+      try {
+        const l = localStorage.getItem("ap-language");
+        const c =
+          l === "en"
+            ? [
+                "Your plans are still here.",
+                "You’re offline. Return to a page you have visited or try again when you have internet.",
+                "Back to portfolio",
+              ]
+            : l === "fr"
+              ? [
+                  "Vos projets sont toujours ici.",
+                  "Vous êtes hors ligne. Revenez à une page déjà visitée ou réessayez avec une connexion.",
+                  "Retour au portfolio",
+                ]
+              : null;
+        if (c) {
+          document.documentElement.lang = l;
+          document.getElementById("title").textContent = c[0];
+          document.getElementById("description").textContent = c[1];
+          document.getElementById("retry").textContent = c[2];
+        }
+      } catch {}
+    </script>
+  </body>
+</html>

@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "project": {
+    "name": "AndrisPortafolio",
+    "productType": "Independent real estate advisor portfolio",
+    "stack": [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "CSS",
+      "Motion",
+      "Radix Dialog",
+      "Leaflet"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "app/src/app/globals.css",
+      "DESIGN_SYSTEM.md",
+      "docs/design/DESIGN.md"
+    ],
+    "components": [
+      "app/src/components"
+    ],
+    "assets": [
+      "ASSETS",
+      "app/public/derived"
+    ],
+    "instructions": [
+      "AGENTS.md",
+      "docs/design/SKILLS.md",
+      "docs/setup/SKILLS.md"
+    ]
+  },
+  "design": {
+    "colorMode": "light with dark and system preferences",
+    "colors": {
+      "ink": "#0B1F3A",
+      "inkSoft": "#132E4A",
+      "accent": "#316692",
+      "sand": "#D8C8B4",
+      "sandDeep": "#C8B79C",
+      "surface": "#F4F0E6",
+      "raised": "#FBF9F4",
+      "muted": "#4E5A6B",
+      "paper": "#FFFFFF"
+    },
+    "typography": {
+      "primary": "Plus Jakarta Sans Variable",
+      "secondary": "Cormorant Garamond 500 for the monumental hero name and proposition, personal introduction and signature",
+      "headingWeight": 600,
+      "headingTracking": "-0.035em",
+      "bodySize": "15px"
+    },
+    "spacing": {
+      "contentMax": "1440px",
+      "pageGutter": "clamp(20px, 5vw, 80px)",
+      "section": "clamp(72px, 8vw, 120px)"
+    },
+    "radius": {
+      "control": "8px",
+      "card": "16px"
+    },
+    "shadows": {
+      "overlay": "0 24px 80px #0B1F3A26"
+    },
+    "motion": {
+      "ease": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "primaryMoment": "Layered hero name masks, centered suit portrait entrance, architectural background settlement and bounded depth motion",
+      "reducedMotion": "Respect prefers-reduced-motion; content remains available"
+    },
+    "density": "spacious with compact navigation and structured project facts"
+  },
+  "components": {
+    "installed": [
+      "Photo",
+      "Gallery",
+      "ProjectFacts",
+      "PaymentCalculator",
+      "ProjectMap",
+      "Modal",
+      "Shell"
+    ],
+    "preferredPrimitives": [
+      "Semantic HTML",
+      "Native details/summary",
+      "Radix Dialog"
+    ],
+    "patterns": [
+      "Horizontal desktop header",
+      "Mobile portrait poster with name, proposition, actions and bottom navigation",
+      "Centered suit portrait with monumental name and desktop text rails",
+      "Fictional generated editorial architecture behind the hero, separate from property imagery",
+      "Photography and data project dossier",
+      "Six-image gallery with loading and recovery states",
+      "Navy payment result",
+      "Reviewable contact inquiry"
+    ]
+  },
+  "constraints": {
+    "must": [
+      "Treat docs/design/DESIGN.md tokens as the source of truth",
+      "Publish only verified content",
+      "Build application inside app/",
+      "Preserve original assets and optimize derivatives",
+      "WCAG AA, keyboard navigation and reduced motion",
+      "Support Spanish, English, French and light/dark preferences",
+      "Responsive from 320px; PWA experience",
+      "Palette and layout decisions below are authored from docs/design/DESIGN.md and override generic auto-detected context."
+    ],
+    "avoid": [
+      "Invented project names, locations, prices, contacts or credentials",
+      "Publishing screenshots from ASSETS/references",
+      "Unlicensed code or imagery from reference websites",
+      "Unrelated brand names",
+      "Unrequested paid 21st generation; the user-authorized imagegen hero background has separate provenance"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "andris-modern-personal-portfolio",
+      "decision": "Independent advisor portfolio for Andris Peña. Predominantly white canvas; preserve the navy, blue and sand brand tokens. Use a compact horizontal header, original monogram and clear text identity. Control radius 8px, card radius 16px, content max 1440px. Theme preferences support light, dark and system.",
+      "createdAt": "2026-09-12",
+      "source": "User redesign request, DESIGN_SYSTEM.md and docs/design/DESIGN.md"
+    },
+    {
+      "id": "monumental-name-and-centered-portrait",
+      "decision": "Plus Jakarta Sans leads section headings, interface and body; heading weight 600. Cormorant Garamond 500 gives the hero name and proposition their editorial scale. The latest user reference supersedes the former split hero: a centered suit portrait separates a monumental ANDRIS behind it and PEÑA in front, with concise desktop text rails and actions. Mobile becomes a vertical portrait poster followed by proposition and actions. Concentrate entrance motion on name, portrait and architecture, with bounded scroll and fine-pointer depth; preserve reduced-motion access.",
+      "createdAt": "2026-09-12",
+      "source": "Latest user-provided hero reference, app/src/components/hero.tsx and hero.module.css"
+    },
+    {
+      "id": "project-dossier-and-application-flows",
+      "decision": "Publish only Melcon Paradise as a photography-and-facts dossier with a separate detail route, six-image gallery and confirmed map. Preserve the payment simulator with navy result, contact inquiry review, favorites, Spanish/English/French, mobile navigation and PWA. Photo exposes loading, error and context-appropriate retry states.",
+      "createdAt": "2026-09-12",
+      "source": "Verified project content and implemented components"
+    },
+    {
+      "id": "fictional-editorial-hero-atmosphere",
+      "decision": "The generated hero-atmosphere-v3.webp depicts fictional ivory and travertine coastal architecture with palm shadows and a side opening toward the sea. It is decorative editorial scenery, never evidence of Melcon Paradise or another listed property. The real Andris suit portrait remains a separate transparent asset; originals and generation provenance are preserved.",
+      "createdAt": "2026-09-12",
+      "source": "output/imagegen/hero-atmosphere-v3-provenance.md"
+    }
+  ],
+  "evidence": [
+    {
+      "fact": "project.instructions",
+      "source": "AGENTS.md"
+    },
+    {
+      "fact": "design.system",
+      "source": "DESIGN_SYSTEM.md"
+    },
+    {
+      "fact": "design.direction",
+      "source": "docs/design/DESIGN.md"
+    },
+    {
+      "fact": "design.skill-responsibilities",
+      "source": "docs/design/SKILLS.md"
+    },
+    {
+      "fact": "hero.generated-background-provenance",
+      "source": "output/imagegen/hero-atmosphere-v3-provenance.md"
+    },
+    {
+      "fact": "hero.21st-inspiration-metadata",
+      "source": "docs/design/SKILLS.md"
+    }
+  ],
+  "generatedAt": "2026-09-12T22:58:53Z"
+}

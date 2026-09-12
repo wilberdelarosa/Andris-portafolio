@@ -1,0 +1,622 @@
+/* Portrait, architecture and name share three deliberate planes of depth. */
+.hero {
+  --hero-paper: var(--color-surface-raised);
+  --hero-ink: var(--color-ink);
+  max-width: 1720px;
+  margin-inline: auto;
+  padding: 14px 24px 0;
+  position: relative;
+}
+.scene {
+  height: clamp(680px, calc(100svh - 175px), 820px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 12px;
+  color: var(--hero-ink);
+  background: var(--hero-paper);
+}
+.atmosphere {
+  position: absolute;
+  inset: -45px -30px;
+  pointer-events: none;
+}
+.backdrop {
+  object-fit: cover;
+  object-position: 50% 50%;
+  opacity: 0.79;
+}
+.light {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #fbf9f470, #fbf9f418 50%, #fbf9f42b),
+    linear-gradient(0deg, #f4f0e659, transparent 35%, #fbf9f452);
+  pointer-events: none;
+}
+.sceneTop {
+  position: absolute;
+  z-index: 6;
+  inset: 28px 42px auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+}
+.location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.name {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.025em;
+}
+.firstName {
+  position: absolute;
+  top: 64px;
+  left: 5%;
+  width: 90%;
+  text-align: center;
+  font-size: clamp(170px, 19.2vw, 315px);
+  text-transform: uppercase;
+  z-index: 2;
+  overflow: hidden;
+  padding-block: 0.055em 0.09em;
+}
+.firstName > span,
+.lastName > span {
+  display: block;
+}
+.lastName {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 88px;
+  transform: translateX(-50%);
+  font-size: clamp(112px, 10.2vw, 166px);
+  color: var(--on-ink);
+  text-shadow: 0 2px 20px #0b1f3a30;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  overflow: hidden;
+  padding: 0.16em 0.05em 0.06em;
+}
+.portraitDepth {
+  position: absolute;
+  z-index: 3;
+  height: calc(100% - 92px);
+  bottom: -56px;
+  left: 50%;
+  width: 480px;
+  margin-left: -240px;
+  pointer-events: none;
+}
+.portrait,
+.portraitEntrance {
+  position: absolute;
+  inset: 0;
+}
+.portraitEntrance img {
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(12px 8px 22px #0b1f3a13);
+}
+.intro {
+  position: absolute;
+  z-index: 6;
+  top: 47%;
+  left: 42px;
+  width: min(23%, 310px);
+}
+.promise {
+  color: var(--hero-ink);
+  font-family: var(--serif);
+  font-size: clamp(29px, 2.6vw, 42px);
+  line-height: 1.13;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+.explore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 23px;
+  min-height: 54px;
+  padding: 5px 6px 5px 21px;
+  background: var(--hero-ink);
+  color: var(--hero-paper);
+  border-radius: 40px;
+  margin-top: 29px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.buttonArrow {
+  display: grid;
+  place-items: center;
+  height: 42px;
+  width: 42px;
+  border: 1px solid #fbf9f44d;
+  border-radius: 50%;
+  transition:
+    transform 0.3s var(--ease),
+    background 0.3s;
+}
+.advice {
+  position: absolute;
+  z-index: 6;
+  right: 42px;
+  top: 49%;
+  width: min(19%, 245px);
+}
+.smallRule {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: var(--hero-ink);
+  margin-bottom: 22px;
+}
+.advice p {
+  color: var(--hero-ink);
+  font-size: 14px;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+.meet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  font-size: 12px;
+  font-weight: 600;
+  min-height: 48px;
+  margin-top: 15px;
+}
+.meet svg,
+.conversation svg,
+.projectLink > svg {
+  transition: transform 0.3s var(--ease);
+}
+.conversation {
+  position: absolute;
+  z-index: 6;
+  left: 42px;
+  bottom: 37px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 44px;
+  font-size: 12px;
+}
+.scroll {
+  position: absolute;
+  z-index: 6;
+  right: 42px;
+  bottom: 35px;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #0b1f3a42;
+  border-radius: 50%;
+}
+.scroll svg {
+  transition: transform 0.3s var(--ease);
+}
+.afterword {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px 20px 0;
+}
+.afterword > p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.projectLink {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 3px;
+}
+.projectPhoto {
+  display: block;
+  width: 74px;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.projectPhoto img {
+  object-fit: cover;
+  transition: transform 0.45s var(--ease);
+}
+.projectLink > span:nth-child(2) {
+  display: grid;
+  gap: 1px;
+}
+.projectLink small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.projectLink strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.projectLink > svg {
+  margin-left: 8px;
+}
+:global([data-theme="dark"]) .hero {
+  --hero-paper: var(--color-ink);
+  --hero-ink: var(--on-ink);
+}
+:global([data-theme="dark"]) .backdrop {
+  opacity: 0.24;
+}
+:global([data-theme="dark"]) .light {
+  background:
+    linear-gradient(90deg, #0b1f3ab8, #0b1f3a52 50%, #0b1f3aa3),
+    linear-gradient(0deg, #0b1f3a70, transparent 40%);
+}
+:global([data-theme="dark"]) .buttonArrow {
+  border-color: #0b1f3a40;
+}
+:global([data-theme="dark"]) .scroll {
+  border-color: #fbf9f46b;
+}
+@keyframes nameEnter {
+  from {
+    transform: translateY(112%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes portraitEnter {
+  from {
+    transform: translateY(65px) scale(1.025);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes sceneEnter {
+  from {
+    transform: scale(1.075);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes copyEnter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .backdrop {
+    animation: sceneEnter 2.4s var(--ease) backwards;
+  }
+  .firstName > span {
+    animation: nameEnter 1.05s 0.05s var(--ease) backwards;
+  }
+  .portraitEntrance {
+    animation: portraitEnter 1.15s 0.14s var(--ease) backwards;
+  }
+  .lastName > span {
+    animation: nameEnter 1s 0.27s var(--ease) backwards;
+  }
+  .intro,
+  .advice {
+    animation: copyEnter 0.76s 0.35s var(--ease) backwards;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .explore:hover .buttonArrow {
+    transform: rotate(45deg);
+    background: #fbf9f421;
+  }
+  .meet:hover svg,
+  .conversation:hover svg,
+  .projectLink:hover > svg {
+    transform: translate(3px, -3px);
+  }
+  .scroll:hover {
+    background: var(--hero-ink);
+    color: var(--hero-paper);
+  }
+  .scroll:hover svg {
+    transform: translateY(3px);
+  }
+  .projectLink:hover img {
+    transform: scale(1.08);
+  }
+}
+@media (max-width: 1190px) {
+  .scene {
+    height: 700px;
+  }
+  .firstName {
+    top: 85px;
+    font-size: 20vw;
+  }
+  .intro {
+    left: 32px;
+    width: 24%;
+    top: 44%;
+  }
+  .advice {
+    right: 32px;
+    width: 20%;
+    top: 46%;
+  }
+  .advice p {
+    font-size: 13px;
+  }
+  .promise {
+    font-size: 33px;
+  }
+  .explore {
+    gap: 12px;
+    padding-left: 16px;
+    font-size: 11px;
+  }
+  .portraitDepth {
+    height: 560px;
+    width: 360px;
+    margin-left: -180px;
+    bottom: -28px;
+  }
+  .lastName {
+    font-size: 125px;
+    bottom: 57px;
+  }
+}
+@media (max-width: 1020px) and (min-width: 761px) {
+  .hero {
+    padding-inline: 16px;
+  }
+  .scene {
+    height: 660px;
+  }
+  .sceneTop {
+    inset-inline: 25px;
+  }
+  .firstName {
+    font-size: 21vw;
+    top: 76px;
+  }
+  .portraitDepth {
+    width: 330px;
+    height: 542px;
+    margin-left: -165px;
+    bottom: -32px;
+  }
+  .intro {
+    left: 25px;
+    top: 44%;
+    width: 23%;
+  }
+  .promise {
+    font-size: 29px;
+  }
+  .advice {
+    width: 21%;
+    right: 25px;
+    top: 45%;
+  }
+  .advice p {
+    font-size: 12px;
+  }
+  .explore {
+    gap: 9px;
+    font-size: 10px;
+    padding-left: 13px;
+  }
+  .buttonArrow {
+    width: 30px;
+    height: 38px;
+    border: 0;
+  }
+  .lastName {
+    font-size: 112px;
+    bottom: 61px;
+  }
+  .conversation {
+    left: 25px;
+  }
+  .scroll {
+    right: 25px;
+    width: 54px;
+    height: 54px;
+  }
+}
+@media (max-width: 760px) {
+  .hero {
+    padding: 6px 12px 0;
+  }
+  .scene {
+    height: auto;
+    min-height: 0;
+    padding: 22px 22px 26px;
+    border-radius: 9px;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .sceneTop {
+    position: relative;
+    inset: auto;
+    font-size: 10px;
+    letter-spacing: 0.025em;
+    justify-content: center;
+  }
+  .location {
+    display: none;
+  }
+  .name {
+    height: 455px;
+    position: relative;
+    inset: auto;
+    margin-inline: -15px;
+  }
+  .firstName {
+    top: 20px;
+    left: 0;
+    width: 100%;
+    font-size: clamp(72px, 21.8vw, 154px);
+  }
+  .lastName {
+    bottom: 21px;
+    font-size: 98px;
+  }
+  .portraitDepth {
+    width: 270px;
+    height: 443px;
+    margin-left: -135px;
+    top: 138px;
+    bottom: auto;
+    mask-image: linear-gradient(#000 76%, transparent 100%);
+    transform: none !important;
+  }
+  .portraitEntrance img {
+    object-position: center top;
+  }
+  .intro {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    text-align: center;
+    z-index: 6;
+    padding-top: 32px;
+  }
+  .intro::before {
+    content: "";
+    position: absolute;
+    inset: 0 -24px -140px;
+    z-index: -1;
+    background: linear-gradient(transparent, var(--hero-paper) 28px);
+  }
+  .promise {
+    font-size: clamp(29px, 6vw, 37px);
+    max-width: 390px;
+    margin-inline: auto;
+    line-height: 1.1;
+  }
+  .explore {
+    min-height: 54px;
+    font-size: 12px;
+    padding-left: 22px;
+    gap: 26px;
+    margin-top: 22px;
+  }
+  .buttonArrow {
+    width: 42px;
+    height: 42px;
+  }
+  .advice {
+    position: relative;
+    inset: auto;
+    width: auto;
+    text-align: center;
+    margin-top: 8px;
+  }
+  .advice p,
+  .smallRule {
+    display: none;
+  }
+  .meet {
+    margin-top: 0;
+    min-height: 44px;
+    font-size: 11px;
+  }
+  .conversation,
+  .scroll {
+    display: none;
+  }
+  .afterword {
+    padding: 22px 10px 0;
+    justify-content: center;
+  }
+  .afterword > p {
+    display: none;
+  }
+  .projectLink {
+    width: 100%;
+    justify-content: center;
+    gap: 13px;
+  }
+  .projectPhoto {
+    width: 65px;
+    height: 45px;
+  }
+  .projectLink > svg {
+    margin-left: auto;
+  }
+  .backdrop {
+    object-position: 82% 50%;
+    opacity: 0.65;
+  }
+  .light {
+    background: linear-gradient(0deg, #fbf9f4 6%, #fbf9f400 60%, #fbf9f447);
+  }
+  :global([data-theme="dark"]) .light {
+    background: linear-gradient(0deg, #0b1f3a 4%, #0b1f3a3b 65%, #0b1f3a75);
+  }
+}
+@media (min-width: 500px) and (max-width: 760px) {
+  .name {
+    height: 530px;
+  }
+  .portraitDepth {
+    width: 305px;
+    height: 501px;
+    margin-left: -152.5px;
+    top: 160px;
+  }
+  .lastName {
+    font-size: 114px;
+  }
+  .afterword {
+    max-width: 470px;
+    margin-inline: auto;
+  }
+}
+@media (max-width: 374px) {
+  .hero {
+    padding-inline: 8px;
+  }
+  .scene {
+    padding-inline: 18px;
+  }
+  .name {
+    height: 416px;
+  }
+  .portraitDepth {
+    width: 246px;
+    height: 404px;
+    margin-left: -123px;
+    top: 128px;
+  }
+  .lastName {
+    font-size: 88px;
+  }
+  .promise {
+    font-size: 28px;
+  }
+}
