@@ -134,7 +134,7 @@ const es = {
   emailPlaceholder: "tu@correo.com",
   interest: "Me interesa",
   interests: [
-    "Conocer Melcon Paradise",
+    "Conocer un proyecto",
     "Mi primera propiedad",
     "Una segunda residencia",
     "Explorar una inversión",
@@ -521,7 +521,7 @@ const fr: Copy = {
   emailPlaceholder: "vous@email.com",
   interest: "Je m’intéresse à",
   interests: [
-    "Découvrir Melcon Paradise",
+    "Découvrir un projet",
     "Mon premier bien",
     "Une résidence secondaire",
     "Explorer un investissement",

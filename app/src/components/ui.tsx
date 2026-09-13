@@ -5,24 +5,75 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X, ArrowUpRight, ArrowRight } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "motion/react";
 import { useExperience } from "./experience-provider";
+import { useScrollDirection } from "./premium-motion";
 
+/**
+ * Entrada al aparecer en pantalla.
+ *
+ * Se usa en casi todas las secciones, asi que marca el pulso de la pagina
+ * entera. Anima solo `transform` y `opacity`, y `blur` solo cuando se pide:
+ * el desenfoque obliga a repintar y no conviene tenerlo en todas partes.
+ *
+ * Responde en los dos sentidos. Al bajar el bloque llega desde abajo; al subir,
+ * desde arriba, de modo que el movimiento acompaña al gesto. Para un bloque que
+ * deba entrar una sola vez, se pasa `once`.
+ */
 export function Reveal({
   children,
   className = "",
   delay = 0,
+  from = "auto",
+  distance = 34,
+  blur = false,
+  amount = 0.15,
+  once = false,
 }: {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  from?: "auto" | "bottom" | "left" | "right" | "scale";
+  distance?: number;
+  blur?: boolean;
+  amount?: number;
+  once?: boolean;
 }) {
   const reduced = useReducedMotion();
+  const direction = useScrollDirection();
+
+  const hidden = (dir: "down" | "up") => {
+    if (from === "left") return { opacity: 0, x: -distance, y: 0, scale: 1 };
+    if (from === "right") return { opacity: 0, x: distance, y: 0, scale: 1 };
+    if (from === "scale") return { opacity: 0, x: 0, y: 0, scale: 0.94 };
+    // `auto`: el signo del desplazamiento lo marca el sentido del scroll.
+    const sign = from === "bottom" ? 1 : dir === "up" ? -1 : 1;
+    return { opacity: 0, x: 0, y: distance * sign, scale: 1 };
+  };
+
   return (
     <motion.div
       className={className}
-      initial={false}
-      whileInView={reduced ? {} : { opacity: [0.85, 1] }}
-      viewport={{ once: true, amount: 0.08 }}
-      transition={{ duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] }}
+      custom={direction}
+      initial={reduced ? false : "hidden"}
+      whileInView="shown"
+      viewport={{ once, amount, margin: "0px 0px -40px 0px" }}
+      variants={{
+        hidden: (dir: "down" | "up") => ({
+          ...hidden(dir),
+          ...(blur ? { filter: "blur(10px)" } : {}),
+        }),
+        shown: {
+          opacity: 1,
+          x: 0,
+          y: 0,
+          scale: 1,
+          ...(blur ? { filter: "blur(0px)" } : {}),
+          transition: {
+            duration: reduced ? 0 : 0.9,
+            delay: reduced ? 0 : delay,
+            ease: [0.16, 1, 0.3, 1],
+          },
+        },
+      }}
     >
       {children}
     </motion.div>

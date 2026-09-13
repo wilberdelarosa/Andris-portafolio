@@ -1,0 +1,41 @@
+.project-showcase { padding-top: clamp(64px, 7vw, 104px); }
+.showcase-heading { display: flex; align-items: end; justify-content: space-between; gap: 40px; margin-bottom: 38px; }
+.showcase-heading h2 { max-width: 650px; }
+.showcase-heading p { max-width: 530px; margin-top: 20px; font-size: 16px; line-height: 1.7; text-wrap: pretty; }
+.showcase-heading > a { flex-shrink: 0; min-height: 44px; }
+.showcase-layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 28px; }
+.showcase-stage { min-width: 0; }
+.showcase-picker { display: flex; flex-direction: column; }
+.showcase-picker-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px 26px; font-size: 13px; color: var(--muted); }
+.showcase-picker-head > span:last-child { font-variant-numeric: tabular-nums; }
+.showcase-options { display: grid; gap: 12px; }
+.showcase-option { display: grid; grid-template-columns: 82px 1fr auto; gap: 16px; padding: 12px; align-items: center; text-align: left; border-radius: 12px; border: 1px solid var(--line); min-width: 0; background: var(--paper); }
+.showcase-option[aria-pressed="true"] { background: var(--soft); border-color: var(--color-sand-deep); }
+.showcase-option > .photo { width: 82px; height: 94px; border-radius: 7px; overflow: hidden; }
+.showcase-option small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 7px; }
+.showcase-option strong { display: block; font-size: 14px; font-weight: 600; line-height: 1.5; }
+.showcase-option > svg { opacity: 0; }
+.showcase-option[aria-pressed="true"] > svg { opacity: 1; }
+.showcase-navigation { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 24px; }
+.showcase-progress { display: flex; flex: 1; gap: 5px; }
+.showcase-progress span { flex: 1; height: 2px; background: var(--line); }
+.showcase-progress .is-active { background: var(--text); }
+.showcase-map-link { display: flex; gap: 14px; align-items: center; margin-top: auto; padding: 25px 0 6px; border-top: 1px solid var(--line); font-size: 14px; }
+.showcase-map-link > span { flex: 1; }
+@media (max-width: 1100px) { .showcase-layout { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; } .showcase-option { grid-template-columns: 60px 1fr; gap: 12px; } .showcase-option > .photo { width: 60px; height: 78px; } .showcase-option > svg { display: none; } }
+@media (max-width: 760px) {
+  .showcase-heading { display: block; }
+  .showcase-heading p { font-size: 15px; }
+  .showcase-heading > a { margin-top: 18px; }
+  .showcase-layout { grid-template-columns: 1fr; gap: 22px; }
+  .showcase-picker-head { padding: 0 0 14px; }
+  .showcase-options { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; padding: 2px 2px 12px; }
+  .showcase-option { flex: 0 0 230px; scroll-snap-align: start; }
+  .showcase-option > .photo { height: 60px; }
+  .showcase-option strong { font-size: 13px; }
+  .showcase-navigation { margin-top: 8px; }
+  .showcase-map-link { margin-top: 22px; padding-top: 20px; }
+}
+/* Flexible children must not force a carousel track wider than its grid cell. */
+.showcase-picker, .showcase-options { min-width: 0; max-width: 100%; }
+@media (max-width: 760px) { .showcase-layout { grid-template-columns: minmax(0, 1fr); } }

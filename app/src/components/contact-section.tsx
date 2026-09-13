@@ -12,9 +12,15 @@ import { useExperience } from "./experience-provider";
 import { Modal, Reveal, downloadText } from "./ui";
 import { designCopy } from "@/content/design-copy";
 import { advisor } from "@/content/advisor";
+import { getPublishedProjects } from "@/content/projects";
+import { journeyCopy } from "@/content/journey-copy";
+import { EditorialTitle, DecorativeLayer } from "./premium-motion";
+import { editorialAccents } from "@/content/editorial-accents";
 
-export function ContactSection() {
+export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
   const { t, locale } = useExperience();
+  const j = journeyCopy[locale];
+  const projects = getPublishedProjects();
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);
   const [privacy, setPrivacy] = useState(false);
@@ -26,13 +32,14 @@ export function ContactSection() {
     const data = new FormData(event.currentTarget);
     setCopied(false);
     setSummary(
-      `Andris Peña | ${t.portfolio}\n\n${t.name}: ${String(data.get("name")).trim()}\n${t.email}: ${String(data.get("email")).trim()}\n${t.interest}: ${data.get("interest")}\n${t.message}: ${String(data.get("message")).trim() || "—"}`,
+      `Andris Peña | ${t.portfolio}\n\n${t.name}: ${String(data.get("name")).trim()}\n${t.email}: ${String(data.get("email")).trim()}\n${j.projectField}: ${data.get("project")}\n${t.interest}: ${data.get("interest")}\n${t.message}: ${String(data.get("message")).trim() || "—"}`,
     );
   };
   return (
     <section className="section contact-section" id="contacto">
+      <DecorativeLayer/>
       <Reveal className="contact-copy">
-        <h2>{designCopy[locale].contactTitle}</h2>
+        <EditorialTitle text={designCopy[locale].contactTitle} accent={editorialAccents[locale].contactPage}/>
         <p>{t.contactIntro}</p>
         <div className="direct-contact">
           <p>{designCopy[locale].contactDirect}</p>
@@ -81,6 +88,13 @@ export function ContactSection() {
               />
             </label>
           </div>
+          <label>
+            {j.projectField}
+            <select name="project" defaultValue={projects.find((p) => p.slug === projectSlug)?.name ?? ""}>
+              <option value="">{j.general}</option>
+              {projects.map((project) => <option key={project.slug} value={project.name}>{project.name}</option>)}
+            </select>
+          </label>
           <label>
             {t.interest}
             <select name="interest">

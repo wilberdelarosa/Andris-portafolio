@@ -53,7 +53,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    /*
+     * `data-scroll-behavior` es necesario desde Next 16: sin el, el
+     * `scroll-behavior: smooth` global se aplica tambien al cambiar de ruta y
+     * la navegacion se siente lenta en lugar de instantanea.
+     */
+    <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/*
+          Se ejecuta antes de pintar: si la intro ya se vio en esta sesion, la
+          cortina no llega a mostrarse y la pagina entra sin retardo. Hacerlo
+          desde React llegaria tarde y se veria un destello.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('ap-intro-seen'))document.documentElement.dataset.intro='skip'}catch(e){}",
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

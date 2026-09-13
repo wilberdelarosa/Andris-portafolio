@@ -1,5 +1,5 @@
 /* Only same-origin public documents and immutable presentation assets are cached. */
-const VERSION = "ap-v4";
+const VERSION = "ap-v6";
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const PAGES = `${VERSION}-pages`;

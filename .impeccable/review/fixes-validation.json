@@ -1,0 +1,44 @@
+[
+  "home-desktop: labels/overflow checked",
+  "about-desktop: labels/overflow checked",
+  "map-desktop: labels/overflow checked",
+  "home-mobile: labels/overflow checked",
+  "about-mobile: labels/overflow checked",
+  "map-mobile: labels/overflow checked",
+  {
+    "name": "showcase",
+    "theme": "light",
+    "style": {
+      "outline": "rgb(11, 31, 58)",
+      "bg": "rgb(251, 249, 244)",
+      "width": "2px"
+    }
+  },
+  {
+    "name": "catalog",
+    "theme": "light",
+    "style": {
+      "outline": "rgb(11, 31, 58)",
+      "bg": "rgb(251, 249, 244)",
+      "width": "2px"
+    }
+  },
+  {
+    "name": "showcase",
+    "theme": "dark",
+    "style": {
+      "outline": "rgb(11, 31, 58)",
+      "bg": "rgb(251, 249, 244)",
+      "width": "2px"
+    }
+  },
+  {
+    "name": "catalog",
+    "theme": "dark",
+    "style": {
+      "outline": "rgb(11, 31, 58)",
+      "bg": "rgb(251, 249, 244)",
+      "width": "2px"
+    }
+  }
+]

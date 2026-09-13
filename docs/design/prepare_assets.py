@@ -82,6 +82,35 @@ for source, filename in projects:
     if filename in ('melcon-hero.webp','melcon-pool.webp','melcon-gardens.webp','melcon-living.webp'):
         export(PREFIX+source,filename.replace('.webp','-small.webp'),(640,640),quality=80)
 
+# The two project folders below were supplied by the client. Their originals stay
+# untouched; these public derivatives make the verified project cards and galleries
+# performant without claiming commercial data that has not been confirmed.
+TERRA_PREFIX='ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at '
+terra = [
+    ('11.13.58 PM (2).jpeg','terra-serena-hero.webp'),
+    ('11.13.58 PM (3).jpeg','terra-serena-pool.webp'),
+    ('11.13.58 PM.jpeg','terra-serena-aerial.webp'),
+    ('11.13.59 PM (2).jpeg','terra-serena-living.webp'),
+    ('11.13.59 PM (6).jpeg','terra-serena-bedroom.webp'),
+]
+for source, filename in terra:
+    export(TERRA_PREFIX+source,filename,(1200,1200),quality=84)
+    if filename == 'terra-serena-hero.webp':
+        export(TERRA_PREFIX+source,'terra-serena-hero-small.webp',(640,640),quality=80)
+
+BEACH_PREFIX='ASSETS/projects/project-03-unidentified/'
+beach = [
+    ('IMG01.jpeg','the-beach-hero.webp'),
+    ('WhatsApp Image 2026-09-10 at 11.27.50 PM (1).jpeg','the-beach-pool.webp'),
+    ('WhatsApp Image 2026-09-10 at 11.27.50 PM (2).jpeg','the-beach-terrace.webp'),
+    ('WhatsApp Image 2026-09-10 at 11.27.51 PM (2).jpeg','the-beach-living.webp'),
+    ('WhatsApp Image 2026-09-10 at 11.27.51 PM (6).jpeg','the-beach-bedroom.webp'),
+]
+for source, filename in beach:
+    export(BEACH_PREFIX+source,filename,(1200,1200),quality=84)
+    if filename == 'the-beach-hero.webp':
+        export(BEACH_PREFIX+source,'the-beach-hero-small.webp',(640,640),quality=80)
+
 (ROOT / 'docs/design/asset-contact-sheets/derivatives.json').write_text(json.dumps(records,ensure_ascii=False,indent=2),encoding='utf-8')
 print(f'{len(records)} derivatives; {sum(r["bytes"] for r in records)/1024/1024:.2f} MiB total.')
 for r in records: print(r['output'],r['dimensions'],round(r['bytes']/1024,1),'KiB')

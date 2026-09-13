@@ -1,11 +1,15 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { getPublishedProjects } from "@/content/projects";
+import { journeyCopy } from "@/content/journey-copy";
 import {
   House,
   SquaresFour,
   User,
+  MapPin,
   Calculator,
   ArrowUpRight,
   Sun,
@@ -21,45 +25,49 @@ import {
 } from "@phosphor-icons/react";
 import { useExperience, type Theme } from "./experience-provider";
 import { Modal } from "./ui";
+import "./journey.css";
+import { ReadingProgress } from "./premium-motion";
 import { advisor } from "@/content/advisor";
 import { InstallButton, PwaManager } from "./pwa-manager";
+import { IntroCurtain } from "./intro-curtain";
+import { SmoothScroll } from "./smooth-scroll";
 import type { Locale } from "@/content/projects";
 
-const sections = ["inicio", "proyectos", "sobre-mi", "inversion", "contacto"];
-const icons = [House, SquaresFour, User, Calculator, WhatsappLogo];
+
 export function Shell({
   children,
-  detail = false,
+  bare = false,
 }: {
   children: React.ReactNode;
   detail?: boolean;
+  /** Retira el pie de pagina: para rutas donde el contenido llena la pantalla. */
+  bare?: boolean;
 }) {
-  const { t, locale, setLocale, theme, setTheme, saved, reset, offline } =
+  const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline } =
     useExperience();
-  const [active, setActive] = useState(detail ? "proyectos" : "inicio");
+  const pathname = usePathname();
+  const j = journeyCopy[locale];
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const navigation = [
+    { path: "/", label: t.nav[0], icon: House },
+    { path: "/proyectos", label: t.nav[1], icon: SquaresFour },
+    { path: "/mapa", label: j.mapView, icon: MapPin },
+    { path: "/sobre-mi", label: t.nav[2], icon: User },
+    { path: "/calculadora", label: t.nav[3], icon: Calculator },
+    { path: "/contacto", label: t.talk, icon: WhatsappLogo },
+  ];
+  const savedProjects = getPublishedProjects().filter((p) => savedSlugs.includes(p.slug));
+  const isActive = (path: string) => path === "/" ? pathname === "/" : pathname.startsWith(path);
   const [settings, setSettings] = useState(false);
   const [favorites, setFavorites] = useState(false);
   const [privacy, setPrivacy] = useState(false);
   const [menu, setMenu] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries)
-          if (entry.isIntersecting) setActive(entry.target.id);
-      },
-      { rootMargin: "-10% 0px -65% 0px", threshold: 0 },
-    );
-    sections.forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-    return () => observer.disconnect();
-  }, []);
-  const href = (section: string) =>
-    detail ? `/?lang=${locale}#${section}` : `#${section}`;
   return (
     <>
       <PwaManager />
+      <ReadingProgress/>
+      <IntroCurtain />
+      <SmoothScroll />
       <a className="skip-link" href="#main-content">
         {t.skip}
       </a>
@@ -95,15 +103,8 @@ export function Shell({
           </span>
         </Link>
         <nav className="desktop-nav" aria-label={t.portfolio}>
-          {sections.slice(0, 4).map((section, index) => (
-            <a
-              key={section}
-              href={href(section)}
-              className={active === section ? "active" : ""}
-              aria-current={active === section ? "location" : undefined}
-            >
-              {t.nav[index]}
-            </a>
+          {navigation.slice(0, 5).map((item) => (
+            <Link key={item.path} href={`${item.path}?lang=${locale}`} className={isActive(item.path) ? "active" : ""} aria-current={isActive(item.path) ? "page" : undefined}>{item.label}</Link>
           ))}
         </nav>
         <div className="header-actions">
@@ -133,11 +134,12 @@ export function Shell({
           >
             <SlidersHorizontal size={20} />
           </button>
-          <a className="header-contact" href={href("contacto")}>
+          <Link className="header-contact" href={`/contacto?lang=${locale}`}>
             {t.talk}
             <ArrowUpRight size={17} />
-          </a>
+          </Link>
           <button
+            ref={menuButton}
             className="icon-button mobile-menu"
             onClick={() => setMenu(!menu)}
             aria-label={menu ? t.close : t.portfolio}
@@ -148,40 +150,27 @@ export function Shell({
           </button>
         </div>
       </header>
-      {menu && (
-        <nav
-          id="mobile-navigation"
-          className="mobile-expanded-nav"
-          aria-label={t.portfolio}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") setMenu(false);
-          }}
-        >
-          {sections.map((section, index) => (
-            <a
-              key={section}
-              onClick={() => setMenu(false)}
-              href={href(section)}
-              aria-current={active === section ? "location" : undefined}
-            >
-              {t.nav[index]}
-              <ArrowUpRight size={19} />
-            </a>
-          ))}
+      <Modal open={menu} onOpenChange={setMenu} title={t.portfolio} className="navigation-dialog">
+        <nav id="mobile-navigation" className="navigation-links" aria-label={t.portfolio}>
+          {navigation.map((item) => <Link key={item.path} href={`${item.path}?lang=${locale}`} onClick={() => setMenu(false)} aria-current={isActive(item.path) ? "page" : undefined}>{item.label}<ArrowUpRight size={22}/></Link>)}
+          <button type="button" onClick={() => { setMenu(false); setFavorites(true); }}>{t.favorites}<Heart size={22}/></button>
         </nav>
-      )}
+      </Modal>
       <div className="page-shell">
         {offline && (
           <div className="offline-banner" role="status">
             {t.offline}
           </div>
         )}
-        <main id="main-content">{children}</main>
+        <main id="main-content" data-bare={bare ? "true" : undefined}>
+          {children}
+        </main>
+        {bare ? null : <>
         <footer className="footer">
           <div className="footer-top">
             <span className="footer-title">{t.footerNote}</span>
             <a
-              href={href("inicio")}
+              href={`/?lang=${locale}`}
               className="icon-button"
               aria-label={t.home}
             >
@@ -210,24 +199,15 @@ export function Shell({
             <button onClick={() => setSettings(true)}>{t.settings}</button>
           </div>
         </footer>
+        </>}
       </div>
       <nav className="mobile-dock" aria-label={t.portfolio}>
-        {[0, 1, 3, 4].map((i) => {
-          const Icon = icons[i];
-          return (
-            <a
-              key={sections[i]}
-              href={href(sections[i])}
-              aria-current={active === sections[i] ? "location" : undefined}
-              className={active === sections[i] ? "active" : ""}
-            >
-              <Icon
-                size={22}
-                weight={active === sections[i] ? "fill" : "regular"}
-              />
-              <span>{t.nav[i]}</span>
-            </a>
-          );
+        {[0, 1, 2, 5].map((i) => {
+          const item = navigation[i];
+          const Icon = item.icon;
+          return <Link key={item.path} href={`${item.path}?lang=${locale}`} aria-current={isActive(item.path) ? "page" : undefined} className={isActive(item.path) ? "active" : ""}>
+            <Icon size={22} weight={isActive(item.path) ? "fill" : "regular"}/><span>{item.label}</span>
+          </Link>;
         })}
       </nav>
       <Modal open={settings} onOpenChange={setSettings} title={t.settings}>
@@ -268,7 +248,7 @@ export function Shell({
               setFavorites(true);
             }}
           >
-            <Heart size={21} weight={saved ? "fill" : "regular"} />
+            <Heart size={21} weight={savedProjects.length ? "fill" : "regular"} />
             <span>{t.favorites}</span>
             <ArrowUpRight size={19} />
           </button>
@@ -282,27 +262,12 @@ export function Shell({
         </button>
       </Modal>
       <Modal open={favorites} onOpenChange={setFavorites} title={t.favorites}>
-        {saved ? (
-          <Link
-            className="saved-project"
-            onClick={() => setFavorites(false)}
-            href={`/proyectos/melcon-paradise?lang=${locale}`}
-          >
-            <Image
-              src="/derived/melcon-hero-small.webp"
-              alt="Melcon Paradise"
-              width={110}
-              height={80}
-            />
-            <span>
-              <strong>Melcon Paradise</strong>
-              <small>Vista Cana · Punta Cana</small>
-            </span>
-            <ArrowUpRight size={20} />
+        {savedProjects.length ? savedProjects.map((project) => (
+          <Link key={project.slug} className="saved-project" onClick={() => setFavorites(false)} href={`/proyectos/${project.slug}?lang=${locale}`}>
+            <Image src={project.hero} alt="" width={90} height={76}/>
+            <span><strong>{project.name}</strong><small>{project.location}</small></span><ArrowUpRight size={20}/>
           </Link>
-        ) : (
-          <p>{t.savedEmpty}</p>
-        )}
+        )) : <div className="saved-empty"><Heart size={32} weight="light"/><p>{j.noSaved}</p><p>{j.saveHint}</p><Link className="button button-primary" href={`/proyectos?lang=${locale}`} onClick={() => setFavorites(false)}>{j.all}<ArrowUpRight size={18}/></Link></div>}
       </Modal>
       <Modal
         open={privacy}

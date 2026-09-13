@@ -6,10 +6,12 @@ import {
   Info,
 } from "@phosphor-icons/react";
 import { designCopy } from "@/content/design-copy";
+import { EditorialTitle } from "./premium-motion";
+import { editorialAccents } from "@/content/editorial-accents";
 import { calculatePayment } from "@/lib/payment";
 import { localeTags } from "@/content/copy";
 import { useExperience } from "./experience-provider";
-import { SectionTitle, Reveal, downloadText } from "./ui";
+import { Reveal, downloadText } from "./ui";
 
 export function PaymentCalculator() {
   const { t, locale } = useExperience();
@@ -56,10 +58,7 @@ export function PaymentCalculator() {
   };
   return (
     <section id="inversion" className="section calculator-section">
-      <SectionTitle
-        title={designCopy[locale].calcTitle}
-        description={t.calcIntro}
-      />
+      <div className="section-heading"><EditorialTitle text={designCopy[locale].calcTitle} accent={editorialAccents[locale].calculator}/><p className="section-description">{t.calcIntro}</p></div>
       <Reveal className="calculator">
         <div className="calculator-controls">
           <div className="calculator-top">

@@ -16,13 +16,19 @@ interface Experience {
   setLocale: (value: Locale) => void;
   theme: Theme;
   setTheme: (value: Theme) => void;
+  /** Compatibilidad: equivale a tener guardado Melcon Paradise. */
   saved: boolean;
   toggleSaved: () => void;
+  savedSlugs: string[];
+  isSaved: (slug: string) => boolean;
+  toggleSlug: (slug: string) => void;
   reset: () => void;
   offline: boolean;
   t: typeof dictionaries.es;
 }
 const Context = createContext<Experience | null>(null);
+/** Unico proyecto que podia guardarse antes de que los favoritos fueran por ficha. */
+const LEGACY_SLUG = "melcon-paradise";
 const persist = (key: string, value: string) => {
   try {
     localStorage.setItem(`ap-${key}`, value);
@@ -39,7 +45,7 @@ export function ExperienceProvider({
 }) {
   const [locale, updateLocale] = useState<Locale>(initialLocale);
   const [theme, updateTheme] = useState<Theme>("light");
-  const [saved, updateSaved] = useState(false);
+  const [savedSlugs, updateSavedSlugs] = useState<string[]>([]);
   const [offline, setOffline] = useState(false);
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- One post-hydration synchronization with browser storage; SSR must use the supplied locale and avoid reading window. */
@@ -58,7 +64,14 @@ export function ExperienceProvider({
         appearance === "system"
       )
         updateTheme(appearance);
-      updateSaved(localStorage.getItem("ap-saved") === "true");
+      const storedSlugs = localStorage.getItem("ap-saved-slugs");
+      if (storedSlugs) {
+        const parsed: unknown = JSON.parse(storedSlugs);
+        if (Array.isArray(parsed)) updateSavedSlugs(parsed.filter((item) => typeof item === "string"));
+      } else if (localStorage.getItem("ap-saved") === "true") {
+        // Migracion del favorito unico anterior, que solo podia ser Melcon.
+        updateSavedSlugs([LEGACY_SLUG]);
+      }
     } catch {
       /* Default preferences remain fully usable. */
     }
@@ -114,18 +127,25 @@ export function ExperienceProvider({
     updateTheme(value);
     persist("theme", value);
   }, []);
-  const toggleSaved = useCallback(
-    () =>
-      updateSaved((previous) => {
-        persist("saved", String(!previous));
-        return !previous;
-      }),
-    [],
-  );
+  const toggleSlug = useCallback((slug: string) => {
+    updateSavedSlugs((previous) => {
+      const next = previous.includes(slug)
+        ? previous.filter((item) => item !== slug)
+        : [...previous, slug];
+      persist("saved-slugs", JSON.stringify(next));
+      // Se mantiene la clave antigua para no romper una sesion ya abierta.
+      persist("saved", String(next.includes(LEGACY_SLUG)));
+      return next;
+    });
+  }, []);
+  const isSaved = useCallback((slug: string) => savedSlugs.includes(slug), [savedSlugs]);
+  const toggleSaved = useCallback(() => toggleSlug(LEGACY_SLUG), [toggleSlug]);
+  const saved = savedSlugs.includes(LEGACY_SLUG);
   const reset = () => {
     setLocale("es");
     setTheme("light");
-    updateSaved(false);
+    updateSavedSlugs([]);
+    persist("saved-slugs", "[]");
     persist("saved", "false");
   };
   return (
@@ -137,6 +157,9 @@ export function ExperienceProvider({
         setTheme,
         saved,
         toggleSaved,
+        savedSlugs,
+        isSaved,
+        toggleSlug,
         reset,
         offline,
         t: dictionaries[locale],

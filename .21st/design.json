@@ -17,7 +17,12 @@
     "tokens": [
       "app/src/app/globals.css",
       "DESIGN_SYSTEM.md",
-      "docs/design/DESIGN.md"
+      "docs/design/DESIGN.md",
+      "app/src/components/property-card.css",
+      "app/src/components/project-showcase.css",
+      "app/src/components/map-explorer.css",
+      "app/src/components/journey.css",
+      "app/src/components/premium-motion.css"
     ],
     "components": [
       "app/src/components"
@@ -43,14 +48,26 @@
       "surface": "#F4F0E6",
       "raised": "#FBF9F4",
       "muted": "#4E5A6B",
-      "paper": "#FFFFFF"
+      "paper": "#FFFFFF",
+      "glassInk": "#0B1F3AD9",
+      "glassLine": "#FFFFFF38",
+      "glassPaper": "#FFFFFFF0",
+      "glassGradient": "linear-gradient(132deg, #173653eb, #0b1f3adc 54%, #29445bec)"
     },
     "typography": {
       "primary": "Plus Jakarta Sans Variable",
-      "secondary": "Cormorant Garamond 500 for the monumental hero name and proposition, personal introduction and signature",
+      "secondary": "Cormorant Garamond 500, regular for hero and featured project; italic for editorial heading emphasis",
       "headingWeight": 600,
       "headingTracking": "-0.035em",
-      "bodySize": "15px"
+      "bodySize": "15px",
+      "propertyTitleWeight": 500,
+      "mobileBodySize": "14px",
+      "editorialHeading": {
+        "weight": 500,
+        "tracking": "-0.055em",
+        "size": "clamp(38px, 4.25vw, 62px)",
+        "italicEmphasis": "1.21em; 1.18em mobile"
+      }
     },
     "spacing": {
       "contentMax": "1440px",
@@ -67,7 +84,9 @@
     "motion": {
       "ease": "cubic-bezier(0.22, 1, 0.36, 1)",
       "primaryMoment": "Layered hero name masks, centered suit portrait entrance, architectural background settlement and bounded depth motion",
-      "reducedMotion": "Respect prefers-reduced-motion; content remains available"
+      "reducedMotion": "Respect prefers-reduced-motion; content remains available",
+      "propertyImages": "Cambio manual mediante flechas y gesto horizontal, sin avance automático",
+      "sectionDepth": "Reversible scroll-linked words, panels, botanical and coastal plan layers; maximum pointer tilt 2.2 degrees; radial light follows fine mouse pointer"
     },
     "density": "spacious with compact navigation and structured project facts"
   },
@@ -79,7 +98,16 @@
       "PaymentCalculator",
       "ProjectMap",
       "Modal",
-      "Shell"
+      "Shell",
+      "PropertyCard",
+      "MapExplorer",
+      "HomeMap",
+      "AdvisorPreview",
+      "JourneyActions",
+      "EditorialTitle",
+      "DepthPanel",
+      "DecorativeLayer",
+      "ReadingProgress"
     ],
     "preferredPrimitives": [
       "Semantic HTML",
@@ -94,7 +122,11 @@
       "Photography and data project dossier",
       "Six-image gallery with loading and recovery states",
       "Navy payment result",
-      "Reviewable contact inquiry"
+      "Reviewable contact inquiry",
+      "Tarjeta fotográfica compartida con panel de vidrio navy, flechas, gesto y favoritos",
+      "Selector lateral en escritorio y horizontal en móvil",
+      "Mapa de tres puntos verificados con selección sincronizada",
+      "Rutas independientes conectadas por proyecto; inicio como introducción"
     ]
   },
   "constraints": {
@@ -131,9 +163,10 @@
     },
     {
       "id": "project-dossier-and-application-flows",
-      "decision": "Publish only Melcon Paradise as a photography-and-facts dossier with a separate detail route, six-image gallery and confirmed map. Preserve the payment simulator with navy result, contact inquiry review, favorites, Spanish/English/French, mobile navigation and PWA. Photo exposes loading, error and context-appropriate retry states.",
+      "decision": "Catálogo autorizado de Melcon Paradise, Terra Serena y The Beach at Punta Cana City Place, con tarjeta fotográfica compartida y dossier propio. Melcon mantiene su ficha completa y seis imágenes; los otros dos muestran nombre, ubicación y renders verificados con detalles comerciales pendientes. Se conservan simulador ilustrativo, revisión local de consulta, favoritos, ES/EN/FR, navegación móvil y PWA. Photo mantiene carga, error y reintento contextual.",
       "createdAt": "2026-09-12",
-      "source": "Verified project content and implemented components"
+      "source": "Actualización autorizada en CONTENT-STATUS.md y componentes implementados; sustituye el alcance anterior de un solo proyecto",
+      "updatedAt": "2026-09-13"
     },
     {
       "id": "fictional-editorial-hero-atmosphere",
@@ -146,6 +179,41 @@
       "decision": "The advisor section replaces the former coast photograph card with Andris's real transparent white-shirt portrait, layered over the already-provenanced fictional architecture. The cutout deliberately extends beyond its frame, while scroll parallax and fine-pointer movement create depth. The adjacent verified introduction and contact action stay semantic and visible without motion.",
       "createdAt": "2026-09-13",
       "source": "User-provided reference and app/src/components/about-section.tsx"
+    },
+    {
+      "id": "three-project-catalog-with-confirmation-boundary",
+      "decision": "Show Melcon Paradise, Terra Serena and The Beach at Punta Cana City Place as responsive project cards and individual dossiers. Each card exposes its verified location and map action. Terra Serena and The Beach use only client-supplied renders, verified names and verified location points; mark their project-specific commercial details as requiring confirmation and omit prices, availability, delivery dates and unit facts.",
+      "createdAt": "2026-09-13",
+      "source": "User authorization, docs/design/project-location-evidence.json, official project sites and app/src/content/projects.ts"
+    },
+    {
+      "id": "shared-photographic-project-card",
+      "decision": "PropertyCard sustituye la gran ficha dividida del inicio y se comparte con el catálogo. Fotografía protagonista, vidrio navy #0B1F3AD9, borde #FFFFFF38, texto marfil y CTA claro. Selección lateral en escritorio y horizontal en móvil; imágenes manuales mediante flechas y gesto, con favorito persistente. El CTA marfil conserva foco navy interior de 2 px con offset −4 px.",
+      "source": "app/src/components/property-card.css y project-showcase.css; output/playwright/journeys/showcase-desktop.png",
+      "createdAt": "2026-09-13"
+    },
+    {
+      "id": "independent-routes-project-continuity",
+      "decision": "Inicio introduce proyectos, mapa compacto, asesor y accesos. /proyectos, /proyectos/[slug], /mapa, /sobre-mi, /calculadora y /contacto tienen recorridos propios. Mapa y contacto reciben proyecto por enlace. Contacto prepara un resumen local antes de elegir un canal; no declara envío ni registro en servidor.",
+      "source": "app/src/app/page.tsx, app/src/components/shell.tsx y journey.css",
+      "createdAt": "2026-09-13"
+    },
+    {
+      "id": "verified-map-explorer",
+      "decision": "MapExplorer usa Leaflet y OpenStreetMap con tres puntos verificados, selección sincronizada entre panel y marcadores y enlace por parámetro proyecto. Todas las variantes se cargan automáticamente, sin botón de activación. El encuadre general se adapta al cambio de tamaño. El estilo atenuado se aplica al envoltorio y preserva las clases administradas por Leaflet. Mantener atribución y enlace externo.",
+      "source": "app/src/components/map-explorer.css; docs/design/project-location-evidence.json",
+      "createdAt": "2026-09-13"
+    },
+    {
+      "id": "bounded-design-evidence",
+      "decision": "Las capturas respaldan composición estática; no certifican movimiento ni accesibilidad completa. La ejecución de pruebas se registra en REDESIGN-QA-2026-09-13.md. No canonizar etiquetas ornamentales retiradas, CSS antiguo sin uso, valores locales del hero ni detalles comerciales pendientes.",
+      "source": "docs/design/DESIGN.md y docs/design/REDESIGN-QA-2026-09-13.md",
+      "createdAt": "2026-09-13"
+    },
+    {
+      "date": "2026-09-13",
+      "decision": "Solicitud posterior del usuario: mapas activos en todas las vistas, mezcla de sans y serif cursiva, hovers, degradado y profundidad al subir y bajar. Se adaptan metadatos de inspiración 21st (3D Coverflow Carousel, 3D cards Slider, Gradient Card Showcase, lumina-interactive-list) con Motion existente. No se recuperó código ni se instaló otra librería. Reutilizar capas decorativas existentes; preservar portada e información confirmada.",
+      "source": "User references; premium-motion.tsx; MOTION-QA-2026-09-13.md"
     }
   ],
   "evidence": [
@@ -172,7 +240,19 @@
     {
       "fact": "hero.21st-inspiration-metadata",
       "source": "docs/design/SKILLS.md"
+    },
+    {
+      "fact": "design.current-project-showcase",
+      "source": "output/playwright/journeys/showcase-desktop.png"
+    },
+    {
+      "fact": "design.current-home-and-map-captures",
+      "source": ".impeccable/review"
+    },
+    {
+      "fact": "design.impeccable-extensions",
+      "source": ".impeccable/design.json"
     }
   ],
-  "generatedAt": "2026-09-12T22:58:53Z"
+  "generatedAt": "2026-09-13T00:00:00-04:00"
 }

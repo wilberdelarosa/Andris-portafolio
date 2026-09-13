@@ -39,6 +39,7 @@
   font-size: 12px;
   margin-top: 20px;
 }
+.map-copy > .map-page-link { margin-left: 18px; }
 .map-panel {
   height: 450px;
   position: relative;
@@ -175,6 +176,73 @@
   z-index: 1;
   background: var(--soft);
 }
+.live-map.is-muted .leaflet-tile-pane {
+  filter: grayscale(0.72) saturate(0.42) brightness(1.08) contrast(0.9);
+}
+.map-explorer-controls {
+  position: absolute;
+  z-index: 6;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.map-control-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  color: var(--text);
+  box-shadow: 0 8px 20px #0b1f3a22;
+  backdrop-filter: blur(8px);
+}
+.map-control-button:hover { background: var(--text); color: var(--paper); }
+.map-control-stack { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 20px #0b1f3a22; }
+.map-control-stack .map-control-button { border: 0; border-radius: 0; box-shadow: none; }
+.map-control-stack .map-control-button + .map-control-button { border-top: 1px solid var(--line); }
+.map-layer-control { position: relative; }
+.map-layer-menu {
+  position: absolute;
+  top: 0;
+  right: 50px;
+  display: grid;
+  min-width: 170px;
+  gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow-overlay);
+}
+.map-layer-menu button { display: flex; min-height: 38px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 10px; border-radius: 7px; color: var(--muted); font-size: 12px; text-align: left; }
+.map-layer-menu button:hover, .map-layer-menu button.selected { color: var(--text); background: var(--soft); }
+.map-project-sheet {
+  position: absolute;
+  z-index: 5;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  max-width: 310px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  box-shadow: var(--shadow-overlay);
+  backdrop-filter: blur(10px);
+  transition: transform 240ms var(--ease), opacity 200ms ease;
+}
+.map-sheet-grip { display: none; }
+.map-sheet-content { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.map-sheet-content > div { display: grid; gap: 3px; min-width: 0; }
+.map-sheet-content span, .map-sheet-content small { color: var(--muted); font-size: 10px; }
+.map-sheet-content strong { color: var(--text); font-size: 15px; font-weight: 650; }
+.map-sheet-open { display: grid; width: 40px; height: 40px; place-items: center; flex: 0 0 auto; border-radius: 9px; background: var(--text); color: var(--paper); }
+.map-sheet-show { display: none; }
 .ap-map-marker {
   display: flex;
   align-items: center;
@@ -264,6 +332,7 @@
   .map-copy > .text-link {
     margin-top: 10px;
   }
+  .map-copy > .map-page-link { margin-left: 14px; }
   .map-panel {
     height: 370px;
   }
@@ -282,4 +351,14 @@
     flex-direction: column;
     gap: 5px;
   }
+  .map-explorer-controls { top: 12px; right: 12px; }
+  .map-project-sheet { right: 0; bottom: 0; left: 0; max-width: none; padding: 0 18px calc(18px + env(safe-area-inset-bottom)); border-right: 0; border-bottom: 0; border-left: 0; border-radius: 18px 18px 0 0; }
+  .map-project-sheet.closed { transform: translateY(calc(100% - 40px)); }
+  .map-sheet-grip { display: grid; width: 100%; height: 40px; place-items: center; }
+  .map-sheet-grip span { width: 36px; height: 4px; border-radius: 4px; background: var(--line); }
+  .map-sheet-content { padding-bottom: 2px; }
+  .map-sheet-show { position: absolute; z-index: 7; right: 0; bottom: 18px; left: 0; display: inline-flex; width: fit-content; min-height: 42px; align-items: center; gap: 7px; margin: auto; padding: 0 16px; border-radius: 22px; background: var(--text); color: var(--paper); font-size: 12px; box-shadow: var(--shadow-overlay); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-project-sheet { transition: none; }
 }

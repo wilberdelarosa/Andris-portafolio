@@ -51,6 +51,24 @@
   pointer-events: none;
 }
 
+.sitePlan {
+  position: absolute;
+  z-index: 0;
+  inset: 16px 0 0;
+  overflow: hidden;
+  border-radius: 16px;
+  clip-path: inset(0 round 16px);
+  pointer-events: none;
+}
+
+.sitePlanImage {
+  object-fit: fill;
+  object-position: center;
+  opacity: 0.19;
+  mix-blend-mode: multiply;
+  filter: blur(0.45px) saturate(0.84);
+}
+
 .arch {
   position: absolute;
   z-index: -1;
@@ -146,6 +164,26 @@
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(14px 21px 19px #0b1f3a30);
+}
+
+.palmOverlay {
+  position: absolute;
+  z-index: 0;
+  top: 8%;
+  right: 0;
+  width: min(68%, 430px);
+  height: 72%;
+  clip-path: inset(0);
+  pointer-events: none;
+  transform: rotate(-9deg);
+}
+
+.palmImage {
+  object-fit: contain;
+  object-position: right top;
+  opacity: 0.14;
+  mix-blend-mode: multiply;
+  filter: blur(0.9px) saturate(0.82);
 }
 
 .stageSignature {
@@ -321,6 +359,18 @@
     linear-gradient(0deg, #31669230, transparent 50%);
 }
 
+:global([data-theme="dark"]) .sitePlanImage {
+  opacity: 0.13;
+  mix-blend-mode: screen;
+  filter: blur(0.5px) saturate(0.55);
+}
+
+:global([data-theme="dark"]) .palmImage {
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  filter: blur(1.4px) saturate(0.5);
+}
+
 :global([data-theme="dark"]) .arch,
 :global([data-theme="dark"]) .arch::after {
   border-color: #fbf9f43b;
@@ -426,6 +476,11 @@
     width: min(76%, 530px);
   }
 
+  .palmOverlay {
+    right: 0;
+    width: min(70%, 410px);
+  }
+
   .copy {
     max-width: 600px;
     padding-left: 28px;
@@ -454,6 +509,11 @@
 
   .sceneImage {
     object-position: 68% center;
+  }
+
+  .sitePlan,
+  .palmOverlay {
+    display: none;
   }
 
   .arch {

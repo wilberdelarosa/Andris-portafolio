@@ -2,10 +2,7 @@ import { ExperienceProvider } from "@/components/experience-provider";
 import { Shell } from "@/components/shell";
 import { Hero } from "@/components/hero";
 import { ProjectSection } from "@/components/project-section";
-import { ProjectMap } from "@/components/project-map";
-import { AboutSection, GuideSection } from "@/components/about-section";
-import { PaymentCalculator } from "@/components/payment-calculator";
-import { ContactSection } from "@/components/contact-section";
+import { HomeMap, AdvisorPreview, JourneyActions } from "@/components/journey";
 import { pageMetadata, parseLocale } from "@/lib/page-metadata";
 export async function generateMetadata({
   searchParams,
@@ -26,11 +23,9 @@ export default async function Home({
       <Shell>
         <Hero />
         <ProjectSection />
-        <ProjectMap />
-        <AboutSection />
-        <PaymentCalculator />
-        <GuideSection />
-        <ContactSection />
+        <HomeMap />
+        <AdvisorPreview />
+        <JourneyActions />
       </Shell>
     </ExperienceProvider>
   );

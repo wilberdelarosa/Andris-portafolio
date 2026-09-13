@@ -22,7 +22,10 @@ import {
 } from "motion/react";
 import { useExperience } from "./experience-provider";
 import { designCopy } from "@/content/design-copy";
+import { Rise } from "./motion-text";
 import styles from "./about-section.module.css";
+import { EditorialTitle } from "./premium-motion";
+import { editorialAccents } from "@/content/editorial-accents";
 
 export function AboutSection() {
   const { t, locale } = useExperience();
@@ -41,6 +44,8 @@ export function AboutSection() {
   const sceneY = useTransform(scrollYProgress, [0, 1], [34, -34]);
   const portraitScrollY = useTransform(scrollYProgress, [0, 1], [26, -30]);
   const monogramY = useTransform(scrollYProgress, [0, 1], [-18, 22]);
+  const planY = useTransform(scrollYProgress, [0, 1], [22, -20]);
+  const palmY = useTransform(scrollYProgress, [0, 1], [-14, 16]);
   const aboutBody = t.aboutText.replace(/^[^.]+\.\s*/, "");
   const [activeStep, setActiveStep] = useState(0);
   const active = t.steps[activeStep];
@@ -50,7 +55,7 @@ export function AboutSection() {
       : locale === "fr"
         ? { step: "Étape", of: "sur", previous: "Étape précédente", next: "Étape suivante", action: ["Parlons-en", "Explorer les projets", "Ouvrir le simulateur", "Préparer ma demande"] }
         : { step: "Step", of: "of", previous: "Previous step", next: "Next step", action: ["Let’s talk", "Explore projects", "Open calculator", "Prepare inquiry"] };
-  const stepLinks = ["#contacto", "#proyectos", `/calculadora?lang=${locale}`, "#contacto"];
+  const stepLinks = [`/contacto?lang=${locale}`, `/proyectos?lang=${locale}`, `/calculadora?lang=${locale}`, `/contacto?lang=${locale}`];
   const stepIcons = [ChatCenteredText, Compass, Calculator, ArrowUpRight];
 
   function followPointer(event: PointerEvent<HTMLElement>) {
@@ -97,6 +102,21 @@ export function AboutSection() {
             />
           </motion.div>
           <div className={styles.sceneVeil} aria-hidden="true" />
+          <motion.div
+            className={styles.sitePlan}
+            style={{ y: reduced ? 0 : planY }}
+            aria-hidden="true"
+          >
+            <Image
+              src="/derived/ambient-site-plan-v1.webp"
+              alt=""
+              fill
+              unoptimized
+              loading="eager"
+              sizes="(max-width: 820px) 100vw, 60vw"
+              className={styles.sitePlanImage}
+            />
+          </motion.div>
           <div className={styles.arch} aria-hidden="true" />
           <motion.div
             className={styles.monogramDepth}
@@ -131,22 +151,46 @@ export function AboutSection() {
               </div>
             </motion.div>
           </motion.div>
+          <motion.div
+            className={styles.palmOverlay}
+            style={{ y: reduced ? 0 : palmY }}
+            aria-hidden="true"
+          >
+            <Image
+              src="/derived/ambient-palm-overlay-v1.webp"
+              alt=""
+              fill
+              unoptimized
+              loading="eager"
+              sizes="(max-width: 820px) 0px, 56vw"
+              className={styles.palmImage}
+            />
+          </motion.div>
           <div className={styles.stageSignature} aria-hidden="true">
             <span>AP</span>
             <span>PERSONAL</span>
           </div>
         </motion.div>
 
+        {/*
+          Secuencia de entrada: el titular sube linea a linea, la firma se
+          escribe despues y el cuerpo llega al final. Cada pieza espera a la
+          anterior para que se lea como una presentacion, no como un bloque.
+        */}
         <div className={styles.copy}>
-          <h2 id="about-title">{d.aboutTitle}</h2>
+          <EditorialTitle id="about-title" text={d.aboutTitle} accent={editorialAccents[locale].aboutPage}/>
           <p className={styles.intro}>{d.aboutIntro}</p>
-          <p className={styles.body}>{aboutBody}</p>
-          <a className={styles.cta} href="#contacto">
-            <span>{t.aboutCTA}</span>
-            <span className={styles.ctaArrow}>
-              <ArrowUpRight size={21} aria-hidden="true" />
-            </span>
-          </a>
+          <Rise as="p" className={styles.body} delay={0.1}>
+            {aboutBody}
+          </Rise>
+          <Rise delay={0.18}>
+            <a className={styles.cta} href={`/contacto?lang=${locale}`}>
+              <span>{t.aboutCTA}</span>
+              <span className={styles.ctaArrow}>
+                <ArrowUpRight size={21} aria-hidden="true" />
+              </span>
+            </a>
+          </Rise>
         </div>
       </section>
       <section
@@ -155,8 +199,7 @@ export function AboutSection() {
       >
         <div className="process-heading">
           <div className="section-heading">
-            <span className="process-eyebrow">{t.processLabel}</span>
-            <h2 id="process-title">{d.processTitle}</h2>
+            <EditorialTitle id="process-title" text={d.processTitle} accent={editorialAccents[locale].process}/>
           </div>
           <p className="process-count" aria-live="polite">
             <strong>0{activeStep + 1}</strong> / 04
@@ -179,7 +222,6 @@ export function AboutSection() {
                   })()}
                 </span>
                 <span className="step-title">{step.title}</span>
-                <span className="step-summary">{step.text}</span>
               </button>
             </li>
           ))}
@@ -222,7 +264,7 @@ export function GuideSection() {
   return (
     <section className="section guide-section" aria-labelledby="guide-title">
       <div className="section-heading">
-        <h2 id="guide-title">{d.guideTitle}</h2>
+        <EditorialTitle id="guide-title" text={d.guideTitle} accent={editorialAccents[locale].guide}/>
       </div>
       <div className="faq-list">
         {t.faqs.map((faq) => (

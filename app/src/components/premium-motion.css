@@ -1,0 +1,285 @@
+:root { --editorial-accent: var(--color-blue); --pointer-light: #d8c8b450; --glass-gradient: linear-gradient(132deg, #173653eb, #0b1f3adc 54%, #29445bec); }
+[data-theme="dark"] { --editorial-accent: var(--color-sand); --pointer-light: #d8c8b43d; }
+.editorial-title { position: relative; font-family: var(--sans); font-size: clamp(38px, 4.25vw, 62px); font-weight: 500; letter-spacing: -.055em; line-height: 1.09; text-wrap: balance; max-width: 900px; }
+.editorial-lead { display: block; }
+.editorial-word-space { display: inline-block; white-space: normal; margin-right: .16em; }
+.editorial-word-space:last-child { margin-right: 0; }
+.editorial-word { display: inline-block; transform-origin: 50% 100%; }
+.editorial-accent { display: block; position: relative; width: fit-content; max-width: calc(100% - clamp(16px, 3vw, 44px)); margin-left: clamp(16px, 3vw, 44px); padding-bottom: .08em; font-family: var(--serif); font-size: 1.21em; font-weight: 500; font-style: italic; letter-spacing: -.04em; line-height: 1.03; color: var(--editorial-accent); }
+.editorial-mark { position: absolute; z-index: -1; inset: auto 0 .1em; height: .16em; transform-origin: left; border-radius: 50%; background: linear-gradient(90deg, #d8c8b448, #d8c8b410); }
+.editorial-title-compact { font-size: clamp(28px, 2.25vw, 36px); }
+.editorial-title-compact .editorial-accent { margin-left: 0; max-width: 100%; }
+.depth-frame { position: relative; min-width: 0; }
+.depth-panel { position: relative; transform-origin: center; }
+.section-ambient { position: absolute; inset: 0; overflow: clip; pointer-events: none; z-index: -1; }
+.ambient-depth { position: absolute; width: min(650px, 70vw); height: 390px; right: -110px; top: 0; opacity: .2; }
+.ambient-depth img { object-fit: contain; }
+.section-ambient-plan .ambient-depth { width: 830px; height: 410px; right: -50px; top: 15px; opacity: .12; }
+[data-theme="dark"] .ambient-depth { opacity: .13; }
+.surface-light { position: absolute; pointer-events: none; inset: -40%; z-index: 4; background: radial-gradient(ellipse at center, var(--pointer-light), transparent 54%); mix-blend-mode: screen; }
+.reading-progress { position: fixed; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, var(--color-blue), var(--color-sand)); transform-origin: left; z-index: 99; pointer-events: none; }
+.project-showcase, .home-map, .advisor-preview, .journey-actions, .contact-section, .catalog { position: relative; isolation: isolate; }
+.showcase-heading { margin-bottom: 48px; }
+.showcase-heading h2 { max-width: 880px; }
+.showcase-heading p { margin-top: 26px; }
+.showcase-picker { padding-block: 8px; }
+.showcase-option, .explorer-item { position: relative; overflow: hidden; transition: background .25s ease, border-color .25s ease; }
+.showcase-option::after, .explorer-item::after { content: ""; position: absolute; inset: 0; opacity: 0; background: linear-gradient(120deg, #d8c8b419, #31669213); pointer-events: none; transition: opacity .25s ease; }
+.showcase-option .photo, .explorer-item .photo { transition: transform .45s var(--ease); }
+.pcard { box-shadow: 0 16px 40px #0b1f3a10; }
+.pcard .pcard-glass { background: var(--glass-gradient); }
+.pcard-featured .pcard-glass { backdrop-filter: blur(26px) saturate(1.15); -webkit-backdrop-filter: blur(26px) saturate(1.15); box-shadow: 0 10px 40px #0b1f3a20, inset 0 1px #ffffff17; }
+.project-showcase .pcard-featured .pcard-name { font-family: var(--serif); font-size: clamp(38px, 4.7vw, 64px); letter-spacing: -.035em; line-height: .99; font-weight: 500; }
+.pcard-featured .pcard-location { margin-bottom: 8px; }
+.pcard-action, .pcard-heart, .pcard-image-controls button, .button, .header-contact, .explorer-button { transition: color .25s ease, background-color .25s ease, transform .3s var(--ease); }
+.pcard-action, .button, .header-contact { position: relative; overflow: hidden; isolation: isolate; }
+.pcard-action::before, .button::before, .header-contact::before { content: ""; position: absolute; inset: -120% -40%; pointer-events: none; background: linear-gradient(110deg, transparent 40%, #ffffff30 50%, transparent 60%); transform: translateX(-65%) rotate(-10deg); transition: transform .7s var(--ease); }
+.pcard-actions svg, .text-link svg, .button svg, .header-contact svg, .showcase-map-link > svg:last-child { transition: transform .3s var(--ease); }
+.text-link { background-image: linear-gradient(90deg, #d8c8b430, #d8c8b430); background-repeat: no-repeat; background-position: left bottom; background-size: 0 40%; transition: background-size .35s var(--ease); }
+.advisor-preview-image { box-shadow: 0 24px 70px #0b1f3a13; }
+.advisor-preview-depth { position: absolute; inset: 0; }
+.advisor-preview-copy h2 { max-width: 100%; }
+.advisor-preview-signature { background: var(--glass-gradient); box-shadow: inset 0 1px #ffffff26; }
+.advisor-preview-image .section-ambient { z-index: 2; }
+.advisor-preview-image .ambient-depth { top: auto; bottom: -100px; right: -150px; opacity: .16; }
+.advisor-preview-signature { z-index: 3; }
+.journey-actions > a { position: relative; overflow: hidden; transition: transform .4s var(--ease); }
+.journey-actions h2 { font-size: clamp(27px, 2.3vw, 35px); }
+.journey-calculator { background: linear-gradient(135deg, var(--soft), var(--paper)); }
+.journey-contact { background: var(--glass-gradient); }
+.journey-contact .editorial-accent, .contact-section .editorial-accent { color: var(--color-sand); }
+.journey-actions > a::before { content: ""; position: absolute; inset: -30%; z-index: -1; pointer-events: none; opacity: .4; background: radial-gradient(ellipse at 85% 20%, #d8c8b45c, transparent 48%); transition: transform .6s var(--ease), opacity .4s ease; }
+.contact-copy .editorial-title { max-width: 620px; font-size: clamp(38px, 4vw, 58px); }
+.contact-copy, .journey-actions > a > div { min-width: 0; }
+.contact-form-wrap { box-shadow: 0 24px 70px #00000017, inset 0 1px #ffffff55; }
+.process-section .editorial-title { max-width: 850px; }
+.catalog h1.editorial-title { max-width: 1050px; font-size: clamp(39px, 5vw, 72px); }
+.catalog h1 .editorial-accent { margin-left: clamp(16px, 5vw, 72px); max-width: calc(100% - clamp(16px, 5vw, 72px)); }
+.explorer-compact { box-shadow: 0 18px 65px #0b1f3a0d; }
+.explorer-item[aria-pressed="true"]::after, .showcase-option[aria-pressed="true"]::after { opacity: 1; }
+.desktop-nav a { position: relative; }
+.desktop-nav a::before { content: ""; position: absolute; left: 0; right: 0; bottom: 7px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease); }
+@media (hover: hover) and (pointer: fine) {
+  .pcard-action:hover::before, .button:hover::before, .header-contact:hover::before { transform: translateX(65%) rotate(-10deg); }
+  .pcard-action:hover > svg, .button:hover > svg, .header-contact:hover > svg, .text-link:hover > svg, .showcase-map-link:hover > svg:last-child { transform: translate(3px, -3px); }
+  .pcard-heart:hover, .pcard-image-controls button:hover, .explorer-button:hover { transform: scale(1.08); }
+  .text-link:hover { background-size: 100% 40%; }
+  .showcase-option:hover::after, .explorer-item:hover::after { opacity: 1; }
+  .showcase-option:hover .photo, .explorer-item:hover .photo { transform: scale(1.035); }
+  .journey-actions > a:hover { transform: translateY(-6px); }
+  .journey-actions > a:hover::before { opacity: 1; transform: translate(-8%, 8%) scale(1.1); }
+  .desktop-nav a:hover::before { transform: scaleX(1); }
+  .catalog-chip:hover, .process-navigation button:hover { background: var(--nav-active); }
+  .process-step button:hover { background: var(--soft); }
+}
+.pcard-action:active, .button:active, .explorer-button:active { transform: scale(.98); }
+@media (max-width: 760px) {
+  .editorial-title { font-size: clamp(34px, 8.7vw, 48px); letter-spacing: -.05em; }
+  .editorial-accent { margin-left: 12px; max-width: calc(100% - 12px); font-size: 1.18em; }
+  .editorial-title-compact { font-size: 28px; }
+  .showcase-heading { margin-bottom: 34px; }
+  .ambient-depth { width: 320px; height: 250px; right: -120px; opacity: .13; }
+  .section-ambient-plan .ambient-depth { width: 450px; height: 260px; right: -180px; opacity: .1; }
+  .project-showcase .pcard-featured .pcard-name { font-size: 40px; }
+  .pcard-featured { min-height: 610px; }
+  .journey-actions h2 { font-size: 27px; }
+  .contact-copy .editorial-title { font-size: 38px; }
+  .catalog h1.editorial-title { font-size: clamp(34px, 8.8vw, 44px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pcard-action, .pcard-heart, .button, .header-contact, .explorer-button, .journey-actions > a, .showcase-option .photo, .explorer-item .photo { transition: none; }
+  .pcard-action::before, .button::before, .header-contact::before, .surface-light { display: none; }
+  .pcard-action:hover > svg, .button:hover > svg, .text-link:hover > svg, .journey-actions > a:hover, .pcard-action:active, .button:active, .explorer-button:active { transform: none; }
+  .pcard-heart:hover, .pcard-image-controls button:hover, .explorer-button:hover, .showcase-option:hover .photo, .explorer-item:hover .photo, .journey-actions > a:hover::before, .header-contact:hover > svg, .showcase-map-link:hover > svg:last-child { transform: none; }
+}
+
+/* ==========================================================================
+   CAPA DE MOVIMIENTO (reacciones al puntero y al scroll)
+   Reacciones al puntero y al scroll que valen para toda la aplicacion.
+   Nada de lo que hay aqui anima medidas que obliguen a recalcular el diseño:
+   solo `transform`, `opacity` y color.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- enlaces */
+
+/*
+ * Subrayado que se dibuja desde la izquierda y se retira por la derecha.
+ * Es un elemento propio en vez de `text-decoration` porque solo asi se puede
+ * animar su avance.
+ */
+.text-link,
+.catalog-link,
+.explorer-item-links a {
+  position: relative;
+}
+
+.text-link::after,
+.catalog-link::after,
+.explorer-item-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.text-link:hover::after,
+.text-link:focus-visible::after,
+.catalog-link:hover::after,
+.catalog-link:focus-visible::after,
+.explorer-item-links a:hover::after,
+.explorer-item-links a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* La flecha acompaña al enlace en su misma direccion. */
+.text-link svg,
+.catalog-link svg {
+  transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.text-link:hover svg,
+.catalog-link:hover svg {
+  transform: translateX(4px);
+}
+
+/* --------------------------------------------------------------- botones */
+
+/*
+ * Barrido de luz al pasar por encima. Recorre el boton una sola vez por
+ * entrada, de izquierda a derecha.
+ */
+.button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 20%, #ffffff2e 50%, transparent 80%);
+  transform: translateX(-130%);
+  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.button:hover::before,
+.button:focus-visible::before {
+  transform: translateX(130%);
+}
+
+.button-light::before {
+  background: linear-gradient(100deg, transparent 20%, #0b1f3a1a 50%, transparent 80%);
+}
+
+/* Respuesta tactil: el boton cede un poco al pulsarlo. */
+.button:active,
+.icon-button:active,
+.catalog-chip:active {
+  transform: scale(0.975);
+}
+
+.icon-button {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------- imagenes */
+
+/* Las fotos de seccion respiran al pasar por encima de su contenedor. */
+.photo img {
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-facets a:hover .photo img,
+.detail-gallery button:hover .photo img,
+.project-catalog-image:hover .photo img {
+  transform: scale(1.055);
+}
+
+/* ------------------------------------------------------------ encabezados */
+
+/*
+ * Los titulos de seccion suben al entrar, con una mascara por linea.
+ * `view()` ata la animacion al recorrido del elemento, sin escuchar el scroll.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-heading h2 {
+      animation: heading-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+  }
+}
+
+@keyframes heading-settle {
+  from {
+    opacity: 0.15;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------- tarjetas */
+
+/*
+ * Al apuntar una ficha, sus hermanas retroceden. Dirige la atencion sin
+ * cambiar tamaños ni mover la rejilla.
+ */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .catalog-grid:has(.pcard:hover) .pcard:not(:hover),
+  .project-catalog:has(.pcard:hover) .pcard:not(:hover) {
+    opacity: 0.58;
+    filter: saturate(0.85);
+  }
+
+  .catalog-grid .pcard,
+  .project-catalog .pcard {
+    transition:
+      opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* ------------------------------------------------------ movimiento reducido */
+
+@media (prefers-reduced-motion: reduce) {
+  .button::before,
+  .text-link::after,
+  .catalog-link::after,
+  .explorer-item-links a::after {
+    display: none;
+  }
+
+  .photo img,
+  .icon-button,
+  .text-link svg,
+  .catalog-link svg {
+    transition: none;
+  }
+
+  .button:active,
+  .icon-button:active,
+  .catalog-chip:active,
+  .icon-button:hover {
+    transform: none;
+  }
+}

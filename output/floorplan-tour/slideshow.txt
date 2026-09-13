@@ -1,0 +1,9 @@
+file '01-sala-cocina.png'
+duration 4
+file '02-entrada-cocina.png'
+duration 4
+file '03-dormitorio.png'
+duration 4
+file '04-terraza.png'
+duration 4
+file '04-terraza.png'

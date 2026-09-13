@@ -1,0 +1,66 @@
+.explorer { display: grid; grid-template-columns: 360px minmax(0, 1fr); height: calc(100dvh - 89px); min-height: 620px; border-top: 1px solid var(--line); background: var(--soft); isolation: isolate; }
+.explorer-panel { overflow-y: auto; min-height: 0; padding: 24px; background: var(--paper); border-right: 1px solid var(--line); }
+.explorer-panel-head h2 { font-size: 30px; margin-top: 0; }
+.explorer-panel-head p { margin-top: 12px; font-size: 12px; line-height: 1.7; max-width: 260px; }
+.explorer-list { display: grid; gap: 8px; margin-block: 24px; }
+.explorer-item { display: grid; grid-template-columns: 52px 1fr 16px; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; min-width: 0; text-align: left; }
+.explorer-item[aria-pressed="true"] { border-color: var(--color-sand-deep); background: var(--soft); }
+.explorer-item > .photo { width: 52px; height: 56px; overflow: hidden; border-radius: 5px; }
+.explorer-item strong { display: block; font-size: 12px; line-height: 1.5; font-weight: 600; }
+.explorer-item small { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
+.explorer-selected-image { height: 150px; position: relative; border-radius: 10px; overflow: hidden; }
+.explorer-selected-image .photo { height: 100%; }
+.explorer-selected-image > span { position: absolute; bottom: 10px; left: 10px; padding: 4px 8px; font-size: 10px; background: var(--glass-ink); color: var(--on-ink); border-radius: 5px; backdrop-filter: blur(12px); }
+.explorer-selected-copy { padding-top: 18px; }
+.explorer-location { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+.explorer-selected h3 { margin-top: 10px; font-size: 22px; line-height: 1.3; }
+.explorer-selected p { font-size: 12px; margin-top: 10px; }
+.explorer-selected .button { width: 100%; margin-top: 18px; font-size: 13px; min-height: 48px; }
+.explorer-google { display: flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; font-size: 12px; }
+.explorer-map-area { position: relative; min-width: 0; min-height: 0; isolation: isolate; }
+.explorer-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--soft); font-family: var(--sans); }
+.explorer-map-area.is-muted .leaflet-tile { filter: grayscale(.9); }
+.explorer-canvas .leaflet-control-attribution { background: #fffffff0; color: var(--color-ink); font-size: 11px; }
+.explorer-canvas .leaflet-control-attribution a { color: var(--color-ink); }
+.explorer-canvas:focus-visible { outline-offset: -4px; }
+.explorer-controls { position: absolute; top: 20px; right: 20px; z-index: 500; display: grid; gap: 8px; }
+.explorer-button { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 10px; background: var(--glass-paper); backdrop-filter: blur(18px); color: var(--text); }
+.explorer-layers { position: relative; }
+.explorer-layer-menu { position: absolute; right: 58px; top: 0; width: 200px; padding: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-overlay); }
+.explorer-layer-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px; min-height: 44px; font-size: 13px; text-align: left; }
+.explorer-layer-menu button[aria-pressed="true"] { background: var(--soft); border-radius: 6px; }
+.explorer-privacy { position: absolute; z-index: 400; bottom: 28px; left: 16px; max-width: calc(100% - 32px); padding: 5px 10px; background: var(--glass-paper); backdrop-filter: blur(12px); border-radius: 7px; font-size: 10px; }
+.explorer-blocker { position: absolute; inset: 0; z-index: 450; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 50px; text-align: center; background: var(--soft); }
+.explorer-blocker p { max-width: 30ch; font-size: 17px; }
+.ap-explorer-pin { position: relative; display: grid; place-items: center; margin: 7px; width: 30px; height: 30px; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg); background: var(--color-ink); border: 2px solid var(--on-ink); box-shadow: 0 4px 18px #0b1f3a55; transition: transform .2s var(--ease); }
+.ap-explorer-pin > span { width: 9px; height: 9px; border-radius: 50%; background: var(--on-ink); }
+.ap-explorer-pin.is-selected { background: var(--color-blue); transform: rotate(-45deg) scale(1.18); }
+.explorer-compact { height: 610px; min-height: 0; border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+@media (max-width: 760px) {
+  .explorer { grid-template-columns: 1fr; grid-template-rows: minmax(300px, 44dvh) auto; height: auto; min-height: 0; }
+  .explorer-map-area { grid-row: 1; }
+  .explorer-panel { grid-row: 2; border-right: 0; padding: 20px; overflow: visible; }
+  .explorer-panel-head { display: none; }
+  .explorer-list { display: flex; overflow-x: auto; padding: 2px 2px 12px; margin: 0 0 8px; gap: 8px; scroll-snap-type: x mandatory; }
+  .explorer-item { flex: 0 0 195px; grid-template-columns: 40px 1fr; scroll-snap-align: start; padding: 8px; gap: 8px; }
+  .explorer-item > .photo { width: 40px; height: 50px; }
+  .explorer-item > svg { display: none; }
+  .explorer-item strong { font-size: 11px; }
+  .explorer-item small { font-size: 10px; }
+  .explorer-selected { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 16px; }
+  .explorer-selected-image { height: 120px; }
+  .explorer-selected-image > span { display: none; }
+  .explorer-selected-copy { padding: 0; }
+  .explorer-selected h3 { font-size: 19px; margin-top: 6px; }
+  .explorer-location { font-size: 10px; }
+  .explorer-selected p { font-size: 11px; margin-top: 8px; }
+  .explorer-selected .button { margin-top: 14px; padding: 10px 12px; font-size: 12px; gap: 8px; }
+  .explorer-controls { top: 12px; right: 12px; gap: 6px; }
+  .explorer-button { width: 44px; height: 44px; }
+  .explorer-blocker { padding: 30px; gap: 16px; }
+  .explorer-compact { height: auto; }
+  .explorer-compact .explorer-panel { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .ap-explorer-pin { transition: none; } }
+.explorer-panel, .explorer-list { min-width: 0; max-width: 100%; }
+@media (max-width: 760px) { .explorer { grid-template-columns: minmax(0, 1fr); } }

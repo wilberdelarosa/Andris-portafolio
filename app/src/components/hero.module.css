@@ -308,22 +308,28 @@
     transform: translateY(0);
   }
 }
+/*
+ * Los retardos suman `--intro-hold`, el tiempo que ocupa la cortina de entrada.
+ * Asi la portada no se anima detras de ella: arranca justo cuando los panos
+ * suben. Cuando la cortina no se muestra, esa variable vale 0s y todo entra de
+ * inmediato.
+ */
 @media (prefers-reduced-motion: no-preference) {
   .backdrop {
-    animation: sceneEnter 2.4s var(--ease) backwards;
+    animation: sceneEnter 2.4s var(--intro-hold, 0s) var(--ease) backwards;
   }
   .firstName > span {
-    animation: nameEnter 1.05s 0.05s var(--ease) backwards;
+    animation: nameEnter 1.05s calc(var(--intro-hold, 0s) + 0.05s) var(--ease) backwards;
   }
   .portraitEntrance {
-    animation: portraitEnter 1.15s 0.14s var(--ease) backwards;
+    animation: portraitEnter 1.15s calc(var(--intro-hold, 0s) + 0.14s) var(--ease) backwards;
   }
   .lastName > span {
-    animation: nameEnter 1s 0.27s var(--ease) backwards;
+    animation: nameEnter 1s calc(var(--intro-hold, 0s) + 0.27s) var(--ease) backwards;
   }
   .intro,
   .advice {
-    animation: copyEnter 0.76s 0.35s var(--ease) backwards;
+    animation: copyEnter 0.76s calc(var(--intro-hold, 0s) + 0.35s) var(--ease) backwards;
   }
 }
 @media (hover: hover) and (pointer: fine) {

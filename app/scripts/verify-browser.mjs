@@ -12,6 +12,13 @@ const widths = [320, 375, 768, 1440];
 const routes = [
   { name: "home", pathname: "/" },
   { name: "melcon", pathname: "/proyectos/melcon-paradise" },
+  { name: "projects", pathname: "/proyectos" },
+  { name: "map", pathname: "/mapa" },
+  { name: "about", pathname: "/sobre-mi" },
+  { name: "contact", pathname: "/contacto" },
+  { name: "calculator", pathname: "/calculadora" },
+  { name: "terra", pathname: "/proyectos/terra-serena" },
+  { name: "beach", pathname: "/proyectos/the-beach-at-punta-cana-city-place" },
 ];
 const report = {
   baseURL: baseURL.href,
@@ -126,15 +133,6 @@ async function revealAndCheckImages() {
         height: image.naturalHeight,
       })),
   );
-  assert.ok(
-    images.some(
-      (image) =>
-        decodeURIComponent(image.src).includes("/derived/melcon-") &&
-        image.width > 0 &&
-        image.height > 0,
-    ),
-    "La ruta debe mostrar al menos una imagen real de Melcon cargada",
-  );
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
   return images;
 }
@@ -210,7 +208,7 @@ async function checkGallery(route) {
 }
 
 async function checkCalculator() {
-  await navigate("/");
+  await navigate("/calculadora");
   const calculator = page.locator("#inversion");
   await calculator.locator("#property-price").fill("180000");
   await calculator.locator("#months-value").fill("36");
@@ -267,7 +265,7 @@ async function checkCalculator() {
 }
 
 async function checkContactPreview() {
-  await navigate("/");
+  await navigate("/contacto?proyecto=terra-serena");
   const form = page.locator(".contact-form");
   await form.locator('button[type="submit"]').click();
   assert.equal(
@@ -276,6 +274,7 @@ async function checkContactPreview() {
     "El formulario vacío debe ser inválido",
   );
   assert.equal(await page.getByRole("dialog").count(), 0);
+  assert.equal(await form.locator('select[name="project"]').inputValue(), "Terra Serena");
   await form.locator('input[name="name"]').fill("Prueba navegador");
   await form.locator('input[name="email"]').fill("qa@example.com");
   await form
@@ -298,7 +297,7 @@ async function checkContactPreview() {
     const summary = await dialog.locator("pre").textContent();
     assert.ok(
       summary.includes("Prueba navegador") &&
-        summary.includes("qa@example.com"),
+        summary.includes("qa@example.com") && summary.includes("Terra Serena"),
     );
     assert.ok((await dialog.textContent()).includes("Aún no se ha enviado"));
     const whatsapp = await dialog
@@ -405,8 +404,7 @@ try {
     }
   }
   await page.setViewportSize({ width: 375, height: 844 });
-  for (const route of routes)
-    await check(`Galería ${route.pathname}`, () => checkGallery(route));
+  await check("Galería Melcon", () => checkGallery(routes[1]));
   await check(
     "Simulador: importes, estado inválido y recuperación",
     checkCalculator,

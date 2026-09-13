@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-13T00:00:00-04:00",
+  "title": "Design System: Andris Peña",
+  "extensions": {
+    "shadows": [
+      {
+        "name": "overlay",
+        "value": "0 24px 80px #0B1F3A26",
+        "purpose": "Superposiciones y menú de estilo del mapa."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Curva compartida de respuestas y transiciones."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Eliminar movimientos extensos; conservar contenido y acciones disponibles."
+      },
+      {
+        "name": "reversible-section-depth",
+        "value": "Motion useScroll / useTransform; fine pointer tilt ±2.2deg",
+        "purpose": "Profundidad de palabras, paneles y capas decorativas en ambos sentidos; estático con movimiento reducido."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "navigation-menu",
+        "value": "1120px"
+      },
+      {
+        "name": "stacked-journeys",
+        "value": "760px"
+      },
+      {
+        "name": "compact-property-card",
+        "value": "600px"
+      },
+      {
+        "name": "narrow-gutter",
+        "value": "374px"
+      }
+    ],
+    "typography": [
+      {
+        "name": "editorial-heading",
+        "value": "Plus Jakarta Sans 500 + Cormorant Garamond 500 italic",
+        "purpose": "Contraste editorial por frase con nombre accesible completo y palabras que ajustan línea."
+      }
+    ],
+    "surfaces": [
+      {
+        "name": "glass-gradient",
+        "value": "linear-gradient(132deg, #173653eb, #0b1f3adc 54%, #29445bec)",
+        "purpose": "Vidrio navy compartido en tarjetas, firma y accesos."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Acción principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción general adaptada al tema.",
+      "html": "<button class=\"ds-button\">Ver el proyecto</button>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:14px 24px; border:0; border-radius:var(--radius-control,8px); font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); font-size:13px; font-weight:600; line-height:1.5; cursor:pointer; transition:background .2s,transform .25s cubic-bezier(.22,1,.36,1); } .ds-button:focus-visible { outline:3px solid var(--color-blue,#316692); outline-offset:5px; } .ds-button:active { transform:scale(.975); } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }.ds-button { background:var(--text,#0B1F3A); color:var(--paper,#FFFFFF); } @media(hover:hover) and (pointer:fine) { .ds-button:hover { background:var(--color-blue,#316692); color:var(--on-ink,#FBF9F4); transform:translateY(-2px); } }"
+    },
+    {
+      "name": "Acción arena",
+      "kind": "button",
+      "refersTo": "button-sand",
+      "description": "Acción cálida sobre una superficie navy.",
+      "html": "<button class=\"ds-button\">Revisar consulta</button>",
+      "css": ".ds-button { display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:14px 24px; border:0; border-radius:var(--radius-control,8px); font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); font-size:13px; font-weight:600; line-height:1.5; cursor:pointer; transition:background .2s,transform .25s cubic-bezier(.22,1,.36,1); } .ds-button:focus-visible { outline:3px solid var(--color-blue,#316692); outline-offset:5px; } .ds-button:active { transform:scale(.975); } @media(prefers-reduced-motion:reduce) { .ds-button { transition:none; } }.ds-button { background:var(--color-sand,#D8C8B4); color:var(--color-ink,#0B1F3A); } @media(hover:hover) and (pointer:fine) { .ds-button:hover { background:var(--color-sand-deep,#C8B79C); transform:translateY(-2px); } }"
+    },
+    {
+      "name": "Campo de contacto",
+      "kind": "input",
+      "refersTo": "contact-field",
+      "description": "Etiqueta persistente y colores semánticos de superficie.",
+      "html": "<label class=\"ds-field\">Nombre<input type=\"text\" autocomplete=\"name\"></label>",
+      "css": ".ds-field { display:flex; flex-direction:column; gap:8px; font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); font-size:13px; color:var(--text,#0B1F3A); } .ds-field input { min-height:48px; border:1px solid var(--line,#DCE1E5); border-radius:8px; background:var(--panel,#FFFFFF); color:var(--text,#0B1F3A); padding:13px 15px; font:inherit; font-size:14px; } .ds-field input:focus-visible { outline:3px solid var(--color-blue,#316692); outline-offset:5px; }"
+    },
+    {
+      "name": "Navegación de rutas",
+      "kind": "nav",
+      "description": "Enlaces de escritorio con indicador de ruta actual.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Principal\"><a href=\"/\" aria-current=\"page\">Inicio</a><a href=\"/proyectos\">Proyectos</a><a href=\"/mapa\">Mapa</a></nav>",
+      "css": ".ds-nav { display:flex; gap:clamp(16px,2vw,26px); color:var(--text,#0B1F3A); font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); } .ds-nav a { position:relative; display:flex; align-items:center; min-height:44px; color:inherit; text-decoration:none; font-size:13px; font-weight:500; } .ds-nav a:after { content:''; position:absolute; height:2px; width:100%; background:currentColor; bottom:5px; transform:scaleX(0); transform-origin:left; transition:transform .25s cubic-bezier(.22,1,.36,1); } .ds-nav a[aria-current]:after,.ds-nav a:hover:after { transform:scaleX(1); } .ds-nav a:focus-visible { outline:3px solid var(--color-blue,#316692); outline-offset:5px; } @media(prefers-reduced-motion:reduce) { .ds-nav a:after { transition:none; } }"
+    },
+    {
+      "name": "Filtro de catálogo",
+      "kind": "chip",
+      "description": "Selección con texto legible y área táctil de 44 px.",
+      "html": "<button class=\"ds-chip\" aria-pressed=\"true\">Todos</button>",
+      "css": ".ds-chip { min-height:44px; padding:0 14px; border:1px solid var(--line,#DCE1E5); border-radius:999px; background:transparent; color:var(--text,#0B1F3A); font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); font-size:13px; cursor:pointer; } .ds-chip[aria-pressed=true] { background:var(--text,#0B1F3A); border-color:var(--text,#0B1F3A); color:var(--paper,#FFFFFF); } .ds-chip:hover { border-color:var(--text,#0B1F3A); } .ds-chip:focus-visible { outline:3px solid var(--color-blue,#316692); outline-offset:5px; } .ds-chip:active { transform:scale(.975); }"
+    },
+    {
+      "name": "Panel de tarjeta fotográfica",
+      "kind": "card",
+      "refersTo": "property-card",
+      "description": "Muestra estática del panel navy y su CTA; la tarjeta real incorpora las imágenes aprobadas y los controles manuales.",
+      "html": "<article class=\"ds-card\"><p>Vista Cana · Punta Cana</p><h3>Melcon Paradise</h3><a class=\"ds-card-action\" href=\"/proyectos/melcon-paradise\">Ver el proyecto</a></article>",
+      "css": ".ds-card { background:var(--glass-ink,#0B1F3AD9); color:var(--on-ink,#FBF9F4); border:1px solid var(--glass-line,#FFFFFF38); border-radius:var(--radius-card,16px); padding:24px; backdrop-filter:blur(24px); font-family:var(--sans,'Plus Jakarta Sans Variable',sans-serif); } .ds-card p { font-size:12px; color:inherit; } .ds-card h3 { margin:12px 0 24px; font-size:clamp(22px,2.2vw,30px); font-weight:500; line-height:1.2; letter-spacing:-.03em; } .ds-card-action { display:flex; align-items:center; min-height:50px; padding:12px 18px; border-radius:8px; background:var(--on-ink,#FBF9F4); color:var(--color-ink,#0B1F3A); text-decoration:none; font-size:13px; font-weight:600; } .ds-card-action:focus-visible { outline:2px solid var(--color-ink,#0B1F3A); outline-offset:-4px; } .ds-card-action:hover { background:var(--color-sand,#D8C8B4); } .ds-card-action:active { transform:scale(.975); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La persona y el lugar",
+    "overview": "El retrato real de Andris y las imágenes aportadas de los proyectos conducen un portafolio independiente, claro y contemporáneo. El blanco da espacio a la fotografía; el navy estructura identidad, lectura y acciones; la arena aporta calidez. Se conserva la portada aprobada con nombre monumental y retrato en planos.\n\nLa firma reutilizable del recorrido es la tarjeta fotográfica con información sobre vidrio navy. Las herramientas mantienen controles reconocibles y jerarquía directa. El movimiento acompaña entrada, imágenes y acciones; la información permanece disponible con movimiento reducido.",
+    "keyCharacteristics": [
+      "Retrato real, fotografía protagonista y renders identificados.",
+      "Blanco, navy y arena con superficies semánticas para ambos temas.",
+      "Sans para recorrer y operar; serif para la presencia personal.",
+      "Tarjeta compartida y selección visible entre recorridos."
+    ],
+    "rules": [
+      {
+        "name": "The Color Role Rule",
+        "body": "Usar el token de la superficie y su texto asociado; no elegir una paleta nueva para cada sección.",
+        "section": "colors"
+      },
+      {
+        "name": "The Heading Content Rule",
+        "body": "El encabezado explica su contenido; las etiquetas de render, ubicación, filtro y estado aportan información concreta. No añadir rótulos ornamentales encima de títulos.",
+        "section": "typography"
+      },
+      {
+        "name": "The Legible Glass Rule",
+        "body": "El desenfoque refuerza el panel; el fondo navy y el texto marfil deben sostener la lectura por sí mismos.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** preservar el nombre Andris Peña, monograma original, retratos reales y paleta existente.",
+      "**Do** reutilizar la tarjeta y conservar proyecto entre ficha, mapa, favoritos y consulta.",
+      "**Do** mantener semántica, teclado, foco visible, contraste AA como objetivo y reducción de movimiento; validar a 320, 375, 768 y 1440 px en ES/EN/FR y ambos temas.",
+      "**Do** conservar originales, optimizar derivados e identificar renders y ambientación ficticia."
+    ],
+    "donts": [
+      "**Don't** inventar precios, disponibilidad, fechas, testimonios, valoraciones, contactos o credenciales. Melcon Paradise, Terra Serena y The Beach at Punta Cana City Place están autorizados; solo Melcon tiene ficha escrita completa. Los otros dos conservan detalles comerciales pendientes según CONTENT-STATUS.md.",
+      "**Don't** convertir rótulos ornamentales, valores locales del hero o CSS antiguo sin uso en nuevos patrones del sistema.",
+      "**Don't** publicar referencias privadas ni material externo sin procedencia y licencia revisadas.",
+      "**Don't** presentar fondos generados como proyectos reales. Sus procedencias se conservan en output/imagegen/hero-atmosphere-v3-provenance.md y output/imagegen/ambient-assets-v1-provenance.md.",
+      "**Don't** declarar envío, accesibilidad certificada o despliegue a partir de una captura o estado local."
+    ]
+  }
+}

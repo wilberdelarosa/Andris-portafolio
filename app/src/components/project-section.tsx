@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
 import {
   Heart,
@@ -13,36 +14,30 @@ import {
   Tree,
   ShareNetwork,
 } from "@phosphor-icons/react";
-import { designCopy } from "@/content/design-copy";
-import { melcon } from "@/content/projects";
+import { journeyCopy } from "@/content/journey-copy";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import "./project-showcase.css";
+import { EditorialTitle, DecorativeLayer, DepthPanel } from "./premium-motion";
+import { editorialAccents } from "@/content/editorial-accents";
+import {
+  getProject,
+  getPublishedProjects,
+  melcon,
+  type PropertyProject,
+} from "@/content/projects";
 import { useExperience } from "./experience-provider";
-import { Photo, Reveal, SectionTitle, Modal } from "./ui";
+import { Photo, Modal } from "./ui";
+import { PropertyCard } from "./property-card";
 
-export function ProjectFacts() {
+export function ProjectFacts({ project = melcon }: { project?: PropertyProject }) {
   const { t } = useExperience();
+  if (!project.bedrooms.length && !project.area.max && !project.greenArea)
+    return null;
   return (
     <div className="project-facts">
-      <div>
-        <Bed size={20} />
-        <span>
-          <strong>1, 2 & 3</strong>
-          <small>{t.bedrooms}</small>
-        </span>
-      </div>
-      <div>
-        <CornersOut size={20} />
-        <span>
-          <strong>52–108 m²</strong>
-          <small>{t.area}</small>
-        </span>
-      </div>
-      <div>
-        <Tree size={20} />
-        <span>
-          <strong>20,000+ m²</strong>
-          <small>{t.green}</small>
-        </span>
-      </div>
+      {project.bedrooms.length > 0 && <div><Bed size={20} /><span><strong>{project.bedrooms.join(", ")}</strong><small>{t.bedrooms}</small></span></div>}
+      {project.area.max > 0 && <div><CornersOut size={20} /><span><strong>{project.area.min}–{project.area.max} {project.area.unit}</strong><small>{t.area}</small></span></div>}
+      {project.greenArea > 0 && <div><Tree size={20} /><span><strong>{project.greenArea.toLocaleString("en-US")}+ m²</strong><small>{t.green}</small></span></div>}
     </div>
   );
 }
@@ -50,20 +45,22 @@ export function Gallery({
   open,
   onOpenChange,
   start = 0,
+  project = melcon,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   start?: number;
+  project?: PropertyProject;
 }) {
   const { t, locale } = useExperience();
   const [index, setIndex] = useState(start);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const photos = melcon.gallery;
+  const photos = project.gallery;
   return (
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title="Melcon Paradise"
+      title={project.name}
       description={t.renders}
       className="gallery-modal"
     >
@@ -131,13 +128,14 @@ export function Gallery({
     </Modal>
   );
 }
-export function SaveButton() {
-  const { saved, toggleSaved, t } = useExperience();
+export function SaveButton({ project = melcon }: { project?: PropertyProject }) {
+  const { isSaved, toggleSlug, t } = useExperience();
+  const saved = isSaved(project.slug);
   return (
     <button
       className={`icon-button save-button ${saved ? "is-saved" : ""}`}
-      onClick={toggleSaved}
-      aria-label={saved ? t.removeSaved : t.save}
+      onClick={() => toggleSlug(project.slug)}
+      aria-label={`${saved ? t.removeSaved : t.save}: ${project.name}`}
       aria-pressed={saved}
     >
       <Heart size={22} weight={saved ? "fill" : "regular"} />
@@ -145,112 +143,53 @@ export function SaveButton() {
   );
 }
 export function ProjectSection() {
-  const { t, locale } = useExperience();
-  const d = designCopy[locale];
-  const [gallery, setGallery] = useState(false);
-  const [start, setStart] = useState(0);
-  const showGallery = (index: number) => {
-    setStart(index);
-    setGallery(true);
-  };
+  const { locale, t } = useExperience();
+  const j = journeyCopy[locale];
+  const projects = getPublishedProjects();
+  const [selected, setSelected] = useState(0);
+  const reduced = useReducedMotion();
+  const project = projects[selected];
   return (
-    <section id="proyectos" className="section projects-section">
-      <SectionTitle
-        title={d.projectsTitle}
-        description={d.projectsDescription}
-      />
-      <Reveal className="featured-project">
-        <Link
-          href={`/proyectos/${melcon.slug}?lang=${locale}`}
-          className="featured-image-link"
-          aria-label={`${t.viewProject}: ${melcon.name}`}
-        >
-          <Photo
-            className="featured-image"
-            src={melcon.hero}
-            alt={melcon.gallery[0].alt[locale]}
-          />
-          <span className="image-view-circle">
-            <ArrowUpRight size={29} />
-          </span>
-        </Link>
-        <div className="featured-content">
-          <div className="project-heading">
-            <span className="project-location">
-              <MapPin size={17} />
-              {melcon.location}
-            </span>
-            <SaveButton />
-          </div>
-          <h3>
-            Melcon <br />
-            Paradise
-          </h3>
-          <p className="project-summary">{d.projectSummary}</p>
-          <ProjectFacts />
-          <Link
-            className="button button-sand"
-            href={`/proyectos/${melcon.slug}?lang=${locale}`}
-          >
-            {t.viewProject}
-            <ArrowUpRight size={20} />
-          </Link>
-          <button
-            className="featured-gallery-link"
-            onClick={() => showGallery(0)}
-          >
-            <SquaresFour size={18} />
-            {t.gallery}
-          </button>
-        </div>
-      </Reveal>
-      <div className="spaces-heading">
-        <h3>{d.spaces}</h3>
-        <button className="text-link" onClick={() => showGallery(0)}>
-          {t.allPhotos}
-          <ArrowRight size={18} />
-        </button>
+    <section id="proyectos" className="section project-showcase" aria-labelledby="showcase-title">
+      <DecorativeLayer/>
+      <div className="showcase-heading">
+        <div><EditorialTitle id="showcase-title" text={j.projects} accent={editorialAccents[locale].projects}/><p>{j.projectsIntro}</p></div>
+        <Link className="text-link" href={`/proyectos?lang=${locale}`}>{j.all}<ArrowUpRight size={20} /></Link>
       </div>
-      <div className="project-facets">
-        {[
-          { src: "/derived/melcon-gardens.webp", i: 0 },
-          { src: "/derived/melcon-pool.webp", i: 1 },
-          { src: "/derived/melcon-living.webp", i: 2 },
-        ].map(({ src, i }) => (
-          <button
-            key={src}
-            className="facet"
-            onClick={() => showGallery(i === 0 ? 5 : i)}
-          >
-            <div className="facet-image">
-              <Photo
-                src={src}
-                alt={d.spaceLabels[i]}
-                sizes="(max-width: 760px) 85vw, 33vw"
-              />
-              <span className="facet-open">
-                <ArrowUpRight size={23} />
-              </span>
-            </div>
-            <div className="facet-caption">
-              <h4>{d.spaceLabels[i]}</h4>
-              <p>{d.spaceDescriptions[i]}</p>
-            </div>
-          </button>
-        ))}
+      <div className="showcase-layout">
+        <DepthPanel className="showcase-stage">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={project.slug} initial={reduced ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : .2 }}>
+              <PropertyCard project={project} featured />
+            </motion.div>
+          </AnimatePresence>
+        </DepthPanel>
+        <div className="showcase-picker">
+          <div className="showcase-picker-head"><span>{j.select}</span><span aria-live="polite">{String(selected + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}</span></div>
+          <div className="showcase-options" role="group" aria-label={j.select}>
+            {projects.map((item, i) => <button key={item.slug} type="button" aria-pressed={i === selected} onClick={() => setSelected(i)} className="showcase-option">
+              <Photo src={item.hero} alt="" sizes="110px" />
+              <span><small>{item.location.split("·")[0].trim()}</small><strong>{item.name}</strong></span>
+              <ArrowUpRight size={19} aria-hidden="true" />
+            </button>)}
+          </div>
+          <div className="showcase-navigation">
+            <button className="icon-button" type="button" aria-label={j.previous} onClick={() => setSelected((selected - 1 + projects.length) % projects.length)}><ArrowLeft size={21}/></button>
+            <div className="showcase-progress" aria-hidden="true">{projects.map((p, i) => <span key={p.slug} className={i === selected ? "is-active" : ""}/>)}</div>
+            <button className="icon-button" type="button" aria-label={j.next} onClick={() => setSelected((selected + 1) % projects.length)}><ArrowRight size={21}/></button>
+          </div>
+          <Link className="showcase-map-link" href={`/mapa?lang=${locale}`}><MapPin size={22}/><span>{j.map}</span><ArrowUpRight size={20}/></Link>
+        </div>
       </div>
       <p className="render-caption">{t.renders}</p>
-      <Gallery
-        key={start + String(gallery)}
-        open={gallery}
-        onOpenChange={setGallery}
-        start={start}
-      />
     </section>
   );
 }
-export function ProjectDetail() {
+export function ProjectDetail({ project: initialProject }: { project?: PropertyProject }) {
   const { t, locale } = useExperience();
+  const params = useParams<{ slug?: string }>();
+  const project = initialProject ?? (params.slug ? getProject(params.slug) : undefined);
   const [gallery, setGallery] = useState(false);
   const [shared, setShared] = useState(false);
   const [start, setStart] = useState(0);
@@ -258,27 +197,28 @@ export function ProjectDetail() {
     setStart(index);
     setGallery(true);
   };
+  if (!project) return null;
   return (
     <section className="section project-detail" id="proyectos">
       <Link
         className="text-link detail-back"
-        href={`/?lang=${locale}#proyectos`}
+        href={`/proyectos?lang=${locale}`}
       >
         <ArrowLeft size={18} />
-        {t.back}
+        {journeyCopy[locale].back}
       </Link>
       <div className="detail-heading">
         <div>
           <h1>
-            Melcon <em>Paradise.</em>
+            {project.name}
           </h1>
           <span className="project-location">
             <MapPin size={16} />
-            {melcon.location}
+            {project.location}
           </span>
         </div>
         <div className="detail-actions">
-          <SaveButton />
+          <SaveButton project={project} />
           <button
             className="icon-button"
             aria-label={shared ? t.shared : t.share}
@@ -299,8 +239,8 @@ export function ProjectDetail() {
       <div className="detail-gallery">
         <button onClick={() => showGallery(0)} aria-label={t.gallery}>
           <Photo
-            src={melcon.hero}
-            alt={melcon.gallery[0].alt[locale]}
+            src={project.hero}
+            alt={project.gallery[0].alt[locale]}
             priority
           />
           <span className="button button-light">
@@ -311,42 +251,43 @@ export function ProjectDetail() {
         <div>
           <button onClick={() => showGallery(1)} aria-label={t.gallery}>
             <Photo
-              src="/derived/melcon-pool.webp"
-              alt={melcon.gallery[1].alt[locale]}
+              src={project.gallery[1].src}
+              alt={project.gallery[1].alt[locale]}
             />
           </button>
           <button onClick={() => showGallery(2)} aria-label={t.gallery}>
             <Photo
-              src="/derived/melcon-living.webp"
-              alt={melcon.gallery[2].alt[locale]}
+              src={project.gallery[2].src}
+              alt={project.gallery[2].alt[locale]}
             />
           </button>
         </div>
       </div>
       <p className="render-caption">{t.renders}</p>
-      <ProjectFacts />
+      <ProjectFacts project={project} />
       <div className="detail-description">
         <div>
           <h2>{t.detail}</h2>
-          <p>{melcon.description[locale]}</p>
+          <p>{project.description[locale]}</p>
         </div>
-        <a className="button button-primary" href="#contacto">
+        <Link className="button button-primary" href={`/contacto?lang=${locale}&proyecto=${project.slug}`}>
           {t.consultAvailability}
           <ArrowUpRight size={21} />
-        </a>
+        </Link>
       </div>
-      <h3 className="amenities-heading">{t.amenities}</h3>
+      {project.amenities.length > 0 && <><h3 className="amenities-heading">{t.amenities}</h3>
       <div className="amenities-list">
-        {melcon.amenities.map((amenity, index) => (
+        {project.amenities.map((amenity, index) => (
           <div key={index}>{amenity[locale]}</div>
         ))}
-      </div>
+      </div></>}
       <p className="field-hint">{t.availabilityNote}</p>
       <Gallery
         key={String(gallery) + start}
         open={gallery}
         onOpenChange={setGallery}
         start={start}
+        project={project}
       />
     </section>
   );

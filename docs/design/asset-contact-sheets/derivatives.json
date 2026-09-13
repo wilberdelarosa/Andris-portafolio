@@ -561,5 +561,185 @@
     "bytes": 185568,
     "crop": null,
     "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (2).jpeg",
+    "output": "app/public/derived/terra-serena-hero.webp",
+    "source_dimensions": [
+      1290,
+      930
+    ],
+    "dimensions": [
+      1200,
+      865
+    ],
+    "bytes": 210478,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (2).jpeg",
+    "output": "app/public/derived/terra-serena-hero-small.webp",
+    "source_dimensions": [
+      1290,
+      930
+    ],
+    "dimensions": [
+      640,
+      461
+    ],
+    "bytes": 66134,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM (3).jpeg",
+    "output": "app/public/derived/terra-serena-pool.webp",
+    "source_dimensions": [
+      1290,
+      924
+    ],
+    "dimensions": [
+      1200,
+      860
+    ],
+    "bytes": 208456,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.58 PM.jpeg",
+    "output": "app/public/derived/terra-serena-aerial.webp",
+    "source_dimensions": [
+      1290,
+      848
+    ],
+    "dimensions": [
+      1200,
+      789
+    ],
+    "bytes": 222708,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (2).jpeg",
+    "output": "app/public/derived/terra-serena-living.webp",
+    "source_dimensions": [
+      1290,
+      889
+    ],
+    "dimensions": [
+      1200,
+      827
+    ],
+    "bytes": 48010,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-01-unidentified/WhatsApp Image 2026-09-10 at 11.13.59 PM (6).jpeg",
+    "output": "app/public/derived/terra-serena-bedroom.webp",
+    "source_dimensions": [
+      1290,
+      886
+    ],
+    "dimensions": [
+      1200,
+      824
+    ],
+    "bytes": 40838,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/IMG01.jpeg",
+    "output": "app/public/derived/the-beach-hero.webp",
+    "source_dimensions": [
+      1024,
+      683
+    ],
+    "dimensions": [
+      1024,
+      683
+    ],
+    "bytes": 172588,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/IMG01.jpeg",
+    "output": "app/public/derived/the-beach-hero-small.webp",
+    "source_dimensions": [
+      1024,
+      683
+    ],
+    "dimensions": [
+      640,
+      427
+    ],
+    "bytes": 69156,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM (1).jpeg",
+    "output": "app/public/derived/the-beach-pool.webp",
+    "source_dimensions": [
+      1280,
+      720
+    ],
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 145724,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.50 PM (2).jpeg",
+    "output": "app/public/derived/the-beach-terrace.webp",
+    "source_dimensions": [
+      1280,
+      720
+    ],
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 196270,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (2).jpeg",
+    "output": "app/public/derived/the-beach-living.webp",
+    "source_dimensions": [
+      1280,
+      720
+    ],
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 71644,
+    "crop": null,
+    "trimmed_bbox": null
+  },
+  {
+    "source": "ASSETS/projects/project-03-unidentified/WhatsApp Image 2026-09-10 at 11.27.51 PM (6).jpeg",
+    "output": "app/public/derived/the-beach-bedroom.webp",
+    "source_dimensions": [
+      1280,
+      720
+    ],
+    "dimensions": [
+      1200,
+      675
+    ],
+    "bytes": 86118,
+    "crop": null,
+    "trimmed_bbox": null
   }
 ]

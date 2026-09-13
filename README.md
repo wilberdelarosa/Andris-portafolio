@@ -2,19 +2,11 @@
 
 Portafolio de Andris Peña, agente inmobiliario. Este repositorio contiene material de marca, fotos de proyectos, documentación de contenido, referencias visuales y una aplicación Next.js dentro de `app/`.
 
-## Implementaciones
+## Aplicación
 
-Este repositorio contiene dos aplicaciones independientes construidas sobre el mismo material.
-No comparten código, dependencias ni recursos generados.
+La aplicación activa está en `app/` (Next.js, React y TypeScript). Lee [app/README.md](app/README.md) para ejecutarla. Incluye portada animada, catálogo de tres proyectos, fichas independientes, mapa interactivo, calculadora de pagos, galería, favoritos, contacto ES/EN/FR, temas claro/oscuro y PWA.
 
-| Carpeta | Descripción |
-| --- | --- |
-| `web/` | Portafolio Next.js 15 con portada editorial, catálogo de tres proyectos, mapa verificado, simulador de plan de pago, ES/EN/FR, tema claro y oscuro, PWA y API de lectura. Lee `web/README.md` y `web/DESIGN_SYSTEM.md`. |
-| `app/` | Implementación previa. Se conserva tal cual. |
-
-## Aplicación previa en `app/`
-
-Lee `app/README.md` para ejecutar y mantener el sitio. Incluye portada animada, ficha de Melcon Paradise, mapa verificado, simulador de pagos, galería, favoritos, WhatsApp/correo oficiales, ES/EN/FR, modo oscuro y PWA. Los otros dos proyectos permanecen como borradores por indicación del usuario. Contactos confirmados: +1 (849) 576-3822 y andrisprealtor@gmail.com.
+El recorrido se distribuye entre `/`, `/proyectos`, `/proyectos/[slug]`, `/mapa`, `/sobre-mi`, `/calculadora` y `/contacto`. Las fichas, favoritos, mapa y consulta comparten el identificador del proyecto. Contactos confirmados: +1 (849) 576-3822 y andrisprealtor@gmail.com.
 
 El sitio representa a Andris Peña como asesor independiente. No se debe mencionar ni incluir “Leaf Glass”, “Leafglass” o sus variaciones en ninguna pieza del sitio, SEO, metadato, contenido generado o integración.
 
@@ -50,8 +42,8 @@ El sitio representa a Andris Peña como asesor independiente. No se debe mencion
 
 - 81 imágenes de material propio verificadas: todas decodifican correctamente.
 - 1 PDF de ocho páginas revisado visualmente.
-- 1 proyecto con datos confirmados: `melcon-paradise`.
-- 2 proyectos con renders pero sin nombre ni descripción confirmados.
+- Melcon Paradise tiene ficha documentada.
+- Terra Serena y The Beach at Punta Cana City Place tienen nombres, ubicaciones y renders verificados; sus datos comerciales siguen pendientes. La actualización del 13 de septiembre se registra en CONTENT-STATUS.md.
 - 2 copias exactas detectadas dentro de `project-03-unidentified`; se conservaron para no perder material.
 
 Consulta `docs/organization/CONTENT-STATUS.md` antes de construir páginas públicas.

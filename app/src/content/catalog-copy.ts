@@ -1,0 +1,120 @@
+/**
+ * Textos del catalogo de proyectos.
+ *
+ * Los filtros se construyen a partir de datos reales de `projects.ts`: zona,
+ * habitaciones y amenidades. No hay categorias inventadas ni etiquetas
+ * comerciales que el material no respalde.
+ */
+export const catalogCopy = {
+  es: {
+    eyebrow: "Catálogo",
+    title: ["Tres lugares.", "Un mismo acompañamiento."],
+    intro:
+      "Explora los proyectos en Punta Cana. Compara sus espacios, guarda tus favoritos y encuentra tu próximo paso.",
+    filtersLabel: "Filtrar proyectos",
+    zone: "Zona",
+    bedrooms: "Habitaciones",
+    amenities: "Amenidades",
+    all: "Todos",
+    results: (n: number) => (n === 1 ? "1 proyecto" : `${n} proyectos`),
+    empty: "Ningún proyecto coincide con esa combinación.",
+    emptyAction: "Quitar los filtros",
+    clear: "Limpiar",
+    open: "Ver el proyecto",
+    location: "Abrir ubicación",
+    pending: "Detalles por confirmar",
+    complete: "Ficha completa",
+    bedroomsValue: (list: number[]) =>
+      list.length === 0 ? "Por confirmar" : `${list.join(", ")} habitaciones`,
+    areaValue: (min: number, max: number, unit: string) =>
+      min === 0 ? "Por confirmar" : `${min} a ${max} ${unit}`,
+    greenValue: (value: number) =>
+      value === 0 ? "Por confirmar" : `${value.toLocaleString("es-DO")} m² verdes`,
+    note: "Las imágenes son renders entregados por cada desarrollador. Precios, disponibilidad y fechas de entrega se confirman antes de cualquier reserva.",
+    backHome: "Inicio",
+    priceFrom: "Desde",
+    pricePending: "Precio por confirmar",
+    bedroomsShort: "hab.",
+    bathroomsShort: "baños",
+    parkingShort: "parqueos",
+    pendingShort: "Por confirmar",
+    save: (name: string) => `Guardar ${name}`,
+    unsave: (name: string) => `Quitar ${name} de guardados`,
+    image: (current: number, total: number) => `Imagen ${current} de ${total}`,
+    goToImage: (n: number) => `Ver la imagen ${n}`,
+  },
+  en: {
+    eyebrow: "Catalogue",
+    title: ["Three places.", "The same guidance."],
+    intro:
+      "Explore projects in Punta Cana. Compare their spaces, save your favourites and find your next step.",
+    filtersLabel: "Filter projects",
+    zone: "Area",
+    bedrooms: "Bedrooms",
+    amenities: "Amenities",
+    all: "All",
+    results: (n: number) => (n === 1 ? "1 project" : `${n} projects`),
+    empty: "No project matches that combination.",
+    emptyAction: "Clear the filters",
+    clear: "Clear",
+    open: "View the project",
+    location: "Open location",
+    pending: "Details to confirm",
+    complete: "Full profile",
+    bedroomsValue: (list: number[]) =>
+      list.length === 0 ? "To confirm" : `${list.join(", ")} bedrooms`,
+    areaValue: (min: number, max: number, unit: string) =>
+      min === 0 ? "To confirm" : `${min} to ${max} ${unit}`,
+    greenValue: (value: number) =>
+      value === 0 ? "To confirm" : `${value.toLocaleString("en-US")} m² of greenery`,
+    note: "Images are renderings supplied by each developer. Prices, availability and handover dates are confirmed before any reservation.",
+    backHome: "Home",
+    priceFrom: "From",
+    pricePending: "Price to confirm",
+    bedroomsShort: "bed",
+    bathroomsShort: "bath",
+    parkingShort: "parking",
+    pendingShort: "To confirm",
+    save: (name: string) => `Save ${name}`,
+    unsave: (name: string) => `Remove ${name} from saved`,
+    image: (current: number, total: number) => `Image ${current} of ${total}`,
+    goToImage: (n: number) => `View image ${n}`,
+  },
+  fr: {
+    eyebrow: "Catalogue",
+    title: ["Trois lieux.", "Un même accompagnement."],
+    intro:
+      "Explorez les projets à Punta Cana. Comparez les espaces, enregistrez vos favoris et préparez la prochaine étape.",
+    filtersLabel: "Filtrer les projets",
+    zone: "Zone",
+    bedrooms: "Chambres",
+    amenities: "Prestations",
+    all: "Tous",
+    results: (n: number) => (n === 1 ? "1 projet" : `${n} projets`),
+    empty: "Aucun projet ne correspond à cette combinaison.",
+    emptyAction: "Retirer les filtres",
+    clear: "Effacer",
+    open: "Voir le projet",
+    location: "Ouvrir la localisation",
+    pending: "Détails à confirmer",
+    complete: "Fiche complète",
+    bedroomsValue: (list: number[]) =>
+      list.length === 0 ? "À confirmer" : `${list.join(", ")} chambres`,
+    areaValue: (min: number, max: number, unit: string) =>
+      min === 0 ? "À confirmer" : `${min} à ${max} ${unit}`,
+    greenValue: (value: number) =>
+      value === 0 ? "À confirmer" : `${value.toLocaleString("fr-FR")} m² de verdure`,
+    note: "Les images sont des perspectives fournies par chaque promoteur. Prix, disponibilité et dates de livraison sont confirmés avant toute réservation.",
+    backHome: "Accueil",
+    priceFrom: "À partir de",
+    pricePending: "Prix à confirmer",
+    bedroomsShort: "ch.",
+    bathroomsShort: "sdb",
+    parkingShort: "parking",
+    pendingShort: "À confirmer",
+    save: (name: string) => `Enregistrer ${name}`,
+    unsave: (name: string) => `Retirer ${name} des favoris`,
+    image: (current: number, total: number) => `Image ${current} sur ${total}`,
+    goToImage: (n: number) => `Voir l'image ${n}`,
+  },
+} as const;

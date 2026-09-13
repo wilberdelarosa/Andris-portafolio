@@ -12,8 +12,8 @@ const descriptions = {
 };
 export const parseLocale = (value?: string): Locale =>
   value === "en" || value === "fr" ? value : "es";
-export function pageMetadata(locale: Locale, project?: string): Metadata {
-  const title = project ? `${project} · Vista Cana` : titles[locale];
+export function pageMetadata(locale: Locale, pageTitle?: string): Metadata {
+  const title = pageTitle ?? titles[locale];
   return {
     title: { absolute: `${title} | Andris Peña` },
     description: descriptions[locale],

@@ -118,12 +118,12 @@ export function Hero() {
         <div className={styles.advice}>
           <span className={styles.smallRule} aria-hidden="true" />
           <p>{copy.guidance}</p>
-          <a className={styles.meet} href="#sobre-mi">
+          <a className={styles.meet} href={`/sobre-mi?lang=${locale}`}>
             {t.meet}
             <ArrowUpRight size={19} aria-hidden="true" />
           </a>
         </div>
-        <a className={styles.conversation} href="#contacto">
+        <a className={styles.conversation} href={`/contacto?lang=${locale}`}>
           {t.talk}
           <ArrowUpRight size={17} aria-hidden="true" />
         </a>
@@ -141,14 +141,6 @@ export function Hero() {
           className={styles.projectLink}
           href={`/proyectos/melcon-paradise?lang=${locale}`}
         >
-          <span className={styles.projectPhoto}>
-            <Image
-              src="/derived/melcon-hero-small.webp"
-              alt=""
-              fill
-              sizes="80px"
-            />
-          </span>
           <span>
             <small>{copy.project}</small>
             <strong>Melcon Paradise</strong>
