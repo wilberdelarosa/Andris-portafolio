@@ -39,7 +39,7 @@ El monograma original conserva la identidad de marca. El nombre escrito junto a 
 2. **Portada:** retrato central de Andris en traje y nombre en capas, escenografía arquitectónica luminosa, propuesta, CTA de exploración y acceso al proyecto real.
 3. **Proyecto:** Melcon Paradise como dossier de imágenes y datos confirmados, con galería y ficha propia. Solo se publica el proyecto aprobado.
 4. **Ubicación:** punto confirmado de Melcon, enlace de ubicación y mapa activable con atribución.
-5. **Asesor:** fotografía de costa y una presentación personal directa, sin biografía ampliada, cursos o certificaciones inventados.
+5. **Asesor:** una escena editorial con el retrato real de Andris recortado, arquitectura ficticia de fondo y una presentación personal directa, sin biografía ampliada, cursos o certificaciones inventados.
 6. **Proceso:** cuatro pasos legibles desde escuchar prioridades hasta preparar la conversación siguiente.
 7. **Simulador:** escenario de pagos editable, controles claros y resultado sobre navy. No representa una oferta vigente ni promete financiación.
 8. **Preguntas:** respuestas en desplegables nativos para acompañar la decisión.
@@ -51,7 +51,7 @@ La ficha de proyecto reutiliza los componentes pertinentes. No se completa la ca
 
 Usar los derivados optimizados de `app/public/derived/`, preservando los originales en `ASSETS/`. El recorte `andris-suit.webp` conserva el retrato real de Andris y su transparencia. El fondo `hero-atmosphere-v3.webp` fue generado mediante `imagegen`: arquitectura marfil y travertino, sombras de palmas y una abertura lateral hacia un mar sin hitos identificables. Es una escenografía editorial ficticia, no una propiedad ofertada ni una fotografía documental de Melcon. El original, la optimización y el prompt están registrados en [hero-atmosphere-v3-provenance.md](../../output/imagegen/hero-atmosphere-v3-provenance.md). Los renders del proyecto siguen identificados como imágenes ilustrativas.
 
-La animación guía la atención hacia la entrada con máscaras del nombre, desplazamiento y opacidad del retrato, y acercamiento suave del fondo. Un movimiento limitado por scroll separa los planos; la respuesta del retrato al ratón funciona solo en escritorio con puntero fino. Se respeta `prefers-reduced-motion` y el contenido base permanece visible. El texto debe ser legible sin esperar una secuencia prolongada. Los hovers se reservan para puntero fino; en móvil las acciones son visibles y táctiles. No se introducen cargadores artificiales para retrasar el contenido.
+La animación guía la atención hacia la entrada con máscaras del nombre, desplazamiento y opacidad del retrato, y acercamiento suave del fondo. La sección del asesor amplía ese lenguaje: el retrato de camisa blanca rebasa el marco editorial, los planos se desplazan de manera limitada con el scroll y el retrato responde levemente al puntero fino. Se respeta `prefers-reduced-motion` y el contenido base permanece visible. El texto debe ser legible sin esperar una secuencia prolongada. Los hovers se reservan para puntero fino; en móvil las acciones son visibles y táctiles. No se introducen cargadores artificiales para retrasar el contenido.
 
 ## Responsive y accesibilidad
 

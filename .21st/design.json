@@ -140,6 +140,12 @@
       "decision": "The generated hero-atmosphere-v3.webp depicts fictional ivory and travertine coastal architecture with palm shadows and a side opening toward the sea. It is decorative editorial scenery, never evidence of Melcon Paradise or another listed property. The real Andris suit portrait remains a separate transparent asset; originals and generation provenance are preserved.",
       "createdAt": "2026-09-12",
       "source": "output/imagegen/hero-atmosphere-v3-provenance.md"
+    },
+    {
+      "id": "advisor-editorial-cutout-stage",
+      "decision": "The advisor section replaces the former coast photograph card with Andris's real transparent white-shirt portrait, layered over the already-provenanced fictional architecture. The cutout deliberately extends beyond its frame, while scroll parallax and fine-pointer movement create depth. The adjacent verified introduction and contact action stay semantic and visible without motion.",
+      "createdAt": "2026-09-13",
+      "source": "User-provided reference and app/src/components/about-section.tsx"
     }
   ],
   "evidence": [

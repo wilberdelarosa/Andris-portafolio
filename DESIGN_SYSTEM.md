@@ -71,7 +71,7 @@ Los márgenes agrupan contenido relacionado y separan secciones. La fotografía 
 | Portada | Retrato de traje centrado, ANDRIS detrás del retrato y PEÑA sobre el plano frontal inferior, en texto sólido. Laterales con propuesta, exploración y presentación; enlace a Melcon inmediatamente después. El nombre accesible permanece completo en un único H1. |
 | Proyecto | Fotografía amplia junto a título, ubicación y hechos confirmados; galería de seis imágenes y ficha como acciones propias. Los renders se identifican como ilustrativos. |
 | Ubicación | Mapa que se activa por decisión del visitante, con atribución y enlace a la ubicación confirmada. |
-| Sobre Andris | Fotografía de costa, presentación directa, texto legible y acción para conversar. Sin citas atribuidas ni credenciales no confirmadas. |
+| Sobre Andris | Escena editorial con el recorte real de camisa blanca, el nombre vertical en segundo plano y arquitectura ficticia como atmósfera. El retrato puede rebasar el marco y responde de forma limitada al scroll y al puntero fino; la presentación y acción permanecen legibles. Sin citas atribuidas ni credenciales no confirmadas. |
 | Proceso | Cuatro pasos de una secuencia real en lista ordenada. La numeración explica la secuencia y no decora el resto de secciones. |
 | Simulador | Controles claros y resultado sobre navy. Los números y la distribución de pagos son el contenido principal; los importes se presentan como escenario editable. |
 | Preguntas | `details` y `summary` nativos, con apertura comprensible y sin índices decorativos. |

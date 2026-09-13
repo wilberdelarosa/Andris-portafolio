@@ -1,0 +1,470 @@
+/* A personal editorial stage: the real cutout remains visibly separate from fictional scenery. */
+.about {
+  --about-paper: var(--color-surface-raised);
+  --about-ink: var(--color-ink);
+  --about-muted: var(--muted);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(20rem, 0.77fr);
+  align-items: center;
+  gap: clamp(48px, 8vw, 150px);
+  padding-block: clamp(96px, 12vw, 172px);
+  overflow: visible;
+}
+
+.stage {
+  min-height: clamp(550px, 47vw, 710px);
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  cursor: default;
+}
+
+.scene {
+  position: absolute;
+  z-index: -3;
+  inset: 16px 0 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--about-paper);
+  box-shadow: 16px 28px 68px #0b1f3a1a;
+}
+
+.sceneImage {
+  object-fit: cover;
+  object-position: 67% center;
+  opacity: 0.64;
+  transform: scale(1.08);
+}
+
+.sceneVeil {
+  position: absolute;
+  z-index: -2;
+  inset: 16px 0 0;
+  border-radius: 16px;
+  background:
+    linear-gradient(112deg, #fbf9f4f2 7%, #fbf9f49e 46%, #fbf9f41c 84%),
+    linear-gradient(0deg, #d8c8b447, transparent 42%);
+  pointer-events: none;
+}
+
+.arch {
+  position: absolute;
+  z-index: -1;
+  top: 12%;
+  right: 9%;
+  width: 42%;
+  height: 71%;
+  border: 1px solid #0b1f3a2b;
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.arch::after {
+  content: "";
+  position: absolute;
+  inset: 13px;
+  border: 1px solid #0b1f3a1c;
+  border-bottom: 0;
+  border-radius: inherit;
+}
+
+.monogramDepth {
+  position: absolute;
+  z-index: 0;
+  top: 10%;
+  left: 5.5%;
+}
+
+.monogram {
+  margin: 0;
+  color: #0b1f3a2b;
+  font-family: var(--serif);
+  font-size: clamp(86px, 11.5vw, 174px);
+  font-weight: 500;
+  line-height: 0.78;
+  letter-spacing: -0.04em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  user-select: none;
+}
+
+.stageMeta {
+  position: absolute;
+  z-index: 2;
+  top: 42px;
+  right: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--about-ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.095em;
+  text-transform: uppercase;
+}
+
+.stageMeta span:nth-child(2) {
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.portraitDepth {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: -50px;
+  left: 8%;
+  width: min(86%, 570px);
+  pointer-events: none;
+}
+
+.portraitPointer,
+.portraitLift {
+  position: absolute;
+  inset: 0;
+}
+
+.portraitLift {
+  transform-origin: 50% 80%;
+  transition:
+    transform 0.58s var(--ease),
+    filter 0.58s var(--ease);
+}
+
+.portrait {
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(14px 21px 19px #0b1f3a30);
+}
+
+.stageSignature {
+  position: absolute;
+  z-index: 2;
+  right: 33px;
+  bottom: 31px;
+  display: grid;
+  justify-items: end;
+  gap: 7px;
+  color: var(--about-ink);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+}
+
+.stageSignature span:first-child {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid #0b1f3a52;
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.copy {
+  position: relative;
+  max-width: 510px;
+  padding-bottom: 8px;
+}
+
+@keyframes copySettle {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.copy::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: -28px;
+  width: 1px;
+  height: 92px;
+  background: var(--about-ink);
+  opacity: 0.34;
+}
+
+.copy h2 {
+  color: var(--about-ink);
+  font-size: clamp(36px, 3.6vw, 58px);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.intro {
+  margin-top: 36px;
+  color: var(--about-ink);
+  font-family: var(--serif);
+  font-size: clamp(34px, 3vw, 47px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.body {
+  max-width: 45ch;
+  margin-top: 25px;
+  color: var(--about-muted);
+  font-size: 15px;
+  line-height: 1.9;
+  text-wrap: pretty;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 52px;
+  margin-top: 32px;
+  color: var(--about-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ctaArrow {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #0b1f3a45;
+  border-radius: 50%;
+  transition:
+    color 0.32s var(--ease),
+    background 0.32s var(--ease),
+    transform 0.32s var(--ease);
+}
+
+:global([data-theme="dark"]) .about {
+  --about-paper: var(--color-ink-soft);
+  --about-ink: var(--on-ink);
+  --about-muted: var(--on-ink-muted);
+}
+
+:global([data-theme="dark"]) .sceneImage {
+  opacity: 0.17;
+}
+
+:global([data-theme="dark"]) .sceneVeil {
+  background:
+    linear-gradient(112deg, #0b1f3ae8 5%, #0b1f3aa8 47%, #0b1f3a70 85%),
+    linear-gradient(0deg, #31669230, transparent 50%);
+}
+
+:global([data-theme="dark"]) .arch,
+:global([data-theme="dark"]) .arch::after {
+  border-color: #fbf9f43b;
+}
+
+:global([data-theme="dark"]) .monogram {
+  color: #fbf9f41f;
+}
+
+:global([data-theme="dark"]) .stageSignature span:first-child,
+:global([data-theme="dark"]) .ctaArrow {
+  border-color: #fbf9f45c;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage:hover .portraitLift {
+    filter: saturate(1.035);
+    transform: translateY(-15px) rotate(-1deg) scale(1.012);
+  }
+
+  .cta:hover .ctaArrow {
+    color: var(--about-paper);
+    background: var(--about-ink);
+    transform: rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .copy {
+    animation: copySettle 0.72s var(--ease) both;
+  }
+}
+
+@media (max-width: 1060px) {
+  .about {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.78fr);
+    gap: clamp(42px, 6vw, 76px);
+  }
+
+  .stage {
+    min-height: 575px;
+  }
+
+  .stageMeta {
+    top: 34px;
+    right: 26px;
+    font-size: 9px;
+  }
+
+  .stageSignature {
+    right: 25px;
+  }
+
+  .copy::before {
+    left: -18px;
+  }
+}
+
+@media (max-width: 820px) {
+  .about {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 78px;
+    padding-block: 86px 108px;
+  }
+
+  .stage {
+    min-height: min(690px, 111vw);
+    max-width: 660px;
+  }
+
+  .portraitDepth {
+    left: 13%;
+    width: min(76%, 530px);
+  }
+
+  .copy {
+    max-width: 600px;
+    padding-left: 28px;
+  }
+
+  .copy::before {
+    left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .about {
+    gap: 63px;
+    padding-block: 68px 94px;
+  }
+
+  .stage {
+    min-height: 440px;
+  }
+
+  .scene,
+  .sceneVeil {
+    inset: 10px 0 0;
+    border-radius: 12px;
+  }
+
+  .sceneImage {
+    object-position: 68% center;
+  }
+
+  .arch {
+    top: 15%;
+    right: 8%;
+    width: 44%;
+    height: 68%;
+  }
+
+  .stageMeta {
+    top: 27px;
+    right: 18px;
+    gap: 7px;
+    font-size: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .stageMeta span:first-child,
+  .stageMeta span:nth-child(2) {
+    display: none;
+  }
+
+  .monogramDepth {
+    top: 14%;
+    left: 5%;
+    font-size: 82px;
+  }
+
+  .portraitDepth {
+    top: -4px;
+    bottom: -31px;
+    left: 6%;
+    width: 91%;
+  }
+
+  .portrait {
+    filter: drop-shadow(9px 14px 16px #0b1f3a2c);
+  }
+
+  .stageSignature {
+    right: 18px;
+    bottom: 21px;
+    font-size: 8px;
+  }
+
+  .stageSignature span:first-child {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .copy {
+    padding-left: 21px;
+  }
+
+  .copy::before {
+    top: 8px;
+    height: 72px;
+  }
+
+  .copy h2 {
+    font-size: clamp(34px, 9.4vw, 47px);
+  }
+
+  .intro {
+    margin-top: 26px;
+    font-size: 36px;
+  }
+
+  .body {
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.82;
+  }
+
+  .cta {
+    margin-top: 25px;
+  }
+}
+
+@media (max-width: 374px) {
+  .stage {
+    min-height: 400px;
+  }
+
+  .monogram {
+    font-size: 72px;
+  }
+
+  .stageMeta {
+    right: 14px;
+  }
+
+  .stageSignature {
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portraitLift,
+  .ctaArrow {
+    transition: none;
+  }
+}
