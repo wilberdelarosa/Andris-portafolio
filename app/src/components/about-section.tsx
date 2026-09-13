@@ -1,10 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight, Plus } from "@phosphor-icons/react";
-import { useRef, type PointerEvent } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Calculator,
+  ChatCenteredText,
+  Compass,
+  Plus,
+} from "@phosphor-icons/react";
+import { useRef, useState, type PointerEvent } from "react";
 import {
   motion,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useScroll,
@@ -19,6 +28,7 @@ export function AboutSection() {
   const { t, locale } = useExperience();
   const d = designCopy[locale];
   const section = useRef<HTMLElement>(null);
+  const stageInView = useInView(section, { amount: 0.3, once: true });
   const reduced = useReducedMotion();
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -32,6 +42,16 @@ export function AboutSection() {
   const portraitScrollY = useTransform(scrollYProgress, [0, 1], [26, -30]);
   const monogramY = useTransform(scrollYProgress, [0, 1], [-18, 22]);
   const aboutBody = t.aboutText.replace(/^[^.]+\.\s*/, "");
+  const [activeStep, setActiveStep] = useState(0);
+  const active = t.steps[activeStep];
+  const stepLabels =
+    locale === "es"
+      ? { step: "Paso", of: "de", previous: "Paso anterior", next: "Siguiente paso", action: ["Hablemos", "Explorar proyectos", "Abrir calculadora", "Preparar consulta"] }
+      : locale === "fr"
+        ? { step: "Étape", of: "sur", previous: "Étape précédente", next: "Étape suivante", action: ["Parlons-en", "Explorer les projets", "Ouvrir le simulateur", "Préparer ma demande"] }
+        : { step: "Step", of: "of", previous: "Previous step", next: "Next step", action: ["Let’s talk", "Explore projects", "Open calculator", "Prepare inquiry"] };
+  const stepLinks = ["#contacto", "#proyectos", `/calculadora?lang=${locale}`, "#contacto"];
+  const stepIcons = [ChatCenteredText, Compass, Calculator, ArrowUpRight];
 
   function followPointer(event: PointerEvent<HTMLElement>) {
     if (
@@ -43,8 +63,8 @@ export function AboutSection() {
     }
 
     const bounds = event.currentTarget.getBoundingClientRect();
-    pointerX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 18);
-    pointerY.set(((event.clientY - bounds.top) / bounds.height - 0.5) * 12);
+    pointerX.set(((event.clientX - bounds.left) / bounds.width - 0.5) * 26);
+    pointerY.set(((event.clientY - bounds.top) / bounds.height - 0.5) * 16);
   }
 
   return (
@@ -56,7 +76,7 @@ export function AboutSection() {
         ref={section}
       >
         <motion.div
-          className={styles.stage}
+          className={`${styles.stage} ${stageInView ? styles.stageInView : ""}`}
           onPointerMove={followPointer}
           onPointerLeave={() => {
             pointerX.set(0);
@@ -133,22 +153,63 @@ export function AboutSection() {
         className="section process-section"
         aria-labelledby="process-title"
       >
-        <div className="section-heading">
-          <h2 id="process-title">{d.processTitle}</h2>
+        <div className="process-heading">
+          <div className="section-heading">
+            <span className="process-eyebrow">{t.processLabel}</span>
+            <h2 id="process-title">{d.processTitle}</h2>
+          </div>
+          <p className="process-count" aria-live="polite">
+            <strong>0{activeStep + 1}</strong> / 04
+          </p>
         </div>
-        <ol className="process-list">
+        <ol className="process-list" aria-label={t.processLabel}>
           {t.steps.map((step, index) => (
             <li className="process-step" key={step.title}>
-              <span className="step-number" aria-hidden="true">
-                0{index + 1}
-              </span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </div>
+              <button
+                className={activeStep === index ? "is-active" : ""}
+                type="button"
+                onClick={() => setActiveStep(index)}
+                aria-pressed={activeStep === index}
+              >
+                <span className="step-number" aria-hidden="true">0{index + 1}</span>
+                <span className="step-icon" aria-hidden="true">
+                  {(() => {
+                    const Icon = stepIcons[index];
+                    return <Icon size={20} />;
+                  })()}
+                </span>
+                <span className="step-title">{step.title}</span>
+                <span className="step-summary">{step.text}</span>
+              </button>
             </li>
           ))}
         </ol>
+        <div className="process-spotlight" aria-live="polite">
+          <div className="process-spotlight-index" aria-hidden="true">
+            <span>0{activeStep + 1}</span>
+            <i />
+            <small>04</small>
+          </div>
+          <div className="process-spotlight-copy">
+            <span>{stepLabels.step} {activeStep + 1} {stepLabels.of} 4</span>
+            <h3>{active.title}</h3>
+            <p>{active.text}</p>
+          </div>
+          <div className="process-spotlight-actions">
+            <a className="button button-primary" href={stepLinks[activeStep]}>
+              {stepLabels.action[activeStep]}
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+            <div className="process-navigation" aria-label={t.processLabel}>
+              <button type="button" onClick={() => setActiveStep((activeStep + 3) % 4)} aria-label={stepLabels.previous}>
+                <ArrowLeft size={19} />
+              </button>
+              <button type="button" onClick={() => setActiveStep((activeStep + 1) % 4)} aria-label={stepLabels.next}>
+                <ArrowRight size={19} />
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
     </>
   );
