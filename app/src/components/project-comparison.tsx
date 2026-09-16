@@ -21,6 +21,7 @@ import {
   WhatsappLogo,
   X,
   CaretUp,
+  Minus,
 } from "@phosphor-icons/react";
 import { catalogCopy } from "@/content/catalog-copy";
 import { advisor } from "@/content/advisor";
@@ -29,7 +30,6 @@ import {
   getProjectInformation,
   projectInformationFields,
   type ProjectInformationFieldId,
-  type ProjectInformationStatus,
 } from "@/content/project-information";
 import { useExperience } from "./experience-provider";
 import "./project-comparison.css";
@@ -50,9 +50,10 @@ interface SpecRow {
   icon: React.ComponentType<{ size?: number; className?: string; weight?: "fill" | "bold" | "regular" }>;
   getValue: (p: PropertyProject, locale: "es" | "en" | "fr") => {
     text: string;
-    isPending?: boolean;
+    isUnavailable?: boolean;
     isHighlight?: boolean;
-    badge?: string;
+    isChecklist?: boolean;
+    isChecked?: boolean;
   };
   isDifferent: (projects: PropertyProject[]) => boolean;
 }
@@ -90,28 +91,38 @@ const infoIcons: Record<ProjectInformationFieldId, SpecRow["icon"]> = {
   padel: CheckCircle,
 };
 
-const pendingText = (locale: "es" | "en" | "fr", state: ProjectInformationStatus) => {
-  if (state === "not-applicable") {
-    return locale === "es" ? "No aplica" : locale === "fr" ? "Non applicable" : "Not applicable";
-  }
-  return locale === "es" ? "Por confirmar" : locale === "fr" ? "À confirmer" : "To confirm";
-};
+const CHECKLIST_FIELD_IDS = new Set<ProjectInformationFieldId>([
+  "tennis",
+  "golf",
+  "nearBeach",
+  "beachfront",
+  "artificialBeach",
+  "padel",
+  "smartHome",
+  "vacationRental",
+  "rentalManagement",
+  "parking",
+  "furnished",
+  "energyEfficiency",
+  "financing",
+]);
+
+const unavailableText = () => "—";
 
 const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
   ...field,
   icon: infoIcons[field.id],
   getValue: (project, locale) => {
     const information = getProjectInformation(project.slug, field.id);
-    const isPending = information.status === "pending" || information.status === "varies";
+    const isChecklist = CHECKLIST_FIELD_IDS.has(field.id);
+    const isUnavailable =
+      information.status === "pending" || information.status === "not-applicable";
     return {
-      text: information.value?.[locale] ?? pendingText(locale, information.status),
-      isPending,
+      text: information.value?.[locale] ?? unavailableText(),
+      isUnavailable,
       isHighlight: information.status === "documented" && ["price", "delivery", "artificialBeach"].includes(field.id),
-      badge: information.status === "documented"
-        ? catalogCopy[locale].verifiedStatus
-        : information.status === "varies"
-          ? (locale === "es" ? "Según fase o unidad" : locale === "fr" ? "Selon la phase ou l’unité" : "By phase or unit")
-          : undefined,
+      isChecklist,
+      isChecked: isChecklist && information.status === "documented",
     };
   },
   isDifferent: (projects) => new Set(projects.map((project) => {
@@ -421,14 +432,23 @@ export function ProjectComparisonModal({
                         <div
                           key={project.slug}
                           role="cell"
-                          className={`compare-cell compare-val-cell ${value.isHighlight ? "is-highlight" : ""} ${value.isPending ? "is-pending" : ""}`}
+                          className={`compare-cell compare-val-cell ${value.isHighlight ? "is-highlight" : ""} ${value.isUnavailable ? "is-unavailable" : ""} ${value.isChecklist ? "is-checklist" : ""}`}
                         >
-                          {value.badge && (
-                            <span className={`compare-val-badge ${value.isPending ? "badge-pending" : "badge-confirmed"}`}>
-                              {value.badge}
+                          {value.isChecklist ? (
+                            <span
+                              className={`compare-check ${value.isChecked ? "is-checked" : "is-empty"}`}
+                              aria-label={value.isChecked ? c.includedFeature : c.valueUnavailable}
+                              title={value.isChecked ? value.text : c.valueUnavailable}
+                            >
+                              {value.isChecked ? (
+                                <CheckCircle size={22} weight="fill" aria-hidden="true" />
+                              ) : (
+                                <Minus size={18} weight="bold" aria-hidden="true" />
+                              )}
                             </span>
+                          ) : (
+                            <p className="compare-val-text">{value.text}</p>
                           )}
-                          <p className="compare-val-text">{value.text}</p>
                         </div>
                       );
                     })}
@@ -495,15 +515,24 @@ export function ProjectComparisonModal({
                         return (
                           <div
                             key={project.slug}
-                            className={`compare-mobile-value ${value.isHighlight ? "is-highlight" : ""} ${value.isPending ? "is-pending" : ""}`}
+                            className={`compare-mobile-value ${value.isHighlight ? "is-highlight" : ""} ${value.isUnavailable ? "is-unavailable" : ""} ${value.isChecklist ? "is-checklist" : ""}`}
                           >
                             <strong>{project.name}</strong>
-                            {value.badge && (
-                              <span className={`compare-val-badge ${value.isPending ? "badge-pending" : "badge-confirmed"}`}>
-                                {value.badge}
+                            {value.isChecklist ? (
+                              <span
+                                className={`compare-check ${value.isChecked ? "is-checked" : "is-empty"}`}
+                                aria-label={value.isChecked ? c.includedFeature : c.valueUnavailable}
+                                title={value.isChecked ? value.text : c.valueUnavailable}
+                              >
+                                {value.isChecked ? (
+                                  <CheckCircle size={21} weight="fill" aria-hidden="true" />
+                                ) : (
+                                  <Minus size={17} weight="bold" aria-hidden="true" />
+                                )}
                               </span>
+                            ) : (
+                              <p>{value.text}</p>
                             )}
-                            <p>{value.text}</p>
                           </div>
                         );
                       })}

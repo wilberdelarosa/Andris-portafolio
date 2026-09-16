@@ -71,7 +71,7 @@ export type ProjectInformationProfile = Record<
  */
 export const projectInformation: Record<string, ProjectInformationProfile> = {
   "melcon-paradise": {
-    price: varies(l("Referencia por tipología: US$113,900–US$194,000; confirmar tabla vigente", "Reference by unit type: US$113,900–US$194,000; confirm current price list", "Référence par typologie : 113 900–194 000 $US ; confirmer la grille en vigueur")),
+    price: varies(l("Referencia por tipología: US$113,900–US$194,000", "Reference by unit type: US$113,900–US$194,000", "Référence par typologie : 113 900–194 000 $US")),
     reservation: documented(l("US$2,000", "US$2,000", "2 000 $US")),
     paymentPlan: varies(l("10% inicial · 40% en obra · 50% a la entrega", "10% signing · 40% during construction · 50% at delivery", "10 % à la signature · 40 % pendant les travaux · 50 % à la livraison")),
     roi: pending(), appreciation: pending(),
@@ -82,7 +82,7 @@ export const projectInformation: Record<string, ProjectInformationProfile> = {
     beachDistance: documented(l("Acceso dentro de Vista Cana", "Access within Vista Cana", "Accès au sein de Vista Cana")),
     airportDistance: documented(l("Aproximadamente 10 minutos", "About 10 minutes", "Environ 10 minutes")),
     delivery: documented(l("Febrero de 2028", "February 2028", "Février 2028")),
-    projectState: varies(l("En desarrollo; confirmar disponibilidad por unidad", "In development; confirm availability by unit", "En développement ; confirmer la disponibilité par unité")),
+    projectState: varies(l("En desarrollo, sujeto a unidad", "In development, subject to unit", "En développement, selon l’unité")),
     vacationRental: pending(), rentalManagement: pending(), energyEfficiency: pending(), maintenanceFee: pending(), developer: pending(), financing: pending(),
     idealFor: documented(l("Vivir en un entorno tipo resort", "Living in a resort-style setting", "Vivre dans un environnement de type resort")), smartHome: pending(),
     tennis: pending(), golf: documented(l("Acceso dentro de Vista Cana", "Access within Vista Cana", "Accès au sein de Vista Cana")),
@@ -102,7 +102,7 @@ export const projectInformation: Record<string, ProjectInformationProfile> = {
     beachDistance: documented(l("Playa Bávaro y El Cortecito a 15 min; Playa Blanca a 22 min; Macao a 25 min", "Bávaro and El Cortecito beaches 15 min; Playa Blanca 22 min; Macao 25 min", "Plages de Bávaro et El Cortecito à 15 min ; Playa Blanca à 22 min ; Macao à 25 min")),
     airportDistance: documented(l("Aproximadamente 20 minutos", "About 20 minutes", "Environ 20 minutes")),
     delivery: documented(l("Noviembre de 2028", "November 2028", "Novembre 2028")),
-    projectState: varies(l("En desarrollo; confirmar disponibilidad por unidad", "In development; confirm availability by unit", "En développement ; confirmer la disponibilité par unité")),
+    projectState: varies(l("En desarrollo, sujeto a unidad", "In development, subject to unit", "En développement, selon l’unité")),
     vacationRental: pending(), rentalManagement: pending(), energyEfficiency: pending(), maintenanceFee: pending(), developer: pending(), financing: pending(),
     idealFor: documented(l("Vivir en residencial de baja altura", "Living in a low-rise residential community", "Vivre dans une résidence de faible hauteur")), smartHome: pending(),
     tennis: pending(), golf: pending(), nearBeach: documented(l("Playas documentadas a 15–25 min", "Documented beaches 15–25 min away", "Plages documentées à 15–25 min")), beachfront: pending(), artificialBeach: pending(), padel: pending(),
@@ -120,7 +120,7 @@ export const projectInformation: Record<string, ProjectInformationProfile> = {
     airportDistance: documented(l("7–10 minutos", "7–10 minutes", "7–10 minutes")),
     delivery: varies(l("Entrega inmediata o en construcción según fase", "Immediate delivery or under construction depending on phase", "Livraison immédiate ou en construction selon la phase")),
     projectState: varies(l("Entrega inmediata o en construcción según fase", "Immediate delivery or under construction depending on phase", "Livraison immédiate ou en construction selon la phase")),
-    vacationRental: documented(l("Indicada en la ficha; confirmar condiciones por unidad", "Stated in the supplied profile; confirm terms by unit", "Indiquée dans la fiche ; confirmer les conditions par unité")),
+    vacationRental: documented(l("Permitida según condiciones de unidad", "Allowed depending on unit terms", "Autorisée selon les conditions de l’unité")),
     rentalManagement: documented(l("Administración de propiedades para alquiler vacacional", "Property management for vacation rentals", "Gestion immobilière pour locations saisonnières")),
     energyEfficiency: pending(), maintenanceFee: pending(), developer: pending(), financing: pending(),
     idealFor: documented(l("Vivir o invertir en renta vacacional", "Living or investing in vacation rentals", "Vivre ou investir en location saisonnière")), smartHome: pending(),
