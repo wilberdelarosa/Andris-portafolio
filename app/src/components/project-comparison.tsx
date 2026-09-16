@@ -25,8 +25,13 @@ import {
 import { catalogCopy } from "@/content/catalog-copy";
 import { advisor } from "@/content/advisor";
 import { getPublishedProjects, type PropertyProject } from "@/content/projects";
+import {
+  getProjectInformation,
+  projectInformationFields,
+  type ProjectInformationFieldId,
+  type ProjectInformationStatus,
+} from "@/content/project-information";
 import { useExperience } from "./experience-provider";
-import { discoveryCopy, discoveryFeatures, projectDiscovery } from "@/content/project-discovery";
 import "./project-comparison.css";
 
 interface ComparisonProps {
@@ -52,366 +57,68 @@ interface SpecRow {
   isDifferent: (projects: PropertyProject[]) => boolean;
 }
 
-const SPEC_ROWS: SpecRow[] = [
-  ...discoveryFeatures.map((feature): SpecRow => ({
-    id: feature.id,
-    category: "categoryAmenities",
-    label: feature.label,
-    icon: CheckCircle,
-    getValue: (project, locale) => ({
-      text: projectDiscovery[project.slug]?.features.includes(feature.id)
-        ? feature.id === "golf" || (feature.id === "artificial-beach" && project.slug === "melcon-paradise")
-          ? (locale === "es" ? "Acceso dentro de Vista Cana" : locale === "fr" ? "Accès dans Vista Cana" : "Access within Vista Cana")
-          : (locale === "es" ? "Documentado en la ficha" : locale === "fr" ? "Documenté dans la fiche" : "Documented in the profile")
-        : (locale === "es" ? "No documentado" : locale === "fr" ? "Non documenté" : "Not documented"),
-      isPending: !projectDiscovery[project.slug]?.features.includes(feature.id),
-    }),
-    isDifferent: (projects) => new Set(projects.map((project) => projectDiscovery[project.slug]?.features.includes(feature.id))).size > 1,
-  })),
-  // 1. Inversión y Pagos
-  {
-    id: "price",
-    category: "categoryInvestment",
-    label: { es: "Precio base", en: "Base price", fr: "Prix de base" },
-    icon: CurrencyDollar,
-    getValue: (p, locale) => {
-      const c = catalogCopy[locale];
-      if (p.price.status === "confirmed" && p.price.from !== null) {
-        return {
-          text: `${c.priceFrom} ${new Intl.NumberFormat(locale, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(p.price.from)}`,
-          isPending: false,
-          badge: c.confirmedPrice,
-        };
-      }
-      return {
-        text: p.slug === "melcon-paradise"
-          ? (locale === "es" ? "Por confirmar (Ref. $113.9k – $194k según tipología)" : locale === "en" ? "To confirm (Ref. $113.9k – $194k by unit type)" : "À confirmer (Réf. 113,9k – 194k $ selon typologie)")
-          : (locale === "es" ? "Por confirmar (Consultar según fase comercial)" : locale === "en" ? "To confirm (Consult per commercial phase)" : "À confirmer (Consulter selon la phase)"),
-        isPending: true,
-        badge: c.pendingPrice,
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => `${p.price.status}-${p.price.from}`);
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "reservation",
-    category: "categoryInvestment",
-    label: { es: "Monto de reserva", en: "Reservation fee", fr: "Montant de réservation" },
-    icon: CurrencyDollar,
-    getValue: (p, locale) => {
-      const amount = p.reservation.amount ? `$${p.reservation.amount.toLocaleString()} USD` : "—";
-      const note = p.reservation.note ? ` (${p.reservation.note[locale]})` : "";
-      return { text: `${amount}${note}`, isPending: !p.reservation.amount };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => `${p.reservation.amount}-${p.reservation.note?.es}`);
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "paymentPlan",
-    category: "categoryInvestment",
-    label: { es: "Estructura de pago", en: "Payment structure", fr: "Structure de paiement" },
-    icon: CurrencyDollar,
-    getValue: (p, locale) => {
-      const ref = p.paymentReference;
-      if (p.slug === "the-beach-at-punta-cana-city-place") {
-        return {
-          text: locale === "es"
-            ? "Inicial / obra / entrega: 20/30/50%, 30/25/45% o 50/25/25%. El último tiene 2% de descuento en planes mayores a 12 meses."
-            : locale === "en"
-            ? "Signing / construction / delivery: 20/30/50%, 30/25/45% or 50/25/25%. The last includes a 2% discount for plans longer than 12 months."
-            : "Signature / travaux / livraison : 20/30/50 %, 30/25/45 % ou 50/25/25 %. Le dernier offre 2 % de remise pour les plans de plus de 12 mois.",
-        };
-      }
-      return {
-        text: locale === "es"
-          ? `${ref.signing}% inicial · ${ref.construction}% en obra · ${ref.delivery}% a la entrega`
-          : locale === "en"
-          ? `${ref.signing}% signing · ${ref.construction}% in build · ${ref.delivery}% on delivery`
-          : `${ref.signing}% signature · ${ref.construction}% travaux · ${ref.delivery}% livraison`,
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => `${p.paymentReference.signing}/${p.paymentReference.construction}/${p.paymentReference.delivery}`);
-      return new Set(keys).size > 1;
-    },
-  },
+const infoIcons: Record<ProjectInformationFieldId, SpecRow["icon"]> = {
+  price: CurrencyDollar,
+  reservation: CurrencyDollar,
+  paymentPlan: CurrencyDollar,
+  roi: CurrencyDollar,
+  appreciation: CurrencyDollar,
+  propertyType: HouseLine,
+  bedrooms: HouseLine,
+  bathrooms: HouseLine,
+  area: HouseLine,
+  parking: HouseLine,
+  furnished: HouseLine,
+  location: MapPin,
+  beachDistance: MapPin,
+  airportDistance: MapPin,
+  delivery: ShieldCheck,
+  projectState: ShieldCheck,
+  vacationRental: HouseLine,
+  rentalManagement: HouseLine,
+  energyEfficiency: Tree,
+  maintenanceFee: CurrencyDollar,
+  developer: Info,
+  financing: CurrencyDollar,
+  idealFor: Sparkle,
+  smartHome: Sparkle,
+  tennis: CheckCircle,
+  golf: CheckCircle,
+  nearBeach: CheckCircle,
+  beachfront: CheckCircle,
+  artificialBeach: CheckCircle,
+  padel: CheckCircle,
+};
 
-  // 2. Fiscalidad y Beneficios
-  {
-    id: "confotur",
-    category: "categoryTax",
-    label: { es: "Incentivo CONFOTUR", en: "CONFOTUR Tax Incentive", fr: "Incitation fiscale CONFOTUR" },
-    icon: Sparkle,
-    getValue: (p, locale) => {
-      const isConfotur = p.slug === "the-beach-at-punta-cana-city-place";
-      if (isConfotur) {
-        return {
-          text: locale === "es"
-            ? "Beneficio de 15 años indicado en la ficha. Alcance, clasificación y condiciones sujetos a validación documental antes de reservar."
-            : locale === "en"
-            ? "A 15-year benefit is stated in the supplied profile. Scope, classification and eligibility require documentary verification before reserving."
-            : "Un avantage de 15 ans est indiqué dans la fiche. Portée, classement et conditions à vérifier avant réservation.",
-          isHighlight: true,
-          badge: "CONFOTUR",
-        };
-      }
-      return {
-        text: locale === "es" ? "Por confirmar con el desarrollador" : locale === "en" ? "To confirm with the developer" : "À confirmer avec le promoteur",
-        isPending: true,
-      };
-    },
-    isDifferent: (projects) => {
-      const hasConfotur = projects.map((p) => p.slug === "the-beach-at-punta-cana-city-place");
-      return new Set(hasConfotur).size > 1;
-    },
-  },
-  {
-    id: "rental",
-    category: "categoryTax",
-    label: { es: "Renta vacacional", en: "Vacation rental", fr: "Location saisonnière" },
-    icon: HouseLine,
-    getValue: (p, locale) => {
-      if (p.slug === "the-beach-at-punta-cana-city-place") {
-        return {
-          text: locale === "es"
-            ? "Gestión de alquiler vacacional integrada y optimizada"
-            : locale === "en"
-            ? "Integrated vacation rental property management"
-            : "Gestion locative saisonnière intégrée",
-        };
-      }
-      if (p.slug === "melcon-paradise") {
-        return {
-          text: locale === "es"
-            ? "Comunidad con amenidades resort dentro de Vista Cana"
-            : locale === "en"
-            ? "Resort amenities community inside Vista Cana"
-            : "Résidence type resort au sein de Vista Cana",
-        };
-      }
-      return {
-        text: locale === "es"
-          ? "Residencial contemporáneo de baja altura"
-          : locale === "en"
-          ? "Low-rise contemporary residential community"
-          : "Résidence contemporaine à faible hauteur",
-      };
-    },
-    isDifferent: () => true,
-  },
+const pendingText = (locale: "es" | "en" | "fr", state: ProjectInformationStatus) => {
+  if (state === "not-applicable") {
+    return locale === "es" ? "No aplica" : locale === "fr" ? "Non applicable" : "Not applicable";
+  }
+  return locale === "es" ? "Por confirmar" : locale === "fr" ? "À confirmer" : "To confirm";
+};
 
-  // 3. Espacios y Metrajes
-  {
-    id: "bedrooms",
-    category: "categorySpace",
-    label: { es: "Habitaciones", en: "Bedrooms", fr: "Chambres" },
-    icon: HouseLine,
-    getValue: (p, locale) => {
-      if (p.slug === "the-beach-at-punta-cana-city-place") {
-        return {
-          text: locale === "es" ? "Estudios, 1, 2, 3 y 4 habs." : locale === "en" ? "Studios, 1, 2, 3 & 4 beds" : "Studios, 1, 2, 3 et 4 ch.",
-        };
-      }
-      if (p.slug === "terra-serena") {
-        return {
-          text: locale === "es" ? "1 habitación + den" : locale === "en" ? "1 bedroom + den" : "1 chambre + den",
-        };
-      }
-      return {
-        text: locale === "es" ? "1, 2 y 3 habitaciones" : locale === "en" ? "1, 2 & 3 bedrooms" : "1, 2 et 3 chambres",
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => p.bedrooms.join(","));
-      return new Set(keys).size > 1;
-    },
+const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
+  ...field,
+  icon: infoIcons[field.id],
+  getValue: (project, locale) => {
+    const information = getProjectInformation(project.slug, field.id);
+    const isPending = information.status === "pending" || information.status === "varies";
+    return {
+      text: information.value?.[locale] ?? pendingText(locale, information.status),
+      isPending,
+      isHighlight: information.status === "documented" && ["price", "delivery", "artificialBeach"].includes(field.id),
+      badge: information.status === "documented"
+        ? catalogCopy[locale].verifiedStatus
+        : information.status === "varies"
+          ? (locale === "es" ? "Según fase o unidad" : locale === "fr" ? "Selon la phase ou l’unité" : "By phase or unit")
+          : undefined,
+    };
   },
-  {
-    id: "area",
-    category: "categorySpace",
-    label: { es: "Superficie construida", en: "Floor area", fr: "Surface construite" },
-    icon: HouseLine,
-    getValue: (p, locale) => {
-      if (p.area.min > 0) {
-        return {
-          text: `${p.area.min} a ${p.area.max} ${p.area.unit}`,
-        };
-      }
-      return {
-        text: locale === "es" ? "Por confirmar según tipología" : locale === "en" ? "To confirm by typology" : "À confirmer selon typologie",
-        isPending: true,
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => `${p.area.min}-${p.area.max}`);
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "greenArea",
-    category: "categorySpace",
-    label: { es: "Áreas verdes y entorno", en: "Greenery & water feature", fr: "Espaces verts et eau" },
-    icon: Tree,
-    getValue: (p, locale) => {
-      if (p.slug === "the-beach-at-punta-cana-city-place") {
-        return {
-          text: locale === "es"
-            ? "30,000 m² Crystal Lagoons® privada con playa"
-            : locale === "en"
-            ? "30,000 m² Crystal Lagoons® private beach lagoon"
-            : "Lagon privé Crystal Lagoons® de 30 000 m²",
-          isHighlight: true,
-        };
-      }
-      if (p.greenArea > 0) {
-        return {
-          text: locale === "es"
-            ? `Más de ${p.greenArea.toLocaleString()} m² de áreas verdes privadas`
-            : locale === "en"
-            ? `More than ${p.greenArea.toLocaleString()} m² private green areas`
-            : `Plus de ${p.greenArea.toLocaleString()} m² d'espaces verts privés`,
-        };
-      }
-      return {
-        text: locale === "es" ? "Jardines y áreas verdes residenciales" : locale === "en" ? "Residential gardens & green areas" : "Jardins et espaces verts résidentiels",
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => p.slug === "the-beach-at-punta-cana-city-place" ? "beach" : String(p.greenArea));
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "bathroomsParking",
-    category: "categorySpace",
-    label: { es: "Baños y parqueos", en: "Bathrooms & parking", fr: "Salles de bain & parking" },
-    icon: Info,
-    getValue: (_p, locale) => ({
-      text: locale === "es" ? "Asignación según plano de unidad" : locale === "en" ? "Allocated per unit plan" : "Attribué selon plan d'unité",
-      isPending: true,
-    }),
-    isDifferent: () => false,
-  },
-
-  // 4. Ubicación y Conectividad
-  {
-    id: "zone",
-    category: "categoryLocation",
-    label: { es: "Ubicación exacta", en: "Precise location", fr: "Localisation exacte" },
-    icon: MapPin,
-    getValue: (p) => ({
-      text: p.location,
-    }),
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => p.location);
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "airport",
-    category: "categoryLocation",
-    label: { es: "Aeropuerto PUJ", en: "PUJ Airport", fr: "Aéroport PUJ" },
-    icon: MapPin,
-    getValue: (p) => {
-      if (p.slug === "the-beach-at-punta-cana-city-place") return { text: "7–10 min" };
-      if (p.slug === "melcon-paradise") return { text: "10 min" };
-      return { text: "20 min" };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => p.slug);
-      return new Set(keys).size > 1;
-    },
-  },
-
-  // 5. Equipamiento y Amenidades
-  {
-    id: "delivery",
-    category: "categoryAmenities",
-    label: { es: "Fecha de entrega", en: "Handover date", fr: "Date de livraison" },
-    icon: ShieldCheck,
-    getValue: (p, locale) => {
-      return {
-        text: p.delivery.label[locale],
-        badge: p.delivery.status === "confirmed" ? discoveryCopy[locale].estimated : (locale === "es" ? "Por fases" : locale === "fr" ? "Par phases" : "Phased"),
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => p.delivery.label.es);
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "appliances",
-    category: "categoryAmenities",
-    label: { es: "Línea blanca", en: "Home appliances", fr: "Électroménagers" },
-    icon: CheckCircle,
-    getValue: (p, locale) => {
-      if (p.includesAppliances === true) {
-        return {
-          text: locale === "es" ? "Incluida en la unidad" : locale === "en" ? "Included with unit" : "Inclus dans l'unité",
-          isHighlight: true,
-        };
-      }
-      return {
-        text: locale === "es" ? "Por confirmar con desarrollador" : locale === "en" ? "To confirm with developer" : "À confirmer avec le promoteur",
-        isPending: true,
-      };
-    },
-    isDifferent: (projects) => {
-      const keys = projects.map((p) => String(p.includesAppliances));
-      return new Set(keys).size > 1;
-    },
-  },
-  {
-    id: "signatureAmenities",
-    category: "categoryAmenities",
-    label: { es: "Amenidades insignia", en: "Signature amenities", fr: "Prestations phares" },
-    icon: Sparkle,
-    getValue: (p, locale) => {
-      if (p.slug === "the-beach-at-punta-cana-city-place") {
-        return {
-          text: locale === "es"
-            ? "Crystal Lagoons® 30,000 m², playa privada, kayaks, pádel, tenis, minimarket"
-            : locale === "en"
-            ? "Crystal Lagoons® 30,000 m², private beach, kayaks, padel, tennis, minimarket"
-            : "Crystal Lagoons® 30 000 m², plage privée, kayaks, padel, tennis, supérette",
-        };
-      }
-      if (p.slug === "melcon-paradise") {
-        return {
-          text: locale === "es"
-            ? "Summer Gardens, Owners Club, piscinas, río artificial, pádel, spa"
-            : locale === "en"
-            ? "Summer Gardens, Owners Club, pools, artificial river, padel, spa"
-            : "Summer Gardens, Owners Club, piscines, rivière artificielle, padel, spa",
-        };
-      }
-      return {
-        text: locale === "es"
-          ? "2 piscinas, gimnasio, áreas verdes, parque infantil, parque canino"
-          : locale === "en"
-          ? "2 pools, gym, green areas, kids play area, pet zone"
-          : "2 piscines, salle de sport, espaces verts, aire de jeux, espace canin",
-      };
-    },
-    isDifferent: () => true,
-  },
-  {
-    id: "security",
-    category: "categoryAmenities",
-    label: { es: "Seguridad y acceso", en: "Security & access", fr: "Sécurité & accès" },
-    icon: ShieldCheck,
-    getValue: (_p, locale) => ({
-      text: locale === "es" ? "Acceso controlado y seguridad 24/7" : locale === "en" ? "Controlled access & 24/7 security" : "Accès contrôlé et sécurité 24 h/24",
-    }),
-    isDifferent: () => false,
-  },
-];
+  isDifferent: (projects) => new Set(projects.map((project) => {
+    const information = getProjectInformation(project.slug, field.id);
+    return `${information.status}:${information.value?.es ?? ""}`;
+  })).size > 1,
+}));
 
 export function ProjectComparisonDock({
   selectedSlugs,
@@ -565,8 +272,8 @@ export function ProjectComparisonModal({
 
   const visibleRows = useMemo(() => {
     if (!onlyDiffs || activeProjects.length < 2) return SPEC_ROWS;
-    return SPEC_ROWS.filter((row) => new Set(activeProjects.map((project) => row.getValue(project, locale).text)).size > 1);
-  }, [onlyDiffs, activeProjects, locale]);
+    return SPEC_ROWS.filter((row) => row.isDifferent(activeProjects));
+  }, [onlyDiffs, activeProjects]);
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>

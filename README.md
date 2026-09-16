@@ -24,6 +24,7 @@ Para entregar el repositorio a otra persona, usa [docs/HANDOFF.md](docs/HANDOFF.
 - [Sistema de diseño](DESIGN_SYSTEM.md): tokens, componentes, tipografía, movimiento y adaptación.
 - [Dirección visual](docs/design/DESIGN.md): composición y función de cada sección.
 - [Responsabilidades de habilidades](docs/design/SKILLS.md): aplicación del paquete, herramientas condicionales y sustituciones.
+- [Estándar de datos de proyectos](docs/organization/PROJECT-DATA-STANDARD.md): estructura única, estados de evidencia y cobertura actual para ficha, filtros y comparativa.
 
 ## Mapa de carpetas
 
