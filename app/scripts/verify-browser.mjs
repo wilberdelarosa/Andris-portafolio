@@ -118,7 +118,7 @@ async function revealAndCheckImages() {
       });
       return (
         rendered.length > 0 &&
-        rendered.every((image) => image.complete && image.naturalWidth > 0)
+        rendered.every((image) => image.naturalWidth > 0 && image.naturalHeight > 0)
       );
     },
     undefined,

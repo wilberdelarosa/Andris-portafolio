@@ -58,6 +58,8 @@ interface SpecRow {
   isDifferent: (projects: PropertyProject[]) => boolean;
 }
 
+type ComparisonValue = ReturnType<SpecRow["getValue"]>;
+
 const infoIcons: Record<ProjectInformationFieldId, SpecRow["icon"]> = {
   price: CurrencyDollar,
   reservation: CurrencyDollar,
@@ -107,7 +109,49 @@ const CHECKLIST_FIELD_IDS = new Set<ProjectInformationFieldId>([
   "financing",
 ]);
 
-const unavailableText = () => "—";
+const VALIDATION_MATRIX_FIELD_IDS = new Set<ProjectInformationFieldId>([
+  "tennis",
+  "golf",
+  "nearBeach",
+  "beachfront",
+  "artificialBeach",
+  "padel",
+  "smartHome",
+  "rentalManagement",
+  "energyEfficiency",
+]);
+
+const unavailableText = (locale: "es" | "en" | "fr") => {
+  if (locale === "en") return "Unavailable";
+  if (locale === "fr") return "Non disponible";
+  return "No disponible";
+};
+
+function ValidationMark({
+  value,
+  availableLabel,
+  unavailableLabel,
+  compact = false,
+}: {
+  value: ComparisonValue;
+  availableLabel: string;
+  unavailableLabel: string;
+  compact?: boolean;
+}) {
+  return (
+    <span
+      className={`compare-check ${value.isChecked ? "is-checked" : "is-empty"} ${compact ? "is-compact" : ""}`}
+      aria-label={value.isChecked ? availableLabel : unavailableLabel}
+      title={value.isChecked ? value.text : unavailableLabel}
+    >
+      {value.isChecked ? (
+        <CheckCircle size={compact ? 19 : 22} weight="fill" aria-hidden="true" />
+      ) : (
+        <Minus size={compact ? 15 : 18} weight="bold" aria-hidden="true" />
+      )}
+    </span>
+  );
+}
 
 const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
   ...field,
@@ -118,7 +162,7 @@ const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
     const isUnavailable =
       information.status === "pending" || information.status === "not-applicable";
     return {
-      text: information.value?.[locale] ?? unavailableText(),
+      text: information.value?.[locale] ?? unavailableText(locale),
       isUnavailable,
       isHighlight: information.status === "documented" && ["price", "delivery", "artificialBeach"].includes(field.id),
       isChecklist,
@@ -285,6 +329,14 @@ export function ProjectComparisonModal({
     if (!onlyDiffs || activeProjects.length < 2) return SPEC_ROWS;
     return SPEC_ROWS.filter((row) => row.isDifferent(activeProjects));
   }, [onlyDiffs, activeProjects]);
+  const detailRows = useMemo(
+    () => visibleRows.filter((row) => !VALIDATION_MATRIX_FIELD_IDS.has(row.id as ProjectInformationFieldId)),
+    [visibleRows],
+  );
+  const validationRows = useMemo(
+    () => visibleRows.filter((row) => VALIDATION_MATRIX_FIELD_IDS.has(row.id as ProjectInformationFieldId)),
+    [visibleRows],
+  );
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
@@ -407,7 +459,7 @@ export function ProjectComparisonModal({
               </div>
 
               {/* Data Rows */}
-              {visibleRows.map((row) => {
+              {detailRows.map((row) => {
                 const Icon = row.icon;
                 const categoryKey = row.category as keyof typeof c;
                 const categoryLabel = typeof c[categoryKey] === "string" ? (c[categoryKey] as string) : "";
@@ -435,17 +487,11 @@ export function ProjectComparisonModal({
                           className={`compare-cell compare-val-cell ${value.isHighlight ? "is-highlight" : ""} ${value.isUnavailable ? "is-unavailable" : ""} ${value.isChecklist ? "is-checklist" : ""}`}
                         >
                           {value.isChecklist ? (
-                            <span
-                              className={`compare-check ${value.isChecked ? "is-checked" : "is-empty"}`}
-                              aria-label={value.isChecked ? c.includedFeature : c.valueUnavailable}
-                              title={value.isChecked ? value.text : c.valueUnavailable}
-                            >
-                              {value.isChecked ? (
-                                <CheckCircle size={22} weight="fill" aria-hidden="true" />
-                              ) : (
-                                <Minus size={18} weight="bold" aria-hidden="true" />
-                              )}
-                            </span>
+                            <ValidationMark
+                              value={value}
+                              availableLabel={c.includedFeature}
+                              unavailableLabel={c.valueUnavailable}
+                            />
                           ) : (
                             <p className="compare-val-text">{value.text}</p>
                           )}
@@ -456,6 +502,66 @@ export function ProjectComparisonModal({
                 );
               })}
             </div>
+
+            {validationRows.length > 0 && (
+              <section className="compare-validation-panel" aria-labelledby="compare-validation-title">
+                <div className="compare-validation-head">
+                  <div>
+                    <h3 id="compare-validation-title">{c.validationMatrixTitle}</h3>
+                    <p>{c.validationMatrixSubtitle}</p>
+                  </div>
+                  <span className="compare-validation-count">
+                    {validationRows.length} / {VALIDATION_MATRIX_FIELD_IDS.size}
+                  </span>
+                </div>
+
+                <div
+                  className="compare-validation-matrix"
+                  role="table"
+                  aria-label={c.validationMatrixTitle}
+                  style={{ "--project-count": activeProjects.length } as React.CSSProperties}
+                >
+                  <div className="compare-validation-row compare-validation-header" role="row">
+                    <div className="compare-validation-cell is-feature" role="columnheader">
+                      {c.amenityColumn}
+                    </div>
+                    {activeProjects.map((project) => (
+                      <div key={project.slug} className="compare-validation-cell is-project" role="columnheader">
+                        {project.name}
+                      </div>
+                    ))}
+                  </div>
+
+                  {validationRows.map((row) => {
+                    const Icon = row.icon;
+                    return (
+                      <div key={row.id} className="compare-validation-row" role="row">
+                        <div className="compare-validation-cell is-feature" role="rowheader">
+                          <span className="compare-validation-feature-icon">
+                            <Icon size={15} aria-hidden="true" />
+                          </span>
+                          <span>{row.label[locale]}</span>
+                        </div>
+
+                        {activeProjects.map((project) => {
+                          const value = row.getValue(project, locale);
+                          return (
+                            <div key={project.slug} className="compare-validation-cell is-check" role="cell">
+                              <ValidationMark
+                                value={value}
+                                availableLabel={c.includedFeature}
+                                unavailableLabel={c.valueUnavailable}
+                                compact
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             <div className="compare-mobile-list" aria-label={c.compareTitle}>
               <div className="compare-mobile-projects">
@@ -494,7 +600,51 @@ export function ProjectComparisonModal({
                 ))}
               </div>
 
-              {visibleRows.map((row) => {
+              {validationRows.length > 0 && (
+                <section className="compare-mobile-validation-card" aria-labelledby="compare-mobile-validation-title">
+                  <div className="compare-mobile-validation-head">
+                    <h3 id="compare-mobile-validation-title">{c.validationMatrixTitle}</h3>
+                    <p>{c.validationMatrixSubtitle}</p>
+                  </div>
+
+                  <div
+                    className="compare-mobile-validation-grid"
+                    role="table"
+                    aria-label={c.validationMatrixTitle}
+                    style={{ "--project-count": activeProjects.length } as React.CSSProperties}
+                  >
+                    <div className="compare-mobile-validation-row is-header" role="row">
+                      <div role="columnheader">{c.amenityColumn}</div>
+                      {activeProjects.map((project) => (
+                        <div key={project.slug} role="columnheader">
+                          {project.name}
+                        </div>
+                      ))}
+                    </div>
+
+                    {validationRows.map((row) => (
+                      <div key={row.id} className="compare-mobile-validation-row" role="row">
+                        <div role="rowheader">{row.label[locale]}</div>
+                        {activeProjects.map((project) => {
+                          const value = row.getValue(project, locale);
+                          return (
+                            <div key={project.slug} role="cell">
+                              <ValidationMark
+                                value={value}
+                                availableLabel={c.includedFeature}
+                                unavailableLabel={c.valueUnavailable}
+                                compact
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {detailRows.map((row) => {
                 const Icon = row.icon;
                 const categoryKey = row.category as keyof typeof c;
                 const categoryLabel = typeof c[categoryKey] === "string" ? (c[categoryKey] as string) : "";
@@ -519,17 +669,12 @@ export function ProjectComparisonModal({
                           >
                             <strong>{project.name}</strong>
                             {value.isChecklist ? (
-                              <span
-                                className={`compare-check ${value.isChecked ? "is-checked" : "is-empty"}`}
-                                aria-label={value.isChecked ? c.includedFeature : c.valueUnavailable}
-                                title={value.isChecked ? value.text : c.valueUnavailable}
-                              >
-                                {value.isChecked ? (
-                                  <CheckCircle size={21} weight="fill" aria-hidden="true" />
-                                ) : (
-                                  <Minus size={17} weight="bold" aria-hidden="true" />
-                                )}
-                              </span>
+                              <ValidationMark
+                                value={value}
+                                availableLabel={c.includedFeature}
+                                unavailableLabel={c.valueUnavailable}
+                                compact
+                              />
                             ) : (
                               <p>{value.text}</p>
                             )}
