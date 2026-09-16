@@ -7,7 +7,7 @@ No se debe completar una ausencia con una deducción. Cada campo usa uno de esto
 | Estado | Uso público |
 | --- | --- |
 | `documented` | El dato consta en una ficha, documento o evidencia entregada. |
-| `pending` | Falta evidencia; la interfaz muestra “Por confirmar”. |
+| `pending` | Falta evidencia; la interfaz pública lo omite, lo deja vacío, muestra una raya o invita a consultar. |
 | `varies` | Depende de fase, tipología o unidad; se publica con esa condición visible. |
 | `not-applicable` | El campo fue revisado y no aplica al proyecto. |
 
@@ -34,10 +34,15 @@ Los identificadores técnicos, estados y valores vigentes se encuentran en `app/
 ## Regla para filtros y comparativa
 
 - Un filtro solo devuelve coincidencias con valor `documented`; `pending` no equivale a “no”.
-- Una comparativa muestra “Por confirmar” para una ausencia y “Según fase/unidad” para `varies`.
+- Una comparativa usa checklist, raya, celda vacía o CTA “Consultar” para una ausencia; no muestra textos internos como “Por confirmar”. Para `varies`, muestra “Según fase/unidad” cuando esa condición ayude a decidir.
 - La opción “Solo diferencias” compara el valor y también el estado. Dos campos pendientes no se presentan como una diferencia útil.
 - Precios, fechas, disponibilidad, ROI y beneficios fiscales se vuelven a validar antes de una reserva o campaña.
 
 ## Datos necesarios para completar una ficha
 
 Solicitar al desarrollador, por proyecto y por fase: lista de precios y vigencia, inventario, planos con baños/parqueos/metros, fecha de entrega, cuota de mantenimiento, desarrollador, financiamiento, política de renta y administración, condiciones fiscales, eficiencia energética y lista de amenidades verificable.
+
+## Modelo de base de datos CMS
+
+El mapa completo para convertir este estándar en un manejador de contenido está en `docs/data/PROJECT-CMS-DATABASE-MAP.md`. El esquema SQL base está en `docs/data/project-cms-schema.sql` y cubre proyectos, traducciones, fases, tipologías, precios, planes de pago, especificaciones comparables, amenidades, ubicaciones, media, contactos y fuentes de evidencia.
+
