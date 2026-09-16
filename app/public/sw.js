@@ -1,5 +1,5 @@
 /* Only same-origin public documents and immutable presentation assets are cached. */
-const VERSION = "ap-v7";
+const VERSION = "ap-v8";
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const PAGES = `${VERSION}-pages`;
@@ -135,14 +135,16 @@ self.addEventListener("fetch", (event) => {
     const matchOptions =
       url.pathname === "/_next/image" ? undefined : { ignoreVary: true };
     event.respondWith(
-      caches.match(assetRequest, matchOptions).then(
-        (hit) =>
-          hit ||
-          fetch(assetRequest).then((response) => {
-            event.waitUntil(remember(ASSETS, assetRequest, response.clone(), 100));
-            return response;
-          }),
-      ),
+      fetch(assetRequest)
+        .then((response) => {
+          event.waitUntil(remember(ASSETS, assetRequest, response.clone(), 100));
+          return response;
+        })
+        .catch(
+          async () =>
+            (await caches.match(assetRequest, matchOptions)) ||
+            Response.error(),
+        ),
     );
   }
 });

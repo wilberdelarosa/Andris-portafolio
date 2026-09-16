@@ -18,6 +18,29 @@ export function PwaManager() {
     };
     window.addEventListener("beforeinstallprompt", handler);
     window.addEventListener("appinstalled", installed);
+    if ("serviceWorker" in navigator && process.env.NODE_ENV !== "production") {
+      navigator.serviceWorker
+        .getRegistrations()
+        .then((registrations) =>
+          Promise.all(registrations.map((registration) => registration.unregister())),
+        )
+        .then(() =>
+          "caches" in window
+            ? caches
+                .keys()
+                .then((keys) =>
+                  Promise.all(
+                    keys
+                      .filter((key) => key.startsWith("ap-"))
+                      .map((key) => caches.delete(key)),
+                  ),
+                )
+            : undefined,
+        )
+        .catch(() => {
+          /* Local cleanup is best-effort; development remains usable. */
+        });
+    }
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
