@@ -5,7 +5,7 @@ Fecha de revisión: 2026-09-12.
 ## Actualización durante implementación
 
 - El usuario confirmó directamente el correo `andrisprealtor@gmail.com` y WhatsApp `+1 (849) 576-3822`. Están centralizados en `app/src/content/advisor.ts`.
-- El usuario autorizó integrar los otros dos proyectos el 13 de septiembre de 2026. Se muestran con nombres y ubicaciones verificados, pero con la etiqueta de detalles por confirmar; no se publican precios, disponibilidad, unidades ni fechas de entrega.
+- El usuario autorizó integrar los otros dos proyectos el 13 de septiembre de 2026. El 14 de septiembre de 2026 aportó descripciones comerciales para Terra Serena y The Beach at Punta Cana City Place; se integraron como contenido fuente en sus carpetas y como datos estructurados en la app. The Beach conserva precio por confirmar porque no se entregó tabla de precios.
 - Se verificó el enlace de Melcon Paradise y su punto de mapa: 18.637918, -68.444033. Ver `docs/design/project-location-evidence.json`.
 - La revisión exhaustiva actual encontró 80 imágenes, frente a las 81 anotadas originalmente; las 80 fueron verificadas visualmente. Se generaron 33 derivados sin alterar los originales.
 - La app está implementada en `app/`. Los cursos/certificaciones y biografía ampliada siguen pendientes; no se inventaron. Precios y entregas no se anuncian como vigentes por diferencias entre fuentes.
@@ -26,15 +26,15 @@ Fecha de revisión: 2026-09-12.
 | Ruta | Material | Estado publicable |
 | --- | --- | --- |
 | `ASSETS/projects/melcon-paradise/` | 15 renders y una descripción con unidades, amenidades, precios de referencia y entrega estimada. | Requiere confirmar vigencia comercial antes de publicar. |
-| `ASSETS/projects/project-01-unidentified/` | 16 renders y texto vacío. Nombre y ubicación verificados: Terra Serena · Verón–Bávaro, Punta Cana. | Publicable con renders aportados y detalles por confirmar; no atribuir datos comerciales ni de unidades. |
-| `ASSETS/projects/project-03-unidentified/` | 12 renders y texto vacío. Nombre y ubicación verificados: The Beach at Punta Cana City Place · Punta Cana. | Publicable con renders aportados y detalles por confirmar; no atribuir datos comerciales ni de unidades. |
+| `ASSETS/projects/project-01-unidentified/` | 16 renders y descripción aportada para Terra Serena: precio desde, metrajes, entrega, plan de pago, amenidades y cercanías. | Publicable con nota de confirmación comercial antes de reserva. |
+| `ASSETS/projects/project-03-unidentified/` | 12 renders y descripción aportada para The Beach at Punta Cana City Place: tipologías, amenidades, plan de pago, reserva, CONFOTUR y disponibilidad variable. | Publicable con precio por confirmar y disponibilidad sujeta a fase/tipología. |
 
 ## Pendientes explícitos
 
 1. Completar `docs/inbox/data-placeholder.txt` con perfil, biografía, contactos y enlaces oficiales.
 2. Completar `docs/inbox/skills-suggestions-placeholder.txt` o eliminarlo cuando deje de tener propósito.
-3. Completar y aprobar las fichas de Terra Serena y The Beach at Punta Cana City Place antes de comunicar datos comerciales.
-4. Verificar disponibilidad, precios, forma de pago y fecha de entrega de Melcon Paradise antes de cualquier publicación.
+3. Confirmar tabla de precios de The Beach at Punta Cana City Place antes de activar filtro o ficha de precio.
+4. Verificar disponibilidad, precios vigentes, forma de pago y fecha de entrega de cada proyecto antes de cualquier reserva.
 5. Definir una familia tipográfica con licencia y aprobar usos de la variante dorada del logo.
 6. Revisar los dos archivos idénticos de `project-03-unidentified`. Se conservaron por seguridad; no se borró ninguno.
 

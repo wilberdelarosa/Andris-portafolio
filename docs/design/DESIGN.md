@@ -178,11 +178,13 @@ Encabezado horizontal con monograma, rutas, idioma, tema, preferencias y contact
 
 ### Map Explorer
 
-Leaflet con OpenStreetMap y tres puntos verificados. Panel y marcadores comparten selección; el parámetro proyecto abre el punto desde otra ruta. Todas las variantes cargan automáticamente: inicio, fichas y ruta independiente. La rueda en los compactos desplaza la página; arrastre y controles están disponibles desde la carga. El encuadre general se adapta al cambio de tamaño y conserva los tres marcadores. Controles de acercamiento, vista general y estilo, con atribución y enlace externo. El estilo atenuado se aplica al envoltorio y preserva las clases de interacción administradas por Leaflet.
+MapLibre con OpenFreeMap y datos de OpenStreetMap, con edificios extruidos y perspectiva 3D inicial. La cámara del mapa propio se limita al área de Punta Cana que engloba los tres proyectos, evitando una exploración accidental fuera de contexto. Panel y marcadores comparten selección; el parámetro proyecto abre el punto desde otra ruta. Todas las variantes cargan automáticamente: inicio, fichas y ruta independiente. La rueda en los compactos desplaza la página; arrastre y controles están disponibles desde la carga. El encuadre general se adapta al cambio de tamaño y conserva los tres marcadores. Controles de acercamiento, vista general, estilo y cambio entre vista 3D/plana, con atribución y enlace externo. El estilo atenuado se aplica al lienzo y conserva los marcadores interactivos.
 
 ### Personal scenes and tools
 
 Portada con retrato real de traje, ANDRIS detrás y PEÑA delante; H1 accesible con nombre completo. Inicio resume al asesor y enlaza la escena ampliada. El proceso usa numeración funcional y las preguntas details/summary. Calculadora con cifras editables y resultado navy como escenario ilustrativo.
+
+El acceso a contacto incorpora el retrato real de traje en una zona independiente del texto: columna lateral en escritorio y escena inferior en móvil. La luz ambiental queda detrás del retrato, con sombra suave y líneas circulares; se conservan navy, arena y texto marfil. Los títulos compactos permanecen legibles durante el recorrido. El hover del retrato respeta movimiento reducido. Diagnóstico y pruebas: [CONTACT-SCROLL-QA-2026-09-13.md](CONTACT-SCROLL-QA-2026-09-13.md).
 
 ## Do's and Don'ts
 
@@ -204,3 +206,9 @@ Portada con retrato real de traje, ANDRIS detrás y PEÑA delante; H1 accesible 
 ## Ampliación de movimiento y tipografía
 
 La solicitud posterior del usuario incorpora mezcla sans/serif cursiva, vidrio con degradado, hovers y profundidad reversible debajo de la portada. premium-motion.tsx y premium-motion.css reúnen estos patrones con Motion ya instalado. --glass-gradient define un degradado navy translúcido compartido; --editorial-accent adapta la cursiva al tema. El panel destacado usa blur de 26 px. Las especificaciones completas y escalas viven en DESIGN_SYSTEM.md. Evidencia de esta iteración: [MOTION-QA-2026-09-13.md](MOTION-QA-2026-09-13.md).
+
+### Color y respuesta directa al scroll
+
+La última solicitud amplifica las decoraciones: palmas verdes y turquesas con flores coral, conservando navy/arena en la interfaz. `VillaScene` añade una imagen conceptual con indicaciones de piscina, terraza y jardín; su aviso visible impide confundirla con una propiedad ofertada. La procedencia y los prompts se conservan en [villa-color-v1-provenance.md](../../output/imagegen/villa-color-v1-provenance.md).
+
+El scroll principal es nativo, sin inercia artificial. Las capas ambientales recorren de 130 a −140 px y los paneles de 72 a −54 px sin ocultar su contenido; los títulos se mueven completos, manteniendo juntas sus líneas. La barra sigue directamente el progreso. No hay reproducción automática ni secuestro del scroll. Movimiento reducido deja las capas estáticas. El servidor de desarrollo utiliza Webpack tras los errores de actualización observados con Turbopack; producción conserva su compilación habitual.

@@ -30,7 +30,8 @@
   .showcase-layout { grid-template-columns: 1fr; gap: 22px; }
   .showcase-picker-head { padding: 0 0 14px; }
   .showcase-options { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px; padding: 2px 2px 12px; }
-  .showcase-option { flex: 0 0 230px; scroll-snap-align: start; }
+  .showcase-options > div { flex: 0 0 230px; scroll-snap-align: start; min-width: 0; }
+  .showcase-option { width: 100%; }
   .showcase-option > .photo { height: 60px; }
   .showcase-option strong { font-size: 13px; }
   .showcase-navigation { margin-top: 8px; }

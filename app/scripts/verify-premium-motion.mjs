@@ -11,21 +11,24 @@ const context = await browser.newContext({ viewport: { width: 1440, height: 1000
 const page = await context.newPage();
 page.setDefaultTimeout(20000);
 const results = [], errors = [];
-page.on('pageerror', error => errors.push(error.message));
+page.on('pageerror', error => {
+  console.log('PAGEERROR at ' + page.url() + ':', error.message);
+  errors.push(error.message);
+});
 async function check(name, run) {
   try { const detail = await run(); results.push({ name, pass: true, detail }); console.log('PASS', name); }
   catch (error) { results.push({ name, pass: false, error: error.message }); console.log('FAIL', name, error.message); }
 }
 async function go(route) {
-  await page.goto(base + route, { waitUntil: 'networkidle' });
+  await page.goto(base + route, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
 }
 async function mapReady() {
-  await page.locator('.leaflet-tile-loaded').first().waitFor();
+  await page.locator('.maplibregl-canvas').first().waitFor();
   await page.locator('.explorer-blocker').waitFor({ state: 'hidden' });
   await page.waitForFunction(() => {
-    const tiles = [...document.querySelectorAll('.leaflet-tile')];
-    return tiles.length > 0 && tiles.every(tile => tile.complete && tile.naturalWidth > 0);
+    const canvas = document.querySelector('.maplibregl-canvas');
+    return canvas instanceof HTMLCanvasElement && canvas.width > 0 && canvas.height > 0;
   });
 }
 async function shot(selector, name) {
@@ -33,7 +36,10 @@ async function shot(selector, name) {
   await page.evaluate(() => document.activeElement?.blur());
   await target.scrollIntoViewIfNeeded();
   await target.evaluate(async el => {
-    await Promise.all([...el.querySelectorAll('img')].map(img => img.decode().catch(() => {})));
+    for (const img of el.querySelectorAll('img')) img.loading = 'eager';
+    await Promise.all([...el.querySelectorAll('img')].map(img =>
+      Promise.race([img.decode().catch(() => {}), new Promise(res => setTimeout(res, 1500))])
+    ));
   });
   await page.waitForTimeout(350);
   await target.screenshot({ path: path.join(out, `${name}.png`) });
@@ -47,7 +53,8 @@ await check('Maps start automatically on home, map and all three project pages',
     await go(route + '?lang=es');
     await mapReady();
     assert.equal(await page.locator('.explorer-activate').count(), 0);
-    assert.equal(await page.locator('.leaflet-marker-icon').count(), 3);
+    assert.equal(await page.locator('.ap-explorer-marker').count(), 3);
+    assert.equal(await page.locator('.explorer-canvas').getAttribute('data-map-dimension'), '3d');
     assert.ok(await page.getByRole('button', { name: 'Acercar', exact: true }).isEnabled());
   }
   return routes;
@@ -60,7 +67,7 @@ await check('Map keeps all project pins in view when resized to a phone', async 
   await page.waitForTimeout(350);
   const visible = await page.locator('.explorer-canvas').evaluate(el => {
     const area = el.getBoundingClientRect();
-    return [...el.querySelectorAll('.leaflet-marker-icon')].map(marker => {
+    return [...el.querySelectorAll('.ap-explorer-marker')].map(marker => {
       const box = marker.getBoundingClientRect();
       return { title: marker.title, visible: box.left >= area.left && box.right <= area.right && box.top >= area.top && box.bottom <= area.bottom };
     });

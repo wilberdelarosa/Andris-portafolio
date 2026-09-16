@@ -11,11 +11,26 @@
 .advisor-preview-copy h2 { max-width: 500px; }
 .advisor-preview-copy > p { margin-top: 26px; max-width: 460px; font-size: 16px; line-height: 1.8; }
 .advisor-preview-copy .button { margin-top: 32px; }
-.journey-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 16px; }
+.journey-actions-wrap { padding-top: 16px; }
+.journey-actions-wrap .character-kicker { margin-bottom: 20px; }
+.journey-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .journey-actions > a { display: flex; gap: 24px; align-items: start; padding: clamp(28px, 4vw, 50px); border-radius: 16px; }
 .journey-calculator { background: var(--soft); border: 1px solid var(--line); }
-.journey-contact { background: var(--color-ink); color: var(--on-ink); }
+.journey-actions .journey-contact { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 58%) minmax(156px, 42%); grid-template-rows: auto 1fr; gap: 14px 0; overflow: hidden; min-height: 374px; background: linear-gradient(130deg, var(--color-ink) 0%, #102a4d 58%, var(--color-ink-soft) 100%); color: var(--on-ink); box-shadow: 0 24px 80px #0b1f3a26; }
+.journey-actions .journey-contact::before { content: ""; position: absolute; z-index: 0; inset: 0; background: linear-gradient(90deg, var(--color-ink) 0 60%, #0b1f3ae8 68%, #0b1f3a1f 100%); pointer-events: none; }
+.journey-contact > svg, .journey-contact > div { position: relative; z-index: 2; }
+.journey-contact > svg { grid-column: 1; grid-row: 1; }
+.journey-contact > div { grid-column: 1; grid-row: 2; align-self: start; max-width: min(100%, 360px); }
+.journey-contact-orbit { position: absolute; z-index: 0; display: block; border: 1px solid #d8c8b452; border-radius: 999px; pointer-events: none; transition: transform .65s var(--ease), border-color .4s ease; }
+.journey-contact-orbit-one { width: 310px; aspect-ratio: 1; right: -42px; top: 28px; }
+.journey-contact-orbit-two { width: 410px; aspect-ratio: 1; right: -155px; top: -23px; border-color: #fbf9f42b; }
+.journey-contact:hover .journey-contact-orbit-one { transform: scale(1.06) rotate(14deg); border-color: #d8c8b480; }
+.journey-contact:hover .journey-contact-orbit-two { transform: scale(1.04) rotate(-10deg); border-color: #fbf9f450; }
+.journey-contact-portrait { position: relative; z-index: 1; grid-column: 2; grid-row: 1 / span 2; align-self: stretch; display: block; min-height: 278px; pointer-events: none; background: radial-gradient(ellipse at 48% 40%, #d8c8b44d 0, #3166922b 29%, transparent 67%); filter: drop-shadow(-20px 18px 24px #0715298c); transition: transform .5s var(--ease), filter .5s var(--ease); }
+.journey-contact-portrait-image { object-fit: contain; object-position: center bottom; }
 .journey-actions h2 { font-size: clamp(25px, 2.4vw, 34px); line-height: 1.2; }
+.journey-actions .journey-action-title { font-size: clamp(25px, 2.4vw, 34px); line-height: 1.16; letter-spacing: -.04em; }
+.journey-actions .journey-action-title .editorial-lead, .journey-actions .journey-action-title .editorial-accent { transform: none; }
 .journey-actions p { font-size: 14px; line-height: 1.8; margin-top: 18px; max-width: 390px; }
 .journey-contact p { color: var(--on-ink-muted); }
 .journey-actions a > div > span { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 34px; font-size: 14px; font-weight: 500; }
@@ -29,7 +44,7 @@
 .saved-empty { display: grid; gap: 18px; padding-top: 16px; }
 .saved-empty .button { margin-top: 8px; }
 .saved-project + .saved-project { margin-top: 14px; }
-@media (hover: hover) and (pointer: fine) { .journey-actions a:hover span svg { transform: translate(3px, -3px); } .journey-actions a span svg { transition: transform .2s var(--ease); } }
+@media (hover: hover) and (pointer: fine) { .journey-actions a:hover span svg { transform: translate(3px, -3px); } .journey-actions a span svg { transition: transform .2s var(--ease); } .journey-contact:hover .journey-contact-portrait { transform: translate3d(-6px, -4px, 0) scale(1.018); filter: drop-shadow(-26px 24px 30px #071529ad); } }
 @media (max-width: 760px) {
   .journey-section-heading { display: block; }
   .journey-section-heading p { font-size: 15px; }
@@ -40,8 +55,98 @@
   .advisor-preview-copy .button { font-size: 12px; gap: 12px; padding: 12px 18px; }
   .journey-actions { grid-template-columns: 1fr; gap: 16px; }
   .journey-actions > a { padding: 26px; gap: 18px; }
+  .journey-actions .journey-contact { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(224px, 1fr); gap: 14px; min-height: 0; }
+  .journey-contact > svg, .journey-contact > div, .journey-contact-portrait { grid-column: 1; }
+  .journey-contact > svg { grid-row: 1; }
+  .journey-contact > div { grid-row: 2; max-width: 100%; }
+  .journey-contact-portrait { grid-row: 3; min-height: 224px; width: min(82%, 300px); justify-self: end; margin-right: -4%; background: radial-gradient(ellipse at 50% 42%, #d8c8b451 0, #31669228 31%, transparent 67%); }
+  .journey-contact-orbit-one { width: 230px; right: -59px; bottom: 24px; top: auto; }
+  .journey-contact-orbit-two { width: 310px; right: -158px; bottom: -5px; top: auto; }
   .journey-actions h2 { font-size: 25px; }
+  .journey-actions .journey-action-title { font-size: 25px; }
   .journey-actions p { font-size: 13px; }
   .route-heading { padding-top: 18px; gap: 10px; }
   .navigation-links > a, .navigation-links > button { font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .journey-contact-portrait { transition: none; } .journey-contact:hover .journey-contact-portrait { transform: none; filter: drop-shadow(-20px 18px 24px #0715298c); } }
+
+/* ==========================================================================
+   INTEGRACION DEL RETRATO EN LA TARJETA DE CONVERSACION
+   El archivo `andris-suit.webp` termina con alfa 253 en su borde inferior: la
+   figura esta recortada a plomo. Sin tratar, ese canto recto se ve sobre el
+   fondo. La mascara lo disuelve antes de llegar al borde.
+   ========================================================================== */
+
+.journey-contact-portrait-image {
+  /*
+   * Varias paradas en lugar de dos: un degradado de dos puntos produce bandas
+   * visibles sobre un fondo plano, y aqui el fondo es navy liso.
+   * En porcentajes, no en pixeles, para que el desvanecido caiga en el mismo
+   * punto del cuerpo en cualquier tamaño.
+   */
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 46%,
+    #000000f2 58%,
+    #000000d4 68%,
+    #000000a1 77%,
+    #00000063 85%,
+    #0000002b 92%,
+    transparent 99%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 46%,
+    #000000f2 58%,
+    #000000d4 68%,
+    #000000a1 77%,
+    #00000063 85%,
+    #0000002b 92%,
+    transparent 99%
+  );
+}
+
+/*
+ * El halo pierde su contorno: antes terminaba en un borde perceptible dentro
+ * de la caja del elemento. Ahora se apaga del todo antes de alcanzarlo.
+ */
+.journey-contact-portrait {
+  background: radial-gradient(ellipse 78% 62% at 50% 38%, #d8c8b43d 0%, #3166921f 34%, #31669212 52%, transparent 76%);
+  /* La sombra proyectada seguia la silueta recortada y remarcaba el canto. */
+  filter: drop-shadow(-18px 16px 30px #07152966);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .journey-contact:hover .journey-contact-portrait {
+    filter: drop-shadow(-24px 22px 38px #07152980);
+  }
+}
+
+@media (max-width: 760px) {
+  .journey-contact-portrait {
+    background: radial-gradient(ellipse 82% 60% at 50% 40%, #d8c8b440 0%, #3166921c 36%, transparent 74%);
+  }
+}
+
+/*
+ * Tramo de tableta.
+ *
+ * Entre 761 y 900 px las dos tarjetas seguian una al lado de la otra, y dentro
+ * de la de conversacion la columna de texto bajaba de 210 px: el parrafo se
+ * partia en cinco lineas. Aqui cada tarjeta ocupa el ancho completo y la
+ * division interna vuelve a tener sitio.
+ */
+@media (min-width: 761px) and (max-width: 900px) {
+  .journey-actions {
+    grid-template-columns: 1fr;
+  }
+  .journey-actions .journey-contact {
+    grid-template-columns: minmax(0, 60%) minmax(190px, 40%);
+    min-height: 320px;
+  }
+  .journey-actions p {
+    max-width: none;
+  }
 }

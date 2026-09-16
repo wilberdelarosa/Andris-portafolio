@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import {
   Check,
   Copy,
@@ -16,25 +16,106 @@ import { getPublishedProjects } from "@/content/projects";
 import { journeyCopy } from "@/content/journey-copy";
 import { EditorialTitle, DecorativeLayer } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
+import { contactCopy } from "@/content/contact-copy";
+import { PrivacyNotice } from "./privacy-notice";
+import {
+  buildAlterEstateLeadPayload,
+  getSafeLeadWebhookUrl,
+  type ContactLeadInput,
+} from "@/lib/lead-payload";
+
+type LeadDelivery =
+  | { state: "idle" }
+  | { state: "skipped" }
+  | { state: "sending" }
+  | { state: "sent"; reference?: string }
+  | { state: "failed" };
 
 export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
   const { t, locale } = useExperience();
   const j = journeyCopy[locale];
+  const c = contactCopy[locale];
   const projects = getPublishedProjects();
+  const [selectedProject, setSelectedProject] = useState(projectSlug);
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);
   const [privacy, setPrivacy] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [delivery, setDelivery] = useState<LeadDelivery>({ state: "idle" });
+  const [submitting, setSubmitting] = useState(false);
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || advisor.email;
   const whatsapp =
     process.env.NEXT_PUBLIC_WHATSAPP?.replace(/\D/g, "") || advisor.whatsapp;
-  const prepare = (event: React.FormEvent<HTMLFormElement>) => {
+  const leadWebhookUrl = getSafeLeadWebhookUrl(
+    process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL,
+  );
+  useLayoutEffect(() => {
+    const selected = new URLSearchParams(location.search).get("proyecto");
+    // A static page receives this selection only after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedProject(selected || projectSlug);
+  }, [projectSlug]);
+  const prepare = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    if (!form.reportValidity() || data.get("consent") !== "accepted") return;
+    const lead: ContactLeadInput = {
+      name: String(data.get("name")).trim(),
+      email: String(data.get("email")).trim(),
+      phone: String(data.get("phone")).trim(),
+      country: String(data.get("country")).trim(),
+      budget: String(data.get("budget") ?? "").trim(),
+      timeframe: String(data.get("timeframe") ?? "").trim(),
+      project: String(data.get("project") ?? "").trim(),
+      interest: String(data.get("interest") ?? "").trim(),
+      message: String(data.get("message") ?? "").trim(),
+      locale,
+      pageUrl: window.location.href,
+    };
     setCopied(false);
     setSummary(
-      `Andris Peña | ${t.portfolio}\n\n${t.name}: ${String(data.get("name")).trim()}\n${t.email}: ${String(data.get("email")).trim()}\n${j.projectField}: ${data.get("project")}\n${t.interest}: ${data.get("interest")}\n${t.message}: ${String(data.get("message")).trim() || "—"}`,
+      `Andris Peña | ${t.portfolio}\n\n${t.name}: ${lead.name}\n${t.email}: ${lead.email}\n${c.phone}: ${lead.phone}\n${c.country}: ${lead.country}\n${c.budget}: ${lead.budget}\n${c.timeframe}: ${lead.timeframe}\n${j.projectField}: ${lead.project || j.general}\n${t.interest}: ${lead.interest}\n${t.message}: ${lead.message || "—"}\n\n${c.consentRecord}`,
     );
+    if (!leadWebhookUrl) {
+      setDelivery({ state: "skipped" });
+      return;
+    }
+    setSubmitting(true);
+    setDelivery({ state: "sending" });
+    try {
+      const response = await fetch(leadWebhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildAlterEstateLeadPayload(lead)),
+      });
+      const result = (await response.json().catch(() => ({}))) as {
+        leadId?: string | number;
+        leadUid?: string;
+        dealUid?: string;
+        logId?: string | number;
+      };
+      if (!response.ok) throw new Error("Lead webhook failed");
+      setDelivery({
+        state: "sent",
+        reference:
+          result.dealUid ??
+          result.leadUid ??
+          (result.leadId ? String(result.leadId) : undefined) ??
+          (result.logId ? String(result.logId) : undefined),
+      });
+    } catch {
+      setDelivery({ state: "failed" });
+    } finally {
+      setSubmitting(false);
+    }
   };
+  const deliveryMessage =
+    delivery.state === "sent" && delivery.reference
+      ? `${c.leadStatus.sent} Ref. ${delivery.reference}`
+      : delivery.state === "idle"
+        ? ""
+        : c.leadStatus[delivery.state];
   return (
     <section className="section contact-section" id="contacto">
       <DecorativeLayer/>
@@ -88,9 +169,24 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
               />
             </label>
           </div>
+          <div className="form-row">
+            <label>{c.phone}<input name="phone" type="tel" required minLength={7} maxLength={32} autoComplete="tel" placeholder="+1 809 000 0000" /></label>
+            <label>{c.country}<input name="country" required minLength={2} maxLength={80} autoComplete="country-name" placeholder={c.countryPlaceholder} /></label>
+          </div>
+          <div className="form-row">
+            <label>{c.budget}<select name="budget" required defaultValue=""><option value="" disabled>{c.choose}</option>{c.budgets.map((value) => <option key={value}>{value}</option>)}</select></label>
+            <label>{c.timeframe}<select name="timeframe" required defaultValue=""><option value="" disabled>{c.choose}</option>{c.timeframes.map((value) => <option key={value}>{value}</option>)}</select></label>
+          </div>
           <label>
             {j.projectField}
-            <select name="project" defaultValue={projects.find((p) => p.slug === projectSlug)?.name ?? ""}>
+            <select
+              name="project"
+              value={projects.find((p) => p.slug === selectedProject)?.name ?? ""}
+              onChange={(event) => {
+                const project = projects.find((item) => item.name === event.target.value);
+                setSelectedProject(project?.slug ?? "");
+              }}
+            >
               <option value="">{j.general}</option>
               {projects.map((project) => <option key={project.slug} value={project.name}>{project.name}</option>)}
             </select>
@@ -113,20 +209,21 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
             />
           </label>
           <label className="checkbox-label">
-            <input type="checkbox" required />
+            <input type="checkbox" name="consent" value="accepted" required checked={consent} onChange={(event) => setConsent(event.target.checked)} />
             <span>
-              {t.consent}{" "}
+              {c.consent}{" "}
               <button
                 type="button"
                 className="inline-link"
                 onClick={() => setPrivacy(true)}
               >
-                {t.privacy}
+                {c.terms}
               </button>
             </span>
           </label>
-          <button className="button button-primary form-submit" type="submit">
-            {t.prepare}
+          <p className="field-hint" id="contact-submit-hint">{c.requiredHint}</p>
+          <button className="button button-primary form-submit" type="submit" disabled={!consent || submitting} aria-describedby="contact-submit-hint">
+            {submitting ? c.leadStatus.sending : t.prepare}
             <ArrowUpRight size={21} />
           </button>
         </form>
@@ -137,8 +234,16 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
           if (!open) setSummary("");
         }}
         title={t.prepared}
-        description={t.preparedText}
+        description={delivery.state === "sent" ? c.leadStatus.sent : t.preparedText}
       >
+        {deliveryMessage && (
+          <p
+            className={`lead-delivery-status lead-delivery-status-${delivery.state}`}
+            role={delivery.state === "failed" ? "alert" : "status"}
+          >
+            {deliveryMessage}
+          </p>
+        )}
         <div className="consultation-summary">
           <Check size={26} className="summary-check" />
           <pre>{summary}</pre>
@@ -193,10 +298,10 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
       <Modal
         open={privacy}
         onOpenChange={setPrivacy}
-        title={t.privacy}
-        description={t.privacyText}
+        title={c.privacyTitle}
+        description={c.privacySummary}
       >
-        <span />
+        <PrivacyNotice />
       </Modal>
     </section>
   );

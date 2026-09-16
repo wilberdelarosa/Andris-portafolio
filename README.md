@@ -17,6 +17,8 @@ El sitio representa a Andris Peña como asesor independiente. No se debe mencion
 3. Conserva `referencias-web/arcke` como referencia de componentes. No es código de producción ni una fuente de datos de Andris.
 4. Antes de publicar, confirma teléfonos, correo, enlaces sociales, precios, fechas de entrega, disponibilidad y textos legales.
 
+Para entregar el repositorio a otra persona, usa [docs/HANDOFF.md](docs/HANDOFF.md). Resume instalación, validación, publicación en GPT Sites, estado de AlterEstate, variables de entorno y pendientes de contenido.
+
 ## Documentación del rediseño
 
 - [Sistema de diseño](DESIGN_SYSTEM.md): tokens, componentes, tipografía, movimiento y adaptación.

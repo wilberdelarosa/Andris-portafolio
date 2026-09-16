@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "project": {
+    "name": "andris-pena-portfolio",
+    "productType": null,
+    "stack": [
+      "nextjs",
+      "react"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "src/app/globals.css"
+    ],
+    "components": [],
+    "assets": [],
+    "instructions": [
+      "AGENTS.md",
+      "CLAUDE.md"
+    ]
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {
+      "--color-ink": {
+        "value": "#0b1f3a",
+        "source": "src/app/globals.css"
+      },
+      "--color-ink-soft": {
+        "value": "#132e4a",
+        "source": "src/app/globals.css"
+      },
+      "--color-blue": {
+        "value": "#316692",
+        "source": "src/app/globals.css"
+      },
+      "--color-sand": {
+        "value": "#d8c8b4",
+        "source": "src/app/globals.css"
+      },
+      "--color-sand-deep": {
+        "value": "#c8b79c",
+        "source": "src/app/globals.css"
+      },
+      "--color-surface": {
+        "value": "#f4f0e6",
+        "source": "src/app/globals.css"
+      },
+      "--color-surface-raised": {
+        "value": "#fbf9f4",
+        "source": "src/app/globals.css"
+      },
+      "--color-text-muted": {
+        "value": "#4e5a6b",
+        "source": "src/app/globals.css"
+      },
+      "--muted": {
+        "value": "#c4d0db",
+        "source": "src/app/globals.css"
+      },
+      "--on-ink-muted": {
+        "value": "#c4d0db",
+        "source": "src/app/globals.css"
+      }
+    },
+    "typography": {
+      "--text": {
+        "value": "#fbf9f4",
+        "source": "src/app/globals.css"
+      }
+    },
+    "spacing": {
+      "--page-gutter": {
+        "value": "18px",
+        "source": "src/app/globals.css"
+      },
+      "--space-section": {
+        "value": "72px",
+        "source": "src/app/globals.css"
+      }
+    },
+    "radius": {
+      "--radius-control": {
+        "value": "8px",
+        "source": "src/app/globals.css"
+      },
+      "--radius-card": {
+        "value": "16px",
+        "source": "src/app/globals.css"
+      }
+    },
+    "shadows": {
+      "--shadow-overlay": {
+        "value": "0 24px 80px #0b1f3a26",
+        "source": "src/app/globals.css"
+      }
+    },
+    "motion": {
+      "--ease": {
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "source": "src/app/globals.css"
+      }
+    },
+    "density": "unknown"
+  },
+  "components": {
+    "installed": [],
+    "preferredPrimitives": [
+      "radix-ui"
+    ],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [],
+    "avoid": []
+  },
+  "decisions": [],
+  "evidence": [
+    {
+      "fact": "design.colorMode:light",
+      "source": "src/app/globals.css"
+    },
+    {
+      "fact": "design.tokens",
+      "source": "src/app/globals.css"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "AGENTS.md"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "CLAUDE.md"
+    },
+    {
+      "fact": "project.stack:nextjs",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-09-14T18:13:24.779Z"
+}

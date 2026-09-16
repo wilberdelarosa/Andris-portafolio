@@ -1,0 +1,53 @@
+.dialog-content.project-media-modal { width: min(1200px, calc(100vw - 48px)); max-width: none; height: min(850px, calc(100dvh - 48px)); max-height: calc(100dvh - 48px); padding: 20px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.project-media-modal .dialog-header { flex: none; margin: 0; gap: 16px; }
+.dialog-content.project-media-modal { animation: none; }
+.project-media-modal .dialog-header h2 { font-size: clamp(20px, 2.4vw, 30px); }
+.project-media-modal .dialog-header .icon-button { flex: none; }
+.project-media-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.project-media-toolbar > .text-link { font-size: 12px; min-height: 44px; }
+.project-media-switch { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--soft); }
+.project-media-switch button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 18px; border-radius: 999px; font-size: 13px; }
+.project-media-switch button[aria-pressed="true"] { background: var(--text); color: var(--paper); }
+.project-media-stage { flex: 1; min-height: 180px; position: relative; border-radius: 12px; overflow: hidden; background: var(--soft); }
+.project-media-stage > .photo { position: absolute; inset: 0; }
+.project-media-stage > .photo img { object-fit: contain; }
+.project-tour-frame { width: 100%; height: 100%; border: 0; position: absolute; inset: 0; }
+.tour-load-status { position: absolute; inset: 35% 12% auto; z-index: 1; text-align: center; color: var(--muted); pointer-events: none; }
+.tour-fallback-panel { position: absolute; z-index: 2; right: 12px; bottom: 12px; width: min(360px, calc(100% - 24px)); padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--glass-paper); color: var(--text); box-shadow: var(--shadow-sm); backdrop-filter: blur(18px); }
+.tour-fallback-panel p { margin: 0 0 10px; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.tour-fallback-panel div { display: flex; flex-wrap: wrap; gap: 8px; }
+.tour-fallback-panel .button { min-height: 42px; padding: 9px 12px; font-size: 12px; }
+.project-media-stage .icon-button { position: absolute; top: 50%; transform: translateY(-50%); background: var(--paper); color: var(--text); box-shadow: var(--shadow-sm); }
+.media-prev { left: 12px; }
+.media-next { right: 12px; }
+.project-tour-controls { display: flex; align-items: center; gap: 16px; }
+.project-tour-controls label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+.project-tour-controls select { min-height: 44px; padding: 8px 32px 8px 12px; color: var(--text); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 16px; max-width: 230px; }
+.project-tour-controls p { margin: 0; font-size: 12px; color: var(--muted); flex: 1; }
+.project-media-caption { margin: 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
+.project-media-thumbnails { display: flex; gap: 8px; overflow: auto; scrollbar-width: thin; padding: 3px; }
+.project-media-thumbnails button { flex: 0 0 88px; height: 56px; border-radius: 8px; overflow: hidden; outline: 2px solid transparent; outline-offset: 1px; }
+.project-media-thumbnails button[aria-pressed="true"] { outline-color: var(--text); }
+.project-media-thumbnails .photo { height: 100%; }
+.project-media-offline { display: grid; place-content: center; gap: 20px; padding: 24px; height: 100%; text-align: center; }
+.project-tour-launch { margin-top: 16px; }
+@media (max-width: 760px) {
+  .dialog-content.project-media-modal { width: 100%; height: 100dvh; max-height: 100dvh; top: 0; left: 0; transform: none; border-radius: 0; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); gap: 10px; }
+  .project-media-modal .dialog-header h2 { font-size: 20px; }
+  .project-media-switch button { font-size: 12px; padding-inline: 12px; }
+  .project-media-toolbar > .text-link { font-size: 11px; }
+  .tour-fallback-panel { right: 8px; bottom: 8px; padding: 10px; }
+  .tour-fallback-panel p { font-size: 11px; }
+  .tour-fallback-panel .button { flex: 1 1 130px; }
+  .project-tour-controls { flex-wrap: wrap; gap: 8px; }
+  .project-tour-controls label { flex: 1; justify-content: space-between; }
+  .project-tour-controls select { width: min(55vw, 220px); }
+  .project-tour-controls p { order: 3; flex-basis: 100%; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .project-media-modal .dialog-header h2 { font-size: 18px; }
+  .project-media-caption, .project-tour-controls p { display: none; }
+  .dialog-content.project-media-modal { gap: 6px; padding: 8px 12px; }
+  .project-media-stage { min-height: 100px; }
+  .project-media-thumbnails { display: none; }
+}

@@ -91,6 +91,7 @@
   .pcard-action::before, .button::before, .header-contact::before, .surface-light { display: none; }
   .pcard-action:hover > svg, .button:hover > svg, .text-link:hover > svg, .journey-actions > a:hover, .pcard-action:active, .button:active, .explorer-button:active { transform: none; }
   .pcard-heart:hover, .pcard-image-controls button:hover, .explorer-button:hover, .showcase-option:hover .photo, .explorer-item:hover .photo, .journey-actions > a:hover::before, .header-contact:hover > svg, .showcase-map-link:hover > svg:last-child { transform: none; }
+  [data-decorative-depth], [data-scroll-depth] { transform: none !important; }
 }
 
 /* ==========================================================================
@@ -281,5 +282,278 @@
   .catalog-chip:active,
   .icon-button:hover {
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   TIPOGRAFÍA CINÉTICA Y COMPONENTES METICULOSOS
+   ========================================================================== */
+
+/* Mascaras de linea y palabra */
+.masked-line-reveal {
+  position: relative;
+  overflow: hidden;
+  text-wrap: balance;
+}
+
+.masked-words-container {
+  display: inline-block;
+}
+
+.masked-word-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.masked-word-inner {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity, filter;
+}
+
+/* Kicker con revelado caracter a caracter */
+.character-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: var(--color-blue);
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .character-kicker {
+  color: var(--color-sand);
+}
+
+.character-kicker-rule {
+  height: 1px;
+  width: 26px;
+  background-color: currentColor;
+  transform-origin: left;
+  display: block;
+}
+
+.character-kicker-chars {
+  display: inline-flex;
+}
+
+.character-kicker-char {
+  display: inline-block;
+}
+
+/* Crucetas tecnicas arquitectonicas */
+.arch-crosshair {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 5;
+  color: var(--color-sand-deep);
+}
+
+.arch-crosshair-top-left {
+  top: 14px;
+  left: 14px;
+}
+
+.arch-crosshair-top-right {
+  top: 14px;
+  right: 14px;
+}
+
+.arch-crosshair-bottom-left {
+  bottom: 14px;
+  left: 14px;
+}
+
+.arch-crosshair-bottom-right {
+  bottom: 14px;
+  right: 14px;
+}
+
+/* Regla grafica de cota tecnica */
+.tech-ruler {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 140px;
+  margin-block: 8px;
+}
+
+.tech-ruler-line {
+  height: 1px;
+  background: var(--line);
+  transform-origin: left;
+  width: 100%;
+  display: block;
+}
+
+.tech-ruler-ticks {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 7px;
+}
+
+.tech-ruler-tick {
+  width: 1px;
+  height: 4px;
+  background: var(--line);
+  transform-origin: top;
+  display: block;
+}
+
+.tech-ruler-tick.is-major {
+  height: 7px;
+  background: var(--color-sand-deep);
+}
+
+/* Ticker numerico */
+.metric-ticker {
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+}
+
+.metric-ticker-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Desenmascarado por cortina */
+.clip-curtain-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+
+.clip-curtain-inner {
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+}
+
+/* Dock flotante de estaciones de recorrido (solo en pantallas amplias de escritorio) */
+.journey-tracker {
+  position: fixed;
+  right: clamp(20px, 2.5vw, 40px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.journey-tracker-track {
+  position: absolute;
+  right: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: #0b1f3a14;
+}
+
+[data-theme="dark"] .journey-tracker-track {
+  background: #ffffff18;
+}
+
+.journey-tracker-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-blue);
+  transform-origin: top;
+}
+
+[data-theme="dark"] .journey-tracker-fill {
+  background: var(--color-sand);
+}
+
+.journey-tracker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  pointer-events: auto;
+}
+
+.journey-tracker-link {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 14px;
+  text-decoration: none;
+  position: relative;
+}
+
+.journey-tracker-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1.5px solid var(--color-blue);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .journey-tracker-dot {
+  border-color: var(--color-sand);
+}
+
+.journey-tracker-item.is-active .journey-tracker-dot {
+  background: var(--color-blue);
+  transform: scale(1.5);
+  box-shadow: 0 0 10px #31669280;
+}
+
+[data-theme="dark"] .journey-tracker-item.is-active .journey-tracker-dot {
+  background: var(--color-sand);
+  box-shadow: 0 0 10px #d8c8b480;
+}
+
+.journey-tracker-label {
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--glass-ink);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--on-ink);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  box-shadow: 0 8px 24px #0b1f3a22;
+  border: 1px solid var(--glass-line);
+}
+
+.journey-tracker-label small {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+}
+
+.journey-tracker-label strong {
+  font-weight: 600;
+}
+
+.journey-tracker-link:hover .journey-tracker-label,
+.journey-tracker-link:focus-visible .journey-tracker-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Ocultar dock en anchos reducidos para proteger la composicion y evitar overflow */
+@media (max-width: 1180px) {
+  .journey-tracker {
+    display: none !important;
   }
 }

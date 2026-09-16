@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Bed, Heart, MapPin, Ruler, Tree } from "@phosphor-icons/react";
-import { useSurfaceMotion } from "./premium-motion";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Bed, Heart, MapPin, Ruler, Scales, Tree } from "@phosphor-icons/react";
+import { useSurfaceMotion, ArchitecturalCrosshair } from "./premium-motion";
 import { useExperience } from "./experience-provider";
 import { Photo } from "./ui";
 import { catalogCopy } from "@/content/catalog-copy";
@@ -12,7 +12,17 @@ import type { PropertyProject } from "@/content/projects";
 import "./property-card.css";
 
 /** Gestures change images; the explicit CTA opens the profile. */
-export function PropertyCard({ project, featured = false }: { project: PropertyProject; featured?: boolean }) {
+export function PropertyCard({
+  project,
+  featured = false,
+  isComparing = false,
+  onToggleCompare,
+}: {
+  project: PropertyProject;
+  featured?: boolean;
+  isComparing?: boolean;
+  onToggleCompare?: () => void;
+}) {
   const { locale, t, isSaved, toggleSlug } = useExperience();
   const c = catalogCopy[locale];
   const j = journeyCopy[locale];
@@ -30,6 +40,8 @@ export function PropertyCard({ project, featured = false }: { project: PropertyP
   };
   return (
     <motion.article {...surface.bindings} className={`pcard ${featured ? "pcard-featured" : ""}`} aria-label={project.name}>
+      {featured && <ArchitecturalCrosshair position="top-left" />}
+      {featured && <ArchitecturalCrosshair position="bottom-right" />}
       <div className="pcard-media"
         onTouchStart={(event) => { const p = event.touches[0]; touch.current = { x: p.clientX, y: p.clientY }; }}
         onTouchCancel={() => { touch.current = null; }}
@@ -51,12 +63,35 @@ export function PropertyCard({ project, featured = false }: { project: PropertyP
         </AnimatePresence>
         <div className="pcard-topline">
           <span className="pcard-label">{j.render}</span>
-          <button type="button" className="pcard-heart" aria-pressed={saved}
-            aria-label={saved ? c.unsave(project.name) : c.save(project.name)} onClick={() => toggleSlug(project.slug)}>
-            <motion.span animate={reduced ? undefined : { scale: saved ? [1, 1.2, 1] : 1 }} transition={{ duration: 0.25 }}>
-              <Heart size={22} weight={saved ? "fill" : "regular"} aria-hidden="true" />
-            </motion.span>
-          </button>
+          <div className="pcard-top-actions">
+            {onToggleCompare && (
+              <button
+                type="button"
+                className={`pcard-compare-pill ${isComparing ? "is-active" : ""}`}
+                aria-pressed={isComparing}
+                aria-label={isComparing ? c.removeFromCompare(project.name) : c.addToCompare(project.name)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleCompare();
+                }}
+              >
+                <Scales size={15} weight={isComparing ? "fill" : "bold"} aria-hidden="true" />
+                <span className="pcard-compare-label">{isComparing ? c.comparing : c.compare}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              className="pcard-heart"
+              aria-pressed={saved}
+              aria-label={saved ? c.unsave(project.name) : c.save(project.name)}
+              onClick={() => toggleSlug(project.slug)}
+            >
+              <motion.span animate={reduced ? undefined : { scale: saved ? [1, 1.2, 1] : 1 }} transition={{ duration: 0.25 }}>
+                <Heart size={22} weight={saved ? "fill" : "regular"} aria-hidden="true" />
+              </motion.span>
+            </button>
+          </div>
         </div>
         {slides.length > 1 && <div className="pcard-image-controls" role="group" aria-label={`${j.photos}: ${project.name}`}>
           <button type="button" onClick={() => changeImage(index - 1)} aria-label={`${t.previous}: ${project.name}`}><ArrowLeft size={18} /></button>
@@ -67,7 +102,7 @@ export function PropertyCard({ project, featured = false }: { project: PropertyP
       <div className="pcard-glass">
         <div className="pcard-info">
           <p className="pcard-location"><MapPin size={15} aria-hidden="true" />{project.location}</p>
-          <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`}>{project.name}</Link></h3>
+          <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{project.name}</Link></h3>
           {project.bedrooms.length > 0 ? <ul className="pcard-specs">
             <li><Bed size={18} /><span>{project.bedrooms.join(", ")} {c.bedroomsShort}</span></li>
             <li><Ruler size={18} /><span>{project.area.min}–{project.area.max} {project.area.unit}</span></li>
@@ -75,8 +110,8 @@ export function PropertyCard({ project, featured = false }: { project: PropertyP
           </ul> : <p className="pcard-pending">{c.pending}</p>}
         </div>
         <div className="pcard-actions">
-          <Link className="pcard-action" href={`/proyectos/${project.slug}?lang=${locale}`}>{c.open}<ArrowUpRight size={20} /></Link>
-          <Link className="pcard-map" href={`/mapa?lang=${locale}&proyecto=${project.slug}`}><MapPin size={17} />{c.location}</Link>
+          <Link className="pcard-action" href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{c.open}<ArrowUpRight size={20} /></Link>
+          <Link className="pcard-map" href={`/mapa?lang=${locale}&proyecto=${project.slug}`} prefetch={false}><MapPin size={17} />{c.location}</Link>
         </div>
       </div>
       <motion.span className="surface-light" style={surface.glowStyle} aria-hidden="true"/>

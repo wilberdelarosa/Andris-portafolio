@@ -1,0 +1,37 @@
+{
+  "passed": [
+    "search, budget and live counts",
+    "year, beach and golf filters; reset and close",
+    "comparison has honest data and table semantics",
+    "Android comparison tray expands and opens modal",
+    "filter and comparison fit 320",
+    "filter and comparison fit 375",
+    "filter and comparison fit 768",
+    "map defaults flat, exact reference pin and optional 3D",
+    "Terra map marker opens all six 360 scenes",
+    "consent gates preparation; complete inquiry stays local",
+    "critical accessibility: filters and comparison"
+  ],
+  "errors": [],
+  "pageErrors": [],
+  "requests": [
+    "https://kuula.co/share/htQc3/collection/7HsBR?fs=1&vr=0&zoom=1&sd=1&thumbs=1&chromeless=0&logo=1&autorotate=0&initload=1",
+    "https://kuula.co/assets/viewer/logo.svg",
+    "https://kuula.co/share/htQc3/collection/7HsBR?fs=1&vr=0&zoom=1&sd=1&thumbs=1&chromeless=0&logo=1&autorotate=0&initload=1",
+    "https://kuula.co/assets/viewer/logo.svg",
+    "https://kuula.co/share/htQc3/collection/7HsBR?fs=1&vr=0&zoom=1&sd=1&thumbs=1&chromeless=0&logo=1&autorotate=0",
+    "https://kuula.co/assets/viewer/logo.svg",
+    "https://euclid.kuula.co/a/inc/htQc3",
+    "blob:https://kuula.co/dae68106-48e4-4753-8c18-f15d2fe28212",
+    "blob:https://kuula.co/d99e7fb4-3568-44e9-ae49-a1fddb55ed21",
+    "https://euclid.kuula.co/a/inc/htQc3",
+    "https://kuula.co/share/L4pD3/collection/7HsBR?fs=1&vr=0&zoom=1&sd=1&thumbs=1&chromeless=0&logo=1&autorotate=0",
+    "https://kuula.co/assets/viewer/logo.svg",
+    "blob:https://kuula.co/b062ff2e-7e27-45d2-aba7-59902efafa1b",
+    "https://euclid.kuula.co/a/inc/L4pD3",
+    "blob:https://kuula.co/b685ba78-f9d3-420f-8a7f-e7dad5c97e93",
+    "blob:https://kuula.co/6ff2647b-9eb6-4b05-b273-5e325cb8c570",
+    "blob:https://kuula.co/6ecce96b-e14d-4716-b509-3ba5910b44ab",
+    "blob:https://kuula.co/fae3d5fb-868d-4684-992c-2b0278ef9e91"
+  ]
+}

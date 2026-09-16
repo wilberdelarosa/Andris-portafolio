@@ -68,7 +68,7 @@ Los espacios agrupan contenido y separan funciones. Las tarjetas corresponden a 
 | Inicio | Portada, explorador de proyectos, mapa compacto, presentación breve y accesos a herramientas. Orienta sin repetir calculadora y formulario completos. |
 | /proyectos | Catálogo de PropertyCard compartidas, filtros y vista de guardados. |
 | /proyectos/[slug] | Dossier propio, galería y hechos confirmados; enlaces al mapa y contacto conservan proyecto. |
-| /mapa | MapExplorer con Leaflet y OpenStreetMap, tres puntos verificados, panel y marcadores sincronizados. Carga automática en inicio, fichas y mapa independiente, sin botón de activación. |
+| /mapa | MapExplorer con MapLibre, OpenFreeMap y OpenStreetMap: tres puntos verificados, panel y marcadores sincronizados, edificios extruidos y perspectiva 3D activada inicialmente. Carga automática en inicio, fichas y mapa independiente, sin botón de activación. |
 | /sobre-mi | Presentación ampliada, escena editorial del retrato de camisa blanca y proceso. Inicio mantiene solo el resumen y enlace. |
 | /calculadora | Escenario editable con resultado navy. Los importes son ilustrativos, no una oferta vigente ni financiación prometida. |
 | /contacto | Proyecto preseleccionado por enlace, etiquetas persistentes, consentimiento y resumen local revisable antes de elegir canal. Preparar el resumen no envía mensajes ni registra una consulta en servidor. |
@@ -79,7 +79,7 @@ Los espacios agrupan contenido y separan funciones. Las tarjetas corresponden a 
 | Proceso y preguntas | Numeración funcional del proceso; encabezados sin etiquetas ornamentales. Preguntas con details/summary nativos. |
 | Diálogos | Galería, menú, preferencias y revisión contienen el foco, permiten cerrar y restauran el foco al origen. |
 
-El enlace con parámetro proyecto conserva la selección al abrir mapa y contacto. El mapa ofrece acercamiento, vista general y estilo; el estilo atenuado se aplica al envoltorio, preservando las clases administradas por Leaflet. Mantener atribución y enlace externo de ubicación visibles. Al cambiar de tamaño, la vista general reencuadra los tres proyectos; una selección conserva su centro. El mapa compacto permite arrastrar y usar sus controles desde el inicio, y deja la rueda disponible para desplazar la página.
+El enlace con parámetro proyecto conserva la selección al abrir mapa y contacto. El mapa ofrece acercamiento, vista general, estilo y cambio entre perspectiva 3D y plana; el estilo atenuado se aplica al lienzo de MapLibre. Mantener atribución y enlace externo de ubicación visibles. Al cambiar de tamaño, la vista general reencuadra los tres proyectos; una selección conserva su centro. El mapa compacto permite arrastrar y usar sus controles desde el inicio, y deja la rueda disponible para desplazar la página.
 
 El catálogo autorizado el 13 de septiembre comprende Melcon Paradise, Terra Serena y The Beach at Punta Cana City Place. Solo Melcon tiene ficha escrita completa. Los otros dos presentan nombre, ubicación y renders verificados con detalles comerciales pendientes. No añadir precios, valoraciones, disponibilidad, fechas ni hechos de unidades para completar una tarjeta. La autoridad de contenido es [CONTENT-STATUS.md](docs/organization/CONTENT-STATUS.md).
 

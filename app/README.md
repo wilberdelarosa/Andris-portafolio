@@ -37,7 +37,7 @@ node scripts/check-hero-v3.mjs
 - Catálogo `/proyectos` con filtros y guardados, tres fichas `/proyectos/[slug]`, galería con teclado y gesto táctil, favoritos por proyecto y enlace compartible.
 - Inicio con selector de proyectos, imágenes intercambiables, panel de vidrio navy y accesos a herramientas independientes.
 - `/sobre-mi`, `/calculadora` y `/contacto` completan recorridos propios. El contacto recibe `?proyecto=slug` desde la ficha.
-- Mapa Leaflet/OpenStreetMap con los tres puntos verificados, panel de proyecto, zoom, estilo detallado/gris, recuperación de errores y enlaces de Google Maps. `/mapa?proyecto=slug` abre la selección compartida; las vistas compactas se activan al solicitarlas. Evidencias de ubicación en `../docs/design/project-location-evidence.json`.
+- Mapa MapLibre/OpenFreeMap/OpenStreetMap con los tres puntos verificados, vista 3D inicial, panel de proyecto, zoom, estilo detallado/gris, recuperación de errores y enlaces de Google Maps. `/mapa?proyecto=slug` abre la selección compartida; las vistas compactas se activan al solicitarlas. Evidencias de ubicación en `../docs/design/project-location-evidence.json`.
 - Simulador editable de pagos con firma, construcción, entrega y cuotas en centavos. Distribuye el redondeo en la última cuota y permite descargar el escenario.
 - Formulario validado que prepara una consulta en el navegador. El visitante puede copiarla, descargarla o revisar el mensaje en WhatsApp/correo antes de enviarlo. No se inventa un estado de mensaje entregado.
 - ES/EN/FR, apariencia clara/oscura/sistema y favoritos guardados localmente.

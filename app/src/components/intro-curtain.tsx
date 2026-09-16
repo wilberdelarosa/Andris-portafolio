@@ -29,18 +29,20 @@ export function IntroCurtain() {
   const skipped = useRef(false);
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect -- El estado inicial depende
-       de un atributo que un script escribe antes de pintar; leerlo durante el
-       render del servidor no es posible y provocaría una discrepancia. */
+    /* eslint-disable react-hooks/set-state-in-effect -- La preferencia de sesión
+       solo existe tras hidratar; mantener el primer render estable evita una
+       discrepancia entre el HTML del servidor y el cliente. */
     const root = document.documentElement;
-    // Marcada como vista: en el resto de la sesión la página entra directa.
+    let seen = false;
     try {
+      seen = sessionStorage.getItem("ap-intro-seen") === "1";
       sessionStorage.setItem("ap-intro-seen", "1");
     } catch {
       /* En modo privado la intro volverá a verse; no es un fallo. */
     }
 
-    if (root.dataset.intro === "skip") {
+    if (seen || root.dataset.intro === "skip") {
+      root.dataset.intro = "skip";
       setGone(true);
       return;
     }

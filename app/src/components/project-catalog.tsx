@@ -3,227 +3,556 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
+import {
+  ArrowRight,
+  Check,
+  Heart,
+  MapPin,
+  MagnifyingGlass,
+  Scales,
+  SlidersHorizontal,
+  X,
+} from "@phosphor-icons/react";
 import { journeyCopy } from "@/content/journey-copy";
-import { ArrowRight, MapPin, Heart, SlidersHorizontal, X } from "@phosphor-icons/react";
-import { useExperience } from "./experience-provider";
 import { catalogCopy } from "@/content/catalog-copy";
-import { getPublishedProjects, type PropertyProject } from "@/content/projects";
-import { Rise } from "./motion-text";
+import {
+  discoveryCopy,
+  discoveryFeatures,
+  type DiscoveryFeature,
+} from "@/content/project-discovery";
+import { getPublishedProjects } from "@/content/projects";
+import {
+  emptyCatalogFilters,
+  matchesCatalog,
+  type CatalogFilters,
+} from "@/lib/catalog-filtering";
+import { useExperience } from "./experience-provider";
 import { PropertyCard } from "./property-card";
+import { ProjectTourButton } from "./project-media";
+import { Modal } from "./ui";
 import { EditorialTitle, DecorativeLayer } from "./premium-motion";
-
-/** La zona es la primera parte de `location`: "Vista Cana · Punta Cana". */
-const zoneOf = (project: PropertyProject) => project.location.split("·")[0]?.trim() ?? project.location;
-
-type Filters = { zone: string | null; bedroom: number | null; amenity: string | null };
-const emptyFilters: Filters = { zone: null, bedroom: null, amenity: null };
+import {
+  ProjectComparisonDock,
+  ProjectComparisonModal,
+} from "./project-comparison";
 
 export function ProjectCatalog() {
   const { locale, isSaved, savedSlugs } = useExperience();
-  const j = journeyCopy[locale];
-  const [onlySaved, setOnlySaved] = useState(false);
-  const c = catalogCopy[locale];
+  const j = journeyCopy[locale],
+    c = catalogCopy[locale],
+    d = discoveryCopy[locale];
   const reduced = useReducedMotion();
+  const [onlySaved, setOnlySaved] = useState(false);
+  const [filters, setFilters] = useState<CatalogFilters>(emptyCatalogFilters);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [comparisonSlugs, setComparisonSlugs] = useState<string[]>([]);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
   const projects = useMemo(() => getPublishedProjects(), []);
-  const [filters, setFilters] = useState<Filters>(emptyFilters);
-
-  // Las opciones salen de los propios proyectos: si un dato no existe, no
-  // aparece como filtro. Evita ofrecer una busqueda que no lleva a ninguna parte.
-  const zones = useMemo(
-    () => [...new Set(projects.map(zoneOf))],
-    [projects],
-  );
-  const bedrooms = useMemo(
-    () => [...new Set(projects.flatMap((p) => p.bedrooms))].sort((a, b) => a - b),
-    [projects],
-  );
-  const amenities = useMemo(
-    () => [...new Set(projects.flatMap((p) => p.amenities.map((a) => a.es)))].sort(),
-    [projects],
-  );
-
-  const matches = (project: PropertyProject, f: Filters) =>
-    (!onlySaved || isSaved(project.slug)) &&
-    (f.zone === null || zoneOf(project) === f.zone) &&
-    (f.bedroom === null || project.bedrooms.includes(f.bedroom)) &&
-    (f.amenity === null || project.amenities.some((a) => a.es === f.amenity));
-
+  const zones = [
+    ...new Set(projects.map((p) => p.location.split("·")[0].trim())),
+  ];
+  const bedrooms = [...new Set(projects.flatMap((p) => p.bedrooms))].sort();
+  const types = [
+    ...new Map(
+      projects.flatMap((p) => p.productTypes).map((type) => [type.es, type]),
+    ).values(),
+  ];
+  const amenities = [
+    ...new Map(
+      projects.flatMap((p) => p.amenities).map((item) => [item.es, item]),
+    ).values(),
+  ];
+  const matches = (
+    project: (typeof projects)[number],
+    current: CatalogFilters,
+  ) =>
+    (!onlySaved || isSaved(project.slug)) && matchesCatalog(project, current);
   const visible = projects.filter((project) => matches(project, filters));
-  const active = filters.zone !== null || filters.bedroom !== null || filters.amenity !== null;
-
-  /** Cuantos proyectos quedarian si se aplicara solo este cambio. */
-  const countFor = (patch: Partial<Filters>) =>
-    projects.filter((project) => matches(project, { ...filters, ...patch })).length;
-
+  const countFor = (patch: Partial<CatalogFilters>) =>
+    projects.filter((p) => matches(p, { ...filters, ...patch })).length;
+  const activeFiltersCount = Object.entries(filters).reduce(
+    (n, [key, value]) =>
+      n +
+      (key === "features"
+        ? filters.features.length
+        : value !== null && value !== ""
+          ? 1
+          : 0),
+    0,
+  );
+  const update = (patch: Partial<CatalogFilters>) =>
+    setFilters((current) => ({ ...current, ...patch }));
+  const clearFilters = () => {
+    setFilters(emptyCatalogFilters);
+    setOnlySaved(false);
+  };
+  const toggleFeature = (feature: DiscoveryFeature) =>
+    update({
+      features: filters.features.includes(feature)
+        ? filters.features.filter((value) => value !== feature)
+        : [...filters.features, feature],
+    });
+  const toggleCompareSlug = (slug: string) =>
+    setComparisonSlugs((prev) =>
+      prev.includes(slug)
+        ? prev.filter((value) => value !== slug)
+        : [...prev, slug],
+    );
+  const selectAllForComparison = () =>
+    setComparisonSlugs(projects.map((p) => p.slug));
+  const openComparisonWithAll = () => {
+    if (!comparisonSlugs.length) selectAllForComparison();
+    setIsComparisonOpen(true);
+  };
+  const priceOptions = [
+    { value: "", label: c.anyPrice },
+    { value: "under150", label: c.upTo("US$150,000") },
+    { value: "under200", label: c.upTo("US$200,000") },
+    { value: "confirmed", label: c.confirmedPrice },
+    { value: "pending", label: c.pendingPrice },
+  ];
+  const activeTags = [
+    ...(filters.zone
+      ? [{ label: filters.zone, clear: () => update({ zone: null }) }]
+      : []),
+    ...(filters.price
+      ? [
+          {
+            label: priceOptions.find((o) => o.value === filters.price)!.label,
+            clear: () => update({ price: null }),
+          },
+        ]
+      : []),
+    ...(filters.delivery
+      ? [
+          {
+            label:
+              filters.delivery === "ready"
+                ? d.ready
+                : d.years + ": " + filters.delivery,
+            clear: () => update({ delivery: null }),
+          },
+        ]
+      : []),
+    ...(filters.bedroom !== null
+      ? [
+          {
+            label: filters.bedroom + " " + c.bedroomsShort,
+            clear: () => update({ bedroom: null }),
+          },
+        ]
+      : []),
+    ...(filters.productType
+      ? [
+          {
+            label:
+              types.find((type) => type.es === filters.productType)?.[locale] ??
+              filters.productType,
+            clear: () => update({ productType: null }),
+          },
+        ]
+      : []),
+    ...(filters.amenity
+      ? [
+          {
+            label:
+              amenities.find((a) => a.es === filters.amenity)?.[locale] ??
+              filters.amenity,
+            clear: () => update({ amenity: null }),
+          },
+        ]
+      : []),
+    ...filters.features.map((feature) => ({
+      label: discoveryFeatures.find((item) => item.id === feature)!.label[
+        locale
+      ],
+      clear: () => toggleFeature(feature),
+    })),
+  ];
+  const searchLabel =
+    locale === "es"
+      ? "Buscar por nombre o zona"
+      : locale === "fr"
+        ? "Rechercher un nom ou un secteur"
+        : "Search by name or area";
   return (
     <div className="catalog">
-      <DecorativeLayer variant="plan"/>
+      <DecorativeLayer variant="plan" />
       <header className="catalog-head">
-        
-        <EditorialTitle as="h1" className="catalog-title" text={c.title.join(" ")} accent={c.title[1]}/>
-        <Rise as="p" className="catalog-intro" delay={0.35}>
-          {c.intro}
-        </Rise>
+        <EditorialTitle
+          as="h1"
+          className="catalog-title"
+          text={c.title.join(" ")}
+          accent={c.title[1]}
+        />
+        <p className="catalog-intro">{c.intro}</p>
       </header>
-
       <div className="catalog-view-controls">
-        <div className="catalog-saved-toggle" role="group" aria-label={c.filtersLabel}>
-          <button type="button" aria-pressed={!onlySaved} onClick={() => setOnlySaved(false)}>{j.viewAll}</button>
-          <button type="button" aria-pressed={onlySaved} onClick={() => setOnlySaved(true)}><Heart size={17}/>{j.saved}<span>{projects.filter((p) => savedSlugs.includes(p.slug)).length}</span></button>
+        <div
+          className="catalog-view-pills"
+          role="group"
+          aria-label={c.filtersLabel}
+        >
+          <button
+            type="button"
+            className={"catalog-view-btn " + (!onlySaved ? "is-active" : "")}
+            aria-pressed={!onlySaved}
+            onClick={() => setOnlySaved(false)}
+          >
+            {j.viewAll}
+            <span className="catalog-view-badge">{projects.length}</span>
+          </button>
+          <button
+            type="button"
+            className={"catalog-view-btn " + (onlySaved ? "is-active" : "")}
+            aria-pressed={onlySaved}
+            onClick={() => setOnlySaved(true)}
+          >
+            <Heart size={16} weight={onlySaved ? "fill" : "regular"} />
+            {j.saved}
+            <span className="catalog-view-badge">{savedSlugs.length}</span>
+          </button>
         </div>
-        <Link className="text-link" href={`/mapa?lang=${locale}`}><MapPin size={18}/>{j.map}<ArrowRight size={18}/></Link>
+        <div className="catalog-action-group">
+          <button
+            type="button"
+            className="catalog-compare-trigger"
+            onClick={openComparisonWithAll}
+            aria-label={c.compareTitle}
+          >
+            <Scales size={18} />
+            {comparisonSlugs.length
+              ? c.compareSelected(comparisonSlugs.length)
+              : c.compareAll}
+          </button>
+          <Link
+            className="catalog-map-link text-link"
+            href={"/mapa?lang=" + locale}
+            prefetch={false}
+          >
+            <MapPin size={17} />
+            {j.map}
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
-      <Rise className="catalog-filters" delay={0.15}>
-        <div className="catalog-filter-rows" role="group" aria-label={c.filtersLabel}>
-          <FilterRow
-            label={c.zone}
-            allLabel={c.all}
-            allCount={countFor({ zone: null })}
-            options={zones.map((zone) => ({
-              key: zone,
-              label: zone,
-              count: countFor({ zone }),
-              selected: filters.zone === zone,
-            }))}
-            selectedNone={filters.zone === null}
-            onAll={() => setFilters((f) => ({ ...f, zone: null }))}
-            onPick={(key) => setFilters((f) => ({ ...f, zone: f.zone === key ? null : key }))}
-          />
-
-          <details className="catalog-advanced"><summary><SlidersHorizontal size={17}/>{j.filter}</summary>
-          {bedrooms.length > 0 ? (
-            <FilterRow
-              label={c.bedrooms}
-              allLabel={c.all}
-              allCount={countFor({ bedroom: null })}
-              options={bedrooms.map((bedroom) => ({
-                key: String(bedroom),
-                label: String(bedroom),
-                count: countFor({ bedroom }),
-                selected: filters.bedroom === bedroom,
-              }))}
-              selectedNone={filters.bedroom === null}
-              onAll={() => setFilters((f) => ({ ...f, bedroom: null }))}
-              onPick={(key) =>
-                setFilters((f) => ({ ...f, bedroom: f.bedroom === Number(key) ? null : Number(key) }))
+      <section className="catalog-filters" aria-label={c.filtersLabel}>
+        <div className="catalog-search-row">
+          <label className="catalog-search-field">
+            <span>{searchLabel}</span>
+            <div>
+              <MagnifyingGlass size={19} aria-hidden="true" />
+              <input
+                type="search"
+                value={filters.query}
+                maxLength={100}
+                onChange={(e) => update({ query: e.target.value })}
+                placeholder="Terra Serena"
+              />
+            </div>
+          </label>
+          <label className="catalog-budget-field">
+            <span>{locale === "es" ? "Presupuesto" : "Budget"} (USD)</span>
+            <select
+              value={filters.price ?? ""}
+              onChange={(e) =>
+                update({
+                  price: (e.target.value || null) as CatalogFilters["price"],
+                })
               }
-            />
-          ) : null}
-
-          <FilterRow
-            label={c.amenities}
-            allLabel={c.all}
-            allCount={countFor({ amenity: null })}
-            options={amenities.map((amenity) => ({
-              key: amenity,
-              label: projects.flatMap((p) => p.amenities).find((a) => a.es === amenity)?.[locale] ?? amenity,
-              count: countFor({ amenity }),
-              selected: filters.amenity === amenity,
-            }))}
-            selectedNone={filters.amenity === null}
-            onAll={() => setFilters((f) => ({ ...f, amenity: null }))}
-            onPick={(key) => setFilters((f) => ({ ...f, amenity: f.amenity === key ? null : key }))}
-          />
-          </details>
+            >
+              {priceOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className="button button-outline catalog-filter-launch"
+            onClick={() => setIsAdvancedOpen(true)}
+            aria-haspopup="dialog"
+          >
+            <SlidersHorizontal size={18} />
+            {c.filterAdvanced}
+            {activeFiltersCount > 0 && (
+              <span className="catalog-filter-number">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
         </div>
-
-        <div className="catalog-status">
-          <p aria-live="polite" className="catalog-count">
-            {c.results(visible.length)}
-          </p>
-          {active ? (
-            <button type="button" className="catalog-clear" onClick={() => { setFilters(emptyFilters); setOnlySaved(false); }}>
-              <X size={13} weight="bold" aria-hidden="true" />
-              {c.clear}
+        <div
+          className="catalog-segmented-chips catalog-zones"
+          role="group"
+          aria-label={c.zone}
+        >
+          <button
+            type="button"
+            className={
+              "catalog-segment-chip " +
+              (filters.zone === null ? "is-active" : "")
+            }
+            aria-pressed={filters.zone === null}
+            onClick={() => update({ zone: null })}
+          >
+            {c.all}
+            <span className="catalog-chip-num">{countFor({ zone: null })}</span>
+          </button>
+          {zones.map((zone) => (
+            <button
+              key={zone}
+              type="button"
+              className={
+                "catalog-segment-chip " +
+                (filters.zone === zone ? "is-active" : "")
+              }
+              aria-pressed={filters.zone === zone}
+              onClick={() =>
+                update({ zone: filters.zone === zone ? null : zone })
+              }
+            >
+              {zone}
+              <span className="catalog-chip-num">{countFor({ zone })}</span>
             </button>
-          ) : null}
+          ))}
         </div>
-      </Rise>
-
+        <div className="catalog-status-bar">
+          <div
+            className="catalog-active-tags"
+            role="region"
+            aria-label={c.activeFiltersLabel}
+          >
+            <span
+              aria-live="polite"
+              aria-atomic="true"
+              className="catalog-count-badge"
+            >
+              {c.results(visible.length)}
+            </span>
+            {activeTags.map((tag) => (
+              <button
+                type="button"
+                key={tag.label}
+                className="catalog-active-pill"
+                onClick={tag.clear}
+                aria-label={c.clear + ": " + tag.label}
+              >
+                {tag.label}
+                <X size={14} />
+              </button>
+            ))}
+            {(activeFiltersCount > 0 || onlySaved) && (
+              <button
+                type="button"
+                className="catalog-clear-action"
+                onClick={clearFilters}
+              >
+                {c.clearAll}
+                <X size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+      <Modal
+        open={isAdvancedOpen}
+        onOpenChange={setIsAdvancedOpen}
+        title={c.filtersLabel}
+        className="catalog-filter-modal"
+      >
+        <div className="catalog-filter-body" data-lenis-prevent>
+          <fieldset className="catalog-filter-group">
+            <legend>{d.years}</legend>
+            <div className="catalog-pills-row">
+              {[null, "2026", "2027", "2028", "2029", "2030", "ready"].map(
+                (year) => (
+                  <button
+                    type="button"
+                    key={year ?? "all"}
+                    className={
+                      "catalog-pill-btn " +
+                      (filters.delivery === year ? "is-active" : "")
+                    }
+                    aria-pressed={filters.delivery === year}
+                    onClick={() =>
+                      update({
+                        delivery: filters.delivery === year ? null : year,
+                      })
+                    }
+                  >
+                    {year === "ready" ? d.ready : (year ?? c.all)}
+                    <span className="catalog-pill-sub">
+                      {countFor({ delivery: year })}
+                    </span>
+                  </button>
+                ),
+              )}
+            </div>
+          </fieldset>
+          <fieldset className="catalog-filter-group">
+            <legend>{d.features}</legend>
+            <div className="catalog-feature-grid">
+              {discoveryFeatures.map((feature) => {
+                const active = filters.features.includes(feature.id);
+                return (
+                  <button
+                    type="button"
+                    key={feature.id}
+                    className="catalog-feature-option"
+                    aria-pressed={active}
+                    onClick={() => toggleFeature(feature.id)}
+                  >
+                    <span className="catalog-feature-check">
+                      {active && <Check size={15} weight="bold" />}
+                    </span>
+                    <span>{feature.label[locale]}</span>
+                    <small>
+                      {countFor({
+                        features: active
+                          ? filters.features
+                          : [...filters.features, feature.id],
+                      })}
+                    </small>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="field-hint">{d.note}</p>
+          </fieldset>
+          <fieldset className="catalog-filter-group">
+            <legend>{c.bedrooms}</legend>
+            <div className="catalog-pills-row">
+              {[null, ...bedrooms].map((bedroom) => (
+                <button
+                  type="button"
+                  key={bedroom ?? "all"}
+                  className={
+                    "catalog-pill-btn " +
+                    (filters.bedroom === bedroom ? "is-active" : "")
+                  }
+                  aria-pressed={filters.bedroom === bedroom}
+                  onClick={() =>
+                    update({
+                      bedroom: filters.bedroom === bedroom ? null : bedroom,
+                    })
+                  }
+                >
+                  {bedroom === null ? c.all : bedroom + " " + c.bedroomsShort}
+                  <span className="catalog-pill-sub">
+                    {countFor({ bedroom })}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <div className="catalog-extra-selects">
+            <label>
+              {c.productType}
+              <select
+                value={filters.productType ?? ""}
+                onChange={(e) =>
+                  update({ productType: e.target.value || null })
+                }
+              >
+                <option value="">{c.all}</option>
+                {types.map((type) => (
+                  <option key={type.es} value={type.es}>
+                    {type[locale]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {c.amenities}
+              <select
+                value={filters.amenity ?? ""}
+                onChange={(e) => update({ amenity: e.target.value || null })}
+              >
+                <option value="">{c.all}</option>
+                {amenities.map((a) => (
+                  <option key={a.es} value={a.es}>
+                    {a[locale]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+        <div className="catalog-filter-footer">
+          <button type="button" className="text-link" onClick={clearFilters}>
+            {c.clearAll}
+          </button>
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={() => setIsAdvancedOpen(false)}
+          >
+            <span aria-live="polite">
+              {(locale === "es"
+                ? "Ver "
+                : locale === "fr"
+                  ? "Voir "
+                  : "Show ") + c.results(visible.length)}
+            </span>
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </Modal>
       {visible.length === 0 ? (
         <div className="catalog-empty">
           <p>{onlySaved && !savedSlugs.length ? j.noSaved : c.empty}</p>
-          <button type="button" className="button button-primary" onClick={() => { setFilters(emptyFilters); setOnlySaved(false); }}>
+          <p className="field-hint">{d.note}</p>
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={clearFilters}
+          >
             {c.emptyAction}
-            <ArrowRight size={17} aria-hidden="true" />
+            <ArrowRight size={17} />
           </button>
         </div>
       ) : (
         <motion.ul className="catalog-grid" layout={!reduced}>
           <AnimatePresence mode="popLayout" initial={false}>
-            {visible.map((project, index) => (
+            {visible.map((project) => (
               <motion.li
                 key={project.slug}
-                layout={!reduced}
-                initial={reduced ? false : { opacity: 0, y: 38, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={reduced ? undefined : { opacity: 0, scale: 0.97 }}
-                transition={{
-                  duration: 0.25,
-                  delay: reduced ? 0 : index * 0.035,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
                 className="catalog-card"
+                layout={!reduced}
+                initial={reduced ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduced ? undefined : { opacity: 0 }}
+                transition={{ duration: reduced ? 0 : 0.2 }}
               >
-                <PropertyCard project={project} />
+                <PropertyCard
+                  project={project}
+                  isComparing={comparisonSlugs.includes(project.slug)}
+                  onToggleCompare={() => toggleCompareSlug(project.slug)}
+                />
+                <ProjectTourButton project={project} />
               </motion.li>
             ))}
           </AnimatePresence>
         </motion.ul>
       )}
-
       <p className="catalog-note">{c.note}</p>
-    </div>
-  );
-}
-
-function FilterRow({
-  label,
-  allLabel,
-  allCount,
-  options,
-  selectedNone,
-  onAll,
-  onPick,
-}: {
-  label: string;
-  allLabel: string;
-  allCount: number;
-  options: { key: string; label: string; count: number; selected: boolean }[];
-  selectedNone: boolean;
-  onAll: () => void;
-  onPick: (key: string) => void;
-}) {
-  return (
-    <div className="catalog-filter-row">
-      <span className="catalog-filter-label">{label}</span>
-      {/* Scroll horizontal en movil: la fila no se parte en varias lineas. */}
-      <div className="catalog-chips" role="group" aria-label={label}>
-        <button
-          type="button"
-          className={`catalog-chip ${selectedNone ? "is-active" : ""}`}
-          aria-pressed={selectedNone}
-          onClick={onAll}
-        >
-          {allLabel}
-          <span className="catalog-chip-count">{allCount}</span>
-        </button>
-        {options.map((option) => (
-          <button
-            key={option.key}
-            type="button"
-            className={`catalog-chip ${option.selected ? "is-active" : ""}`}
-            aria-pressed={option.selected}
-            // Un filtro que dejaria la rejilla vacia se marca, no se oculta:
-            // esconderlo haria que las opciones bailaran en cada clic.
-            data-empty={option.count === 0 ? "true" : undefined}
-            onClick={() => onPick(option.key)}
-          >
-            {option.label}
-            <span className="catalog-chip-count">{option.count}</span>
-          </button>
-        ))}
-      </div>
+      <ProjectComparisonDock
+        selectedSlugs={comparisonSlugs}
+        onOpenModal={() => setIsComparisonOpen(true)}
+        onToggleSlug={toggleCompareSlug}
+        onSelectAll={selectAllForComparison}
+        onClearAll={() => setComparisonSlugs([])}
+      />
+      <ProjectComparisonModal
+        selectedSlugs={comparisonSlugs}
+        isOpen={isComparisonOpen}
+        onOpenChange={setIsComparisonOpen}
+        onToggleSlug={toggleCompareSlug}
+        onSelectAll={selectAllForComparison}
+        onClearAll={() => setComparisonSlugs([])}
+      />
     </div>
   );
 }

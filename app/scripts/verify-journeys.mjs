@@ -18,7 +18,7 @@ async function check(name, fn) {
   catch(e) { results.push({name,pass:false,error:e.message}); console.log('FAIL',name,e.message); await page.keyboard.press('Escape').catch(()=>{}); }
 }
 async function go(route) {
-  await page.goto(base+route,{waitUntil:'networkidle'});
+  await page.goto(base+route,{waitUntil:'domcontentloaded'});
   await page.evaluate(()=>document.fonts.ready);
 }
 async function shot(selector,name) {
@@ -54,7 +54,7 @@ await check('Favorites remain tied to their own project and persist',async()=>{
   await page.getByRole('button',{name:'Guardar The Beach at Punta Cana City Place',exact:true}).click();
   await page.locator('.catalog-saved-toggle').getByRole('button',{name:'Guardados',exact:false}).click();
   await page.waitForFunction(()=>document.querySelectorAll('.catalog-grid .pcard').length===2);
-  await page.reload({waitUntil:'networkidle'});
+  await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('.header-settings').click();
   await page.getByRole('button',{name:'Tus guardados',exact:false}).count().then(async n=>{
     if(n) await page.getByRole('button',{name:'Tus guardados',exact:false}).click();
@@ -88,9 +88,9 @@ await check('Filters, empty state and stable filters after language change',asyn
 });
 await check('Map deep links, markers, panel and controls',async()=>{
   await go('/mapa?lang=es&proyecto=terra-serena');
-  await page.locator('.leaflet-tile-loaded').first().waitFor();
+  await page.locator('.maplibregl-canvas').first().waitFor();
   assert.equal(await page.locator('.explorer-selected h3').textContent(),'Terra Serena');
-  await page.locator('.leaflet-marker-icon[title="Melcon Paradise"]').click();
+  await page.locator('.ap-explorer-marker[aria-label="Centrar el mapa en Melcon Paradise"]').click();
   assert.equal(await page.locator('.explorer-selected h3').textContent(),'Melcon Paradise');
   assert.equal(new URL(page.url()).searchParams.get('proyecto'),'melcon-paradise');
   assert.ok((await page.locator('.explorer-selected a.button').getAttribute('href')).includes('melcon-paradise'));
@@ -99,18 +99,18 @@ await check('Map deep links, markers, panel and controls',async()=>{
   await page.getByRole('button',{name:'Estilo del mapa',exact:true}).click();
   await page.getByRole('button',{name:'Mapa sobrio',exact:true}).click();
   assert.equal(await page.locator('.explorer-map-area.is-muted').count(),1);
-  assert.ok(await page.locator('.leaflet-tile-loaded').first().evaluate(el=>el.getBoundingClientRect().width>0));
-  assert.equal(await page.locator('.explorer-canvas.leaflet-container').count(),1);
+  assert.ok(await page.locator('.maplibregl-canvas').first().evaluate(el=>el.getBoundingClientRect().width>0));
+  assert.equal(await page.locator('.explorer-canvas .maplibregl-canvas').count(),1);
   await shot('.explorer','map-desktop');
 });
 await check('Map error retains project links and has a working retry',async()=>{
-  await page.route('https://tile.openstreetmap.org/**',r=>r.abort());
+  await page.route('https://tiles.openfreemap.org/**',r=>r.abort());
   await go('/mapa?lang=es&proyecto=terra-serena');
   await page.getByRole('button',{name:'Reintentar',exact:true}).waitFor({timeout:16000});
   assert.ok(await page.locator('.explorer-selected a.button').isVisible());
-  await page.unroute('https://tile.openstreetmap.org/**');
+  await page.unroute('https://tiles.openfreemap.org/**');
   await page.getByRole('button',{name:'Reintentar',exact:true}).click();
-  await page.locator('.leaflet-tile-loaded').first().waitFor();
+  await page.locator('.maplibregl-canvas').first().waitFor();
   await page.locator('.explorer-blocker').waitFor({state:'hidden'});
 });
 await check('Keyboard dialog contains and returns focus',async()=>{
@@ -135,7 +135,7 @@ await check('Mobile selected projects and map screenshots',async()=>{
   await shot('.project-showcase','showcase-mobile');
   await shot('.advisor-preview','advisor-mobile');
   await go('/mapa?lang=es&proyecto=terra-serena');
-  await page.locator('.leaflet-tile-loaded').first().waitFor();
+  await page.locator('.maplibregl-canvas').first().waitFor();
   await shot('.explorer','map-mobile');
   await go('/proyectos?lang=es');
   await shot('.catalog','catalog-mobile');
@@ -146,7 +146,7 @@ await check('WCAG AA checks across routes, themes and locales',async()=>{
     for(const route of ['/?lang=es','/proyectos?lang=fr','/mapa?lang=en','/contacto?lang=es','/sobre-mi?lang=es','/calculadora?lang=es','/proyectos/melcon-paradise?lang=es']) {
       await go(route);
       await page.evaluate(value=>{localStorage.setItem('ap-theme',value);document.documentElement.dataset.theme=value;},theme);
-      await page.reload({waitUntil:'networkidle'});
+      await page.reload({waitUntil:'domcontentloaded'});
       const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
       for(const v of result.violations) issues.push({theme,route,id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))});
     }

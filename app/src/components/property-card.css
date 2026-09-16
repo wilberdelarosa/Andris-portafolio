@@ -3,10 +3,14 @@
 .pcard-image { position: absolute; inset: 0; }
 .pcard-image .photo { width: 100%; height: 100%; }
 .pcard-image img { object-fit: cover; }
-.pcard-topline { position: absolute; inset: 18px 18px auto; display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.pcard-topline { position: absolute; inset: 18px 18px auto; display: flex; justify-content: space-between; gap: 12px; align-items: start; z-index: 2; }
+.pcard-top-actions { display: flex; align-items: center; gap: 8px; }
+.pcard-compare-pill { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--glass-ink); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); color: var(--on-ink); border: 1px solid var(--glass-line); cursor: pointer; transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease), color 0.2s var(--ease); }
+.pcard-compare-pill:hover { border-color: var(--on-ink); transform: translateY(-1px); }
+.pcard-compare-pill.is-active { background: var(--color-sand); color: var(--color-ink); border-color: var(--color-sand); }
 .pcard-label, .pcard-heart, .pcard-image-controls { background: var(--glass-ink); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); color: var(--on-ink); border: 1px solid var(--glass-line); }
 .pcard-label { padding: 7px 12px; border-radius: 99px; font-size: 12px; }
-.pcard-heart { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; }
+.pcard-heart { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--glass-line); cursor: pointer; }
 .pcard-heart > span { display: grid; }
 .pcard-heart[aria-pressed="true"] { background: var(--color-sand); color: var(--color-ink); }
 .pcard-image-controls { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; border-radius: 99px; padding: 2px; gap: 8px; }
@@ -17,7 +21,10 @@
 .pcard-location { display: flex; gap: 7px; align-items: center; font-size: 12px; line-height: 1.5; color: var(--on-ink); }
 .pcard-name { margin: 12px 0 0; font-family: var(--sans); font-size: clamp(22px, 2.2vw, 30px); font-weight: 500; line-height: 1.2; letter-spacing: -.03em; text-wrap: pretty; }
 .pcard-specs { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 18px 0 0; padding: 0; list-style: none; }
-.pcard-specs li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--on-ink); }
+.pcard-specs li { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.45; color: var(--on-ink); }
+.pcard-commercial { gap: 8px 14px; margin-top: 12px; color: var(--on-ink-muted); }
+.pcard-commercial li { max-width: 100%; }
+.pcard-commercial span { overflow-wrap: break-word; }
 .pcard-pending { margin-top: 16px; font-size: 13px; color: var(--on-ink-muted); }
 .pcard-actions { display: grid; gap: 8px; margin-top: 24px; }
 .pcard-action { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: var(--on-ink); color: var(--color-ink); min-height: 50px; border-radius: 8px; padding: 12px 18px; font-size: 13px; font-weight: 600; }

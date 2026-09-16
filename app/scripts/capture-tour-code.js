@@ -1,5 +1,4 @@
-async page => {
-  const out = "E:/PROYECTOS WEB/AndrisPortafolio/output/floorplan-tour";
+export default async function captureTourCode(page) {
   const views = ["Exterior", "Entrada", "Sala", "Cocina", "Dormitorio", "Terraza"];
   const canvas = page.locator("canvas");
   for (const view of views) {

@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useRef, useState, type PointerEvent } from "react";
 import {
+  AnimatePresence,
   motion,
   useInView,
   useMotionValue,
@@ -24,7 +25,7 @@ import { useExperience } from "./experience-provider";
 import { designCopy } from "@/content/design-copy";
 import { Rise } from "./motion-text";
 import styles from "./about-section.module.css";
-import { EditorialTitle } from "./premium-motion";
+import { EditorialTitle, Magnetic } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
 
 export function AboutSection() {
@@ -232,23 +233,38 @@ export function AboutSection() {
             <i />
             <small>04</small>
           </div>
-          <div className="process-spotlight-copy">
-            <span>{stepLabels.step} {activeStep + 1} {stepLabels.of} 4</span>
-            <h3>{active.title}</h3>
-            <p>{active.text}</p>
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeStep}
+              className="process-spotlight-copy"
+              initial={reduced ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: reduced ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span>{stepLabels.step} {activeStep + 1} {stepLabels.of} 4</span>
+              <h3>{active.title}</h3>
+              <p>{active.text}</p>
+            </motion.div>
+          </AnimatePresence>
           <div className="process-spotlight-actions">
-            <a className="button button-primary" href={stepLinks[activeStep]}>
-              {stepLabels.action[activeStep]}
-              <ArrowUpRight size={18} aria-hidden="true" />
-            </a>
+            <Magnetic strength={0.2}>
+              <a className="button button-primary" href={stepLinks[activeStep]}>
+                {stepLabels.action[activeStep]}
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </a>
+            </Magnetic>
             <div className="process-navigation" aria-label={t.processLabel}>
-              <button type="button" onClick={() => setActiveStep((activeStep + 3) % 4)} aria-label={stepLabels.previous}>
-                <ArrowLeft size={19} />
-              </button>
-              <button type="button" onClick={() => setActiveStep((activeStep + 1) % 4)} aria-label={stepLabels.next}>
-                <ArrowRight size={19} />
-              </button>
+              <Magnetic strength={0.25}>
+                <button type="button" onClick={() => setActiveStep((activeStep + 3) % 4)} aria-label={stepLabels.previous}>
+                  <ArrowLeft size={19} />
+                </button>
+              </Magnetic>
+              <Magnetic strength={0.25}>
+                <button type="button" onClick={() => setActiveStep((activeStep + 1) % 4)} aria-label={stepLabels.next}>
+                  <ArrowRight size={19} />
+                </button>
+              </Magnetic>
             </div>
           </div>
         </div>

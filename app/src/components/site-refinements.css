@@ -1,0 +1,10 @@
+.footer .footer-credit { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-height: 44px; margin-top: 20px; color: var(--muted); font-size: 12px; }
+.footer-credit strong { font-size: 11px; letter-spacing: .06em; font-weight: 600; }
+.footer-credit:hover { color: var(--text); }
+.privacy-notice { display: grid; gap: 16px; font-size: 14px; line-height: 1.75; }
+.privacy-notice p { margin: 0; }
+.contact-form .form-row > label { min-width: 0; }
+.contact-form .form-row input, .contact-form .form-row select { font-size: 16px; min-width: 0; }
+.contact-form .form-submit:disabled { opacity: .65; }
+@media (max-width: 760px) { .footer .footer-credit { justify-content: flex-start; } }
+.kuula-warmup-frame { position: fixed; left: -2px; bottom: -2px; width: 1px; height: 1px; border: 0; opacity: 0; pointer-events: none; }

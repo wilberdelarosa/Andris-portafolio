@@ -15,10 +15,11 @@ const labels = {
 
 /** Traduce una ruta al rotulo que le corresponde. */
 export function introLabel(pathname: string, locale: Locale) {
-  if (pathname.startsWith("/proyectos/")) return labels.project[locale];
-  if (pathname.startsWith("/proyectos")) return labels.projects[locale];
-  if (pathname.startsWith("/mapa")) return labels.map[locale];
-  if (pathname.startsWith("/calculadora")) return labels.calculator[locale];
+  const normalized = pathname.replace(/\/$/, "");
+  if (normalized === "/proyectos") return labels.projects[locale];
+  if (normalized.startsWith("/proyectos/")) return labels.project[locale];
+  if (normalized.startsWith("/mapa")) return labels.map[locale];
+  if (normalized.startsWith("/calculadora")) return labels.calculator[locale];
   return labels.home[locale];
 }
 

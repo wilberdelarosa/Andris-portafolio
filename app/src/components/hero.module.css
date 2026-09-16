@@ -2,6 +2,8 @@
 .hero {
   --hero-paper: var(--color-surface-raised);
   --hero-ink: var(--color-ink);
+  /* Tinta para lo que descansa sobre la graduacion oscura, en los dos temas. */
+  --hero-on-grade: #fbf9f4;
   max-width: 1720px;
   margin-inline: auto;
   padding: 14px 24px 0;
@@ -23,15 +25,59 @@
 }
 .backdrop {
   object-fit: cover;
-  object-position: 50% 50%;
-  opacity: 0.79;
+  opacity: 1;
+  /* Realza el turquesa del agua y el verde de las palmas sin virar la piel. */
+  filter: saturate(1.22) contrast(1.04);
+}
+
+/* El encuadre apaisado manda desde tablet; debajo entra el vertical. */
+.backdropWide {
+  object-position: 50% 46%;
+  display: none;
+}
+
+.backdropPortrait {
+  object-position: 50% 38%;
+}
+
+@media (min-width: 761px) {
+  .backdropWide {
+    display: block;
+  }
+  .backdropPortrait {
+    display: none;
+  }
+}
+
+/*
+ * Graduacion de la escena.
+ *
+ * Cumple tres funciones a la vez y por eso es una sola capa: da profundidad de
+ * fotografia al fondo, asienta el apellido sobre un tono constante para que se
+ * lea siempre, y recibe el desvanecido de la figura para que no se vea donde
+ * termina su cuerpo.
+ */
+.grade {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to top,
+      color-mix(in oklab, var(--color-ink) 88%, transparent) 0%,
+      color-mix(in oklab, var(--color-ink) 62%, transparent) 14%,
+      color-mix(in oklab, var(--color-ink) 22%, transparent) 30%,
+      transparent 48%
+    ),
+    radial-gradient(120% 68% at 50% 108%, color-mix(in oklab, var(--color-ink) 40%, transparent), transparent 62%);
 }
 .light {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, #fbf9f470, #fbf9f418 50%, #fbf9f42b),
-    linear-gradient(0deg, #f4f0e659, transparent 35%, #fbf9f452);
+    linear-gradient(90deg, #fbf9f41f, transparent 42%, #fbf9f414),
+    linear-gradient(0deg, transparent 46%, #fbf9f420);
   pointer-events: none;
 }
 .sceneTop {
@@ -68,6 +114,8 @@
   font-size: clamp(170px, 19.2vw, 315px);
   text-transform: uppercase;
   z-index: 2;
+  /* Sobre el cielo claro el trazo fino se diluye; una sombra corta lo asienta. */
+  text-shadow: 0 2px 26px #fbf9f47a;
   overflow: hidden;
   padding-block: 0.055em 0.09em;
 }
@@ -75,6 +123,11 @@
 .lastName > span {
   display: block;
 }
+/*
+ * El apellido va por delante de la figura y se apoya en la graduacion inferior.
+ * La sombra no es decorativa: separa el trazo del agua y de la piedra clara del
+ * fondo, que es donde antes se perdia.
+ */
 .lastName {
   position: absolute;
   z-index: 5;
@@ -83,7 +136,9 @@
   transform: translateX(-50%);
   font-size: clamp(112px, 10.2vw, 166px);
   color: var(--on-ink);
-  text-shadow: 0 2px 20px #0b1f3a30;
+  text-shadow:
+    0 1px 2px #0b1f3a73,
+    0 6px 30px #0b1f3a8a;
   letter-spacing: 0.055em;
   text-transform: uppercase;
   overflow: hidden;
@@ -107,7 +162,12 @@
 .portraitEntrance img {
   object-fit: contain;
   object-position: center bottom;
-  filter: drop-shadow(12px 8px 22px #0b1f3a13);
+  filter: drop-shadow(12px 8px 26px #0b1f3a2e);
+  /*
+   * Desvanecido al pie: el cuerpo se disuelve en la graduacion en lugar de
+   * cortarse con un borde recto sobre el fondo.
+   */
+  mask-image: linear-gradient(to bottom, #000 52%, #000000d9 70%, transparent 94%);
 }
 .intro {
   position: absolute;
@@ -155,21 +215,49 @@
   right: 42px;
   top: 49%;
   width: min(19%, 245px);
+  isolation: isolate;
+}
+
+/*
+ * Panel de vidrio bajo la columna derecha.
+ *
+ * Cae sobre la parte clara de la terraza, donde ni el navy ni el blanco llegan
+ * al contraste minimo por si solos. El desenfoque asienta el texto sin tapar la
+ * fotografia ni recortar su composicion.
+ */
+.advice::before {
+  content: "";
+  position: absolute;
+  inset: -20px -24px -22px -26px;
+  z-index: -1;
+  border-radius: 16px;
+  background: linear-gradient(155deg, #0b1f3a6b, #0b1f3a94);
+  backdrop-filter: blur(14px) saturate(0.9);
+  -webkit-backdrop-filter: blur(14px) saturate(0.9);
+  border: 1px solid #fbf9f41f;
 }
 .smallRule {
   display: block;
   width: 32px;
   height: 1px;
-  background: var(--hero-ink);
+  background: var(--hero-on-grade);
   margin-bottom: 22px;
 }
 .advice p {
-  color: var(--hero-ink);
+  /*
+   * Se apoya sobre la mitad graduada de la escena, no sobre el cielo: con el
+   * navy original quedaba por debajo del contraste minimo.
+   */
+  color: var(--hero-on-grade);
   font-size: 14px;
   line-height: 1.9;
   text-wrap: pretty;
+  text-shadow: 0 1px 12px #0b1f3a8f;
 }
+/* Comparte zona con `.advice`: misma tinta clara por el mismo motivo. */
 .meet {
+  color: var(--hero-on-grade);
+  text-shadow: 0 1px 12px #0b1f3a8f;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
@@ -185,6 +273,8 @@
   transition: transform 0.3s var(--ease);
 }
 .conversation {
+  color: var(--hero-on-grade);
+  text-shadow: 0 1px 12px #0b1f3a8f;
   position: absolute;
   z-index: 6;
   left: 42px;
@@ -239,7 +329,7 @@
   object-fit: cover;
   transition: transform 0.45s var(--ease);
 }
-.projectLink > span:nth-child(2) {
+.projectText {
   display: grid;
   gap: 1px;
 }
@@ -541,6 +631,21 @@
     width: auto;
     text-align: center;
     margin-top: 8px;
+  }
+  /*
+   * Aqui el bloque ya no esta sobre la fotografia sino sobre el fondo claro de
+   * la pagina: vuelve la tinta oscura y se retira el panel de vidrio.
+   */
+  .advice::before {
+    display: none;
+  }
+  .advice p,
+  .meet {
+    color: var(--hero-ink);
+    text-shadow: none;
+  }
+  .smallRule {
+    background: var(--hero-ink);
   }
   .advice p,
   .smallRule {

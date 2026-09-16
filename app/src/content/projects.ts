@@ -14,6 +14,21 @@ export interface PropertyProject {
   parking: number | null;
   area: { min: number; max: number; unit: string };
   greenArea: number;
+  delivery: {
+    label: Localized;
+    year: number | null;
+    status: "confirmed" | "varies" | "pending";
+  };
+  reservation: {
+    amount: number | null;
+    currency: "USD";
+    note: Localized | null;
+  };
+  productTypes: Localized[];
+  typologies: Localized[];
+  includesAppliances: boolean | null;
+  investmentBenefits: Localized[];
+  nearby: Localized[];
   /**
    * Rango de precio.
    *
@@ -40,6 +55,12 @@ export interface PropertyProject {
     construction: number;
     delivery: number;
     commercialStatus: string;
+    plans?: {
+      signing: number;
+      construction: number;
+      delivery: number;
+      discount?: string;
+    }[];
   };
   source: string;
 }
@@ -60,6 +81,31 @@ export const melcon: PropertyProject = {
   parking: null,
   area: { min: 52, max: 108, unit: "m²" },
   greenArea: 20000,
+  delivery: {
+    label: l("Febrero de 2028", "February 2028", "Février 2028"),
+    year: 2028,
+    status: "confirmed",
+  },
+  reservation: {
+    amount: 2000,
+    currency: "USD",
+    note: null,
+  },
+  productTypes: [
+    l("Apartamento", "Apartment", "Appartement"),
+  ],
+  typologies: [
+    l("Apartamentos de 1, 2 y 3 habitaciones", "One, two and three-bedroom apartments", "Appartements de 1, 2 et 3 chambres"),
+  ],
+  includesAppliances: true,
+  investmentBenefits: [
+    l("Estilo de vida tipo resort dentro de Vista Cana", "Resort-style living inside Vista Cana", "Style de vie type resort à Vista Cana"),
+    l("Más de 20,000 m² de áreas verdes privadas", "More than 20,000 m² of private green areas", "Plus de 20 000 m² d'espaces verts privés"),
+  ],
+  nearby: [
+    l("Aeropuerto Internacional de Punta Cana a unos 10 minutos", "Punta Cana International Airport about 10 minutes away", "Aéroport international de Punta Cana à environ 10 minutes"),
+    l("BlueMall Punta Cana a unos 5 minutos", "BlueMall Punta Cana about 5 minutes away", "BlueMall Punta Cana à environ 5 minutes"),
+  ],
   /*
    * La ficha del desarrollador registra precios de referencia por tipologia
    * (1 hab. 113900, 2 hab. 149000, 3 hab. 194000 USD), pero su canal comercial
@@ -152,13 +198,42 @@ export const terraSerena: PropertyProject = {
     "A low-rise residential community with green areas and spaces designed for everyday life.",
     "Une résidence de faible hauteur avec des espaces verts et des lieux pensés pour le quotidien.",
   ),
-  bedrooms: [],
+  bedrooms: [1],
   bathrooms: [],
   parking: null,
-  area: { min: 0, max: 0, unit: "m²" },
+  area: { min: 74, max: 134, unit: "m²" },
   greenArea: 0,
-  // Sin datos comerciales todavia. Rellena aqui cuando lleguen.
-  price: { from: null, to: null, currency: "USD", status: "pending" },
+  price: { from: 120000, to: null, currency: "USD", status: "confirmed" },
+  delivery: {
+    label: l("Noviembre de 2028", "November 2028", "Novembre 2028"),
+    year: 2028,
+    status: "confirmed",
+  },
+  reservation: {
+    amount: 2000,
+    currency: "USD",
+    note: null,
+  },
+  productTypes: [
+    l("Apartamento", "Apartment", "Appartement"),
+    l("Penthouse", "Penthouse", "Penthouse"),
+  ],
+  typologies: [
+    l("Apartamentos de 1 dormitorio + den", "One-bedroom apartments + den", "Appartements 1 chambre + den"),
+    l("Penthouses con terrazas privadas", "Penthouses with private terraces", "Penthouses avec terrasses privées"),
+  ],
+  includesAppliances: null,
+  investmentBenefits: [
+    l("108 unidades en un residencial contemporáneo", "108 units in a contemporary residential community", "108 unités dans une résidence contemporaine"),
+    l("Ubicación próxima a playas, golf, comercios y servicios", "Close to beaches, golf, shops and services", "Proche des plages, du golf, des commerces et des services"),
+  ],
+  nearby: [
+    l("Playa Bávaro a 15 minutos", "Bavaro Beach 15 minutes away", "Playa Bávaro à 15 minutes"),
+    l("Playa del Cortecito a 15 minutos", "El Cortecito Beach 15 minutes away", "Playa del Cortecito à 15 minutes"),
+    l("Playa Blanca a 22 minutos", "Playa Blanca 22 minutes away", "Playa Blanca à 22 minutes"),
+    l("Playa Macao a 25 minutos", "Macao Beach 25 minutes away", "Playa Macao à 25 minutes"),
+    l("Aeropuerto Internacional de Punta Cana a unos 20 minutos", "Punta Cana International Airport about 20 minutes away", "Aéroport international de Punta Cana à environ 20 minutes"),
+  ],
   hero: "/derived/terra-serena-hero.webp",
   gallery: [
     { src: "/derived/terra-serena-hero.webp", alt: l("Render de las áreas verdes de Terra Serena", "Rendering of Terra Serena's green areas", "Vue de synthèse des espaces verts de Terra Serena") },
@@ -169,16 +244,18 @@ export const terraSerena: PropertyProject = {
   ],
   amenities: [
     l("Áreas verdes", "Green areas", "Espaces verts"),
-    l("Piscinas", "Pools", "Piscines"),
+    l("2 piscinas", "2 pools", "2 piscines"),
+    l("Gimnasio", "Gym", "Salle de sport"),
     l("Parque infantil", "Children's play area", "Aire de jeux"),
     l("Área para mascotas", "Pet area", "Espace pour animaux"),
+    l("CCTV y seguridad 24/7", "CCTV and 24/7 security", "CCTV et sécurité 24 h/24"),
   ],
   map: {
     url: "https://maps.app.goo.gl/6AVZ98JtS5XG9Yhy7",
     coordinates: [18.6486529, -68.4372208],
     precision: "exact",
   },
-  paymentReference: { signing: 0, construction: 0, delivery: 0, commercialStatus: "reconfirm" },
+  paymentReference: { signing: 20, construction: 30, delivery: 50, commercialStatus: "confirmed" },
   source: "ASSETS/projects/project-01-unidentified/ · docs/design/project-location-evidence.json",
 };
 export const theBeach: PropertyProject = {
@@ -188,17 +265,46 @@ export const theBeach: PropertyProject = {
   status: "reviewed",
   location: "Punta Cana City Place · Punta Cana",
   description: l(
-    "Una comunidad residencial alrededor de una laguna cristalina y espacios al aire libre.",
-    "A residential community around a crystal lagoon and outdoor spaces.",
-    "Une communauté résidentielle autour d'un lagon cristallin et d'espaces extérieurs.",
+    "Un desarrollo residencial en Punta Cana City Place con vista y acceso directo a Crystal Lagoons®, pensado para vivir o invertir en alquiler vacacional.",
+    "A residential development in Punta Cana City Place with views and direct access to Crystal Lagoons®, designed for living or vacation-rental investment.",
+    "Un développement résidentiel à Punta Cana City Place avec vue et accès direct à Crystal Lagoons®, pensé pour vivre ou investir en location saisonnière.",
   ),
-  bedrooms: [],
+  bedrooms: [1, 2, 3, 4],
   bathrooms: [],
   parking: null,
   area: { min: 0, max: 0, unit: "m²" },
   greenArea: 0,
-  // Sin datos comerciales todavia. Rellena aqui cuando lleguen.
   price: { from: null, to: null, currency: "USD", status: "pending" },
+  delivery: {
+    label: l("Entrega inmediata o en construcción según fase", "Immediate delivery or under construction depending on phase", "Livraison immédiate ou en construction selon la phase"),
+    year: null,
+    status: "varies",
+  },
+  reservation: {
+    amount: 3000,
+    currency: "USD",
+    note: l("Incluye gastos legales", "Includes legal expenses", "Inclut les frais juridiques"),
+  },
+  productTypes: [
+    l("Estudio", "Studio", "Studio"),
+    l("Apartamento", "Apartment", "Appartement"),
+    l("Penthouse", "Penthouse", "Penthouse"),
+  ],
+  typologies: [
+    l("Mare: apartamentos de 1 y 2 habitaciones con vista al Crystal Lagoon", "Mare: one and two-bedroom apartments with Crystal Lagoon views", "Mare : appartements de 1 et 2 chambres avec vue sur Crystal Lagoon"),
+    l("Sole: estudios, apartamentos de 2 a 4 habitaciones y penthouses limitados", "Sole: studios, two to four-bedroom apartments and limited penthouses", "Sole : studios, appartements de 2 à 4 chambres et penthouses limités"),
+    l("Arena: estudios y apartamentos de 1 a 3 habitaciones con vista a piscina", "Arena: studios and one to three-bedroom apartments with pool views", "Arena : studios et appartements de 1 à 3 chambres avec vue piscine"),
+  ],
+  includesAppliances: true,
+  investmentBenefits: [
+    l("Crystal Lagoons® de 30,000 m² con actividades acuáticas", "30,000 m² Crystal Lagoons® with water activities", "Crystal Lagoons® de 30 000 m² avec activités aquatiques"),
+    l("CONFOTUR con exoneración de impuestos por 15 años según condiciones del proyecto", "CONFOTUR tax exemption for 15 years subject to project conditions", "CONFOTUR avec exonération fiscale de 15 ans selon les conditions du projet"),
+    l("Administración de propiedades para alquiler vacacional", "Property management for vacation rentals", "Gestion immobilière pour locations saisonnières"),
+  ],
+  nearby: [
+    l("Aeropuerto Internacional de Punta Cana a 7–10 minutos", "Punta Cana International Airport 7–10 minutes away", "Aéroport international de Punta Cana à 7–10 minutes"),
+    l("Playa a 5 minutos", "Beach 5 minutes away", "Plage à 5 minutes"),
+  ],
   hero: "/derived/the-beach-hero.webp",
   gallery: [
     { src: "/derived/the-beach-hero.webp", alt: l("Render de la laguna de The Beach at Punta Cana City Place", "Rendering of The Beach at Punta Cana City Place lagoon", "Vue de synthèse du lagon de The Beach at Punta Cana City Place") },
@@ -209,15 +315,30 @@ export const theBeach: PropertyProject = {
   ],
   amenities: [
     l("Laguna cristalina", "Crystal lagoon", "Lagon cristallin"),
+    l("Playa privada", "Private beach", "Plage privée"),
     l("Piscinas", "Pools", "Piscines"),
-    l("Espacios al aire libre", "Outdoor spaces", "Espaces extérieurs"),
+    l("Tenis, pádel y pickleball", "Tennis, padel and pickleball", "Tennis, padel et pickleball"),
+    l("Kayaks", "Kayaks", "Kayaks"),
+    l("Spa y gimnasio", "Spa and gym", "Spa et salle de sport"),
+    l("Minimercado y lavandería", "Minimarket and laundry", "Supérette et buanderie"),
+    l("Seguridad 24/7", "24/7 security", "Sécurité 24 h/24"),
   ],
   map: {
     url: "https://maps.app.goo.gl/fFaGb7cYhyBHwNJY8",
     coordinates: [18.6337522, -68.3834561],
     precision: "exact",
   },
-  paymentReference: { signing: 0, construction: 0, delivery: 0, commercialStatus: "reconfirm" },
+  paymentReference: {
+    signing: 20,
+    construction: 30,
+    delivery: 50,
+    commercialStatus: "confirmed",
+    plans: [
+      { signing: 20, construction: 30, delivery: 50 },
+      { signing: 30, construction: 25, delivery: 45 },
+      { signing: 50, construction: 25, delivery: 25, discount: "2%" },
+    ],
+  },
   source: "ASSETS/projects/project-03-unidentified/ · docs/design/project-location-evidence.json",
 };
 export const getPublishedProjects = (): PropertyProject[] => [
@@ -244,4 +365,11 @@ export const toPublicProject = (project: PropertyProject) => ({
   amenities: project.amenities,
   map: project.map,
   paymentReference: project.paymentReference,
+  delivery: project.delivery,
+  reservation: project.reservation,
+  productTypes: project.productTypes,
+  typologies: project.typologies,
+  includesAppliances: project.includesAppliances,
+  investmentBenefits: project.investmentBenefits,
+  nearby: project.nearby,
 });

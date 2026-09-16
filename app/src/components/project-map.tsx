@@ -11,7 +11,7 @@ export function ProjectMap({ project = melcon }: { project?: PropertyProject }) 
   const { locale } = useExperience();
   const j = journeyCopy[locale];
   return <section className="section project-location-section" id="ubicacion" aria-labelledby="project-location-title">
-    <div className="journey-section-heading"><div><h2 id="project-location-title">{project.location}</h2><p>{j.mapIntro}</p></div><Link className="text-link" href={`/mapa?lang=${locale}&proyecto=${project.slug}`}>{j.map}<ArrowUpRight size={20}/></Link></div>
+    <div className="journey-section-heading"><div><h2 id="project-location-title">{project.location}</h2><p>{j.mapIntro}</p></div><Link className="text-link" href={`/mapa?lang=${locale}&proyecto=${project.slug}`} prefetch={false}>{j.map}<ArrowUpRight size={20}/></Link></div>
     <MapExplorer compact initialSlug={project.slug} />
   </section>;
 }

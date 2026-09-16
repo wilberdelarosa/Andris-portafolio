@@ -61,16 +61,30 @@ export function Hero() {
           style={{ y: reduced ? 0 : landscapeY }}
           aria-hidden="true"
         >
+          {/*
+            Dos encuadres del mismo lugar: el apaisado para escritorio y el
+            vertical para movil. No es la misma foto reescalada, son dos tomas
+            con composicion propia, asi que se eligen con CSS y no con `sizes`.
+          */}
           <Image
-            src="/derived/hero-atmosphere-v3.webp"
+            src="/derived/hero-coast-wide.webp"
             alt=""
             fill
             priority
             sizes="100vw"
-            className={styles.backdrop}
+            className={`${styles.backdrop} ${styles.backdropWide}`}
+          />
+          <Image
+            src="/derived/hero-coast-portrait.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className={`${styles.backdrop} ${styles.backdropPortrait}`}
           />
         </motion.div>
         <div className={styles.light} aria-hidden="true" />
+        <div className={styles.grade} aria-hidden="true" />
         <div className={styles.sceneTop}>
           <span>{copy.personal}</span>
           <span className={styles.location}>
@@ -140,8 +154,12 @@ export function Hero() {
         <Link
           className={styles.projectLink}
           href={`/proyectos/melcon-paradise?lang=${locale}`}
+          prefetch={false}
         >
-          <span>
+          <span className={styles.projectPhoto}>
+            <Image src="/derived/melcon-hero-small.webp" alt="" fill sizes="74px" />
+          </span>
+          <span className={styles.projectText}>
             <small>{copy.project}</small>
             <strong>Melcon Paradise</strong>
           </span>

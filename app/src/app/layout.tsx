@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { KuulaWarmup } from "@/components/kuula-warmup";
 import "./globals.css";
 const indexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 export const metadata: Metadata = {
@@ -53,26 +54,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    /*
-     * `data-scroll-behavior` es necesario desde Next 16: sin el, el
-     * `scroll-behavior: smooth` global se aplica tambien al cambiar de ruta y
-     * la navegacion se siente lenta en lugar de instantanea.
-     */
     <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
-        {/*
-          Se ejecuta antes de pintar: si la intro ya se vio en esta sesion, la
-          cortina no llega a mostrarse y la pagina entra sin retardo. Hacerlo
-          desde React llegaria tarde y se veria un destello.
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(sessionStorage.getItem('ap-intro-seen'))document.documentElement.dataset.intro='skip'}catch(e){}",
-          }}
-        />
+        <link rel="dns-prefetch" href="https://kuula.co" />
+        <link rel="dns-prefetch" href="https://static.kuula.io" />
+        <link rel="dns-prefetch" href="https://files.kuula.io" />
+        <link rel="preconnect" href="https://kuula.co" crossOrigin="" />
+        <link rel="preconnect" href="https://static.kuula.io" crossOrigin="" />
+        <link rel="preconnect" href="https://files.kuula.io" crossOrigin="" />
       </head>
-      <body>{children}</body>
+      <body>
+        <KuulaWarmup />
+        {children}
+      </body>
     </html>
   );
 }

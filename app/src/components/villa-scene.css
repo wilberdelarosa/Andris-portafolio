@@ -1,0 +1,302 @@
+.villa-scene {
+  padding-top: clamp(4px, 1vw, 12px);
+  padding-bottom: clamp(40px, 5vw, 72px);
+}
+
+.villa-scene-header {
+  margin-bottom: clamp(20px, 3vw, 32px);
+}
+
+.villa-scene-heading {
+  font-family: var(--sans);
+  font-size: clamp(24px, 2.6vw, 38px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: var(--color-ink);
+  max-width: 700px;
+}
+
+[data-theme="dark"] .villa-scene-heading {
+  color: var(--on-ink);
+}
+
+.villa-scene-frame {
+  position: relative;
+  overflow: clip;
+  height: clamp(190px, 25vw, 320px);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: 0 24px 80px #0b1f3a1f;
+}
+
+.villa-scene-art {
+  position: absolute;
+  inset: -22% -6%;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.villa-scene-image {
+  object-fit: cover;
+}
+
+.villa-scene-callouts {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.villa-scene-callout {
+  position: absolute;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-ink);
+  font-size: clamp(11px, 1.15vw, 14px);
+  line-height: 1.2;
+  text-wrap: balance;
+  will-change: transform;
+}
+
+.villa-scene-callout::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: clamp(35px, 5vw, 76px);
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
+}
+
+.villa-scene-callout span {
+  display: grid;
+  position: relative;
+  width: clamp(27px, 3vw, 40px);
+  height: clamp(27px, 3vw, 40px);
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 78%, transparent);
+  border-radius: 50%;
+  background: var(--color-surface-raised);
+  box-shadow: 0 7px 18px #0b1f3a1c;
+  font-size: clamp(10px, 1vw, 12px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  transition: transform 0.3s var(--ease);
+}
+
+.villa-scene-callout-ripple {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0;
+  pointer-events: none;
+  animation: villaCalloutRipple 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.villa-scene-callout-1 .villa-scene-callout-ripple { animation-delay: 0s; }
+.villa-scene-callout-2 .villa-scene-callout-ripple { animation-delay: 0.9s; }
+.villa-scene-callout-3 .villa-scene-callout-ripple { animation-delay: 1.8s; }
+
+@keyframes villaCalloutRipple {
+  0% { transform: scale(0.88); opacity: 0.75; }
+  55% { transform: scale(1.48); opacity: 0; }
+  100% { transform: scale(1.48); opacity: 0; }
+}
+
+.villa-scene-callout strong {
+  max-width: 8ch;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: var(--color-surface-raised);
+  box-shadow: 0 5px 14px #0b1f3a12;
+  font-weight: 650;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .villa-scene-callout:hover span {
+    transform: scale(1.12);
+  }
+  .villa-scene-callout:hover strong {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px #0b1f3a22;
+  }
+}
+
+/* Anchors follow the identifiable pool, loungers terrace and east-side planting. */
+.villa-scene-callout-1 {
+  top: 63%;
+  left: 37%;
+  color: #087f89;
+  translate: -100% -50%;
+}
+
+.villa-scene-callout-1::before {
+  right: calc(100% - 8px);
+  top: 50%;
+  transform: rotate(13deg);
+}
+
+.villa-scene-callout-2 {
+  top: 72%;
+  left: 62%;
+  color: #a44e38;
+  translate: 14% -50%;
+}
+
+.villa-scene-callout-2::before {
+  right: calc(100% - 8px);
+  top: 50%;
+  transform: rotate(-13deg);
+}
+
+.villa-scene-callout-3 {
+  top: 51%;
+  left: 80%;
+  color: #49773f;
+  translate: 10% -50%;
+}
+
+.villa-scene-callout-3::before {
+  right: calc(100% - 8px);
+  top: 50%;
+  transform: rotate(-18deg);
+}
+
+.villa-scene-caption {
+  max-width: 64ch;
+  margin: 15px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+[data-theme="dark"] .villa-scene-frame {
+  background: var(--color-ink-soft);
+  box-shadow: 0 24px 80px #00000033;
+}
+
+.villa-scene-mobile-legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .villa-scene {
+    padding-top: 4px;
+    padding-bottom: 48px;
+  }
+
+  .villa-scene-frame {
+    margin-inline: calc(-1 * var(--page-gutter));
+    height: clamp(180px, 54vw, 240px);
+    border-radius: 0;
+  }
+
+  .villa-scene-callout {
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .villa-scene-callout::before {
+    width: 28px;
+  }
+
+  .villa-scene-callout span {
+    width: 26px;
+    height: 26px;
+    font-size: 9px;
+  }
+
+  .villa-scene-callout strong {
+    display: none;
+  }
+
+  .villa-scene-callout-1 {
+    top: 63%;
+    left: 37%;
+  }
+
+  .villa-scene-callout-2 {
+    top: 72%;
+    left: 62%;
+  }
+
+  .villa-scene-callout-3 {
+    top: 51%;
+    left: 80%;
+  }
+
+  .villa-scene-caption {
+    margin-top: 12px;
+    font-size: 12px;
+  }
+
+  .villa-scene-mobile-legend {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    width: auto;
+    height: auto;
+    margin: 14px 0 0;
+    padding: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    list-style: none;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.4;
+    white-space: normal;
+  }
+
+  .villa-scene-mobile-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .villa-scene-mobile-legend span {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 374px) {
+  .villa-scene-callout strong {
+    max-width: 6ch;
+  }
+
+  .villa-scene-callout-2 {
+    left: 59%;
+  }
+
+  .villa-scene-callout-3 {
+    left: 75%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .villa-scene-art {
+    transform: none !important;
+  }
+  .villa-scene-art,
+  .villa-scene-callout {
+    will-change: auto;
+  }
+}

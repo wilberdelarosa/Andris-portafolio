@@ -2,17 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
+import { motion, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import "./premium-motion.css";
-
-/** The heading stays readable at either end of the reversible scroll sequence. */
-function DepthWord({ word, progress, index }: { word: string; progress: MotionValue<number>; index: number }) {
-  const reduced = useReducedMotion();
-  const distance = 18 + Math.min(index, 6) * 2;
-  const y = useTransform(progress, [0, .28, .74, 1], [distance, 0, 0, -10]);
-  const scale = useTransform(progress, [0, .28, .74, 1], [.96, 1, 1, 1.015]);
-  return <motion.span className="editorial-word" style={{ y: reduced ? 0 : y, scale: reduced ? 1 : scale }}>{word}</motion.span>;
-}
 
 export function EditorialTitle({ text, accent, id, as: Tag = "h2", compact = false, className = "" }: {
   text: string; accent: string; id?: string; as?: "h1" | "h2"; compact?: boolean; className?: string;
@@ -20,21 +11,24 @@ export function EditorialTitle({ text, accent, id, as: Tag = "h2", compact = fal
   const ref = useRef<HTMLHeadingElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const x = useTransform(scrollYProgress, [0, .3, .74, 1], [-16, 0, 0, 12]);
+  // Move the complete typeset heading, never individual words across lines.
+  const y = useTransform(scrollYProgress, [0, .32, .7, 1], [48, 8, -8, -32]);
   const mark = useTransform(scrollYProgress, [0, .32, .8, 1], [.15, 1, 1, .45]);
   const split = text.lastIndexOf(accent);
   const lead = split < 0 ? text : text.slice(0, split).trimEnd();
   const emphasis = split < 0 ? "" : text.slice(split);
   return <Tag ref={ref} id={id} aria-label={text} className={`editorial-title ${compact ? "editorial-title-compact" : ""} ${className}`}>
-    <span aria-hidden="true" className="editorial-lead">{lead.split(" ").map((word, index) => <span className="editorial-word-space" key={`${word}-${index}`}><DepthWord word={word} index={index} progress={scrollYProgress}/>{" "}</span>)}</span>
-    {emphasis && <motion.em aria-hidden="true" className="editorial-accent" style={{ x: reduced ? 0 : x }}>
+    <motion.span className="editorial-motion" data-heading-depth aria-hidden="true" style={{ y: reduced ? 0 : y }}>
+    <span className="editorial-lead">{lead.split(" ").map((word, index) => <span className="editorial-word-space" key={`${word}-${index}`}><span className="editorial-word">{word}</span>{" "}</span>)}</span>
+    {emphasis && <em className="editorial-accent">
       {emphasis}<motion.span className="editorial-mark" style={{ scaleX: reduced ? 1 : mark }}/>
-    </motion.em>}
+    </em>}
+    </motion.span>
   </Tag>;
 }
 
 /** Perspective is bounded and pointer-only; touch keeps native scrolling/swiping. */
-export function useSurfaceMotion() {
+export function useSurfaceMotion(tilt = 2.2) {
   const reduced = useReducedMotion();
   const x = useMotionValue(50);
   const y = useMotionValue(50);
@@ -42,8 +36,8 @@ export function useSurfaceMotion() {
   const sx = useSpring(x, { stiffness: 240, damping: 28 });
   const sy = useSpring(y, { stiffness: 240, damping: 28 });
   const opacity = useSpring(active, { stiffness: 220, damping: 30 });
-  const rotateX = useTransform(sy, [0, 100], [2.2, -2.2]);
-  const rotateY = useTransform(sx, [0, 100], [-2.2, 2.2]);
+  const rotateX = useTransform(sy, [0, 100], [tilt, -tilt]);
+  const rotateY = useTransform(sx, [0, 100], [-tilt, tilt]);
   const glowX = useTransform(sx, [0, 100], ["-32%", "32%"]);
   const glowY = useTransform(sy, [0, 100], ["-30%", "30%"]);
   const onPointerMove = (event: PointerEvent<HTMLElement>) => {
@@ -64,8 +58,8 @@ export function DepthPanel({ children, className = "" }: { children: ReactNode; 
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, .25, .72, 1], [28, 0, 0, -24]);
-  const scale = useTransform(scrollYProgress, [0, .3, .75, 1], [.975, 1, 1, .985]);
+  const y = useTransform(scrollYProgress, [0, .35, .65, 1], [72, 12, -12, -54]);
+  const scale = useTransform(scrollYProgress, [0, .4, .7, 1], [.94, 1, 1, .97]);
   return <div ref={ref} className={`depth-frame ${className}`}><motion.div className="depth-panel" data-scroll-depth style={{ y: reduced ? 0 : y, scale: reduced ? 1 : scale }}>{children}</motion.div></div>;
 }
 
@@ -73,36 +67,24 @@ export function DecorativeLayer({ variant = "palm" }: { variant?: "palm" | "plan
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [48, -52]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [-4, 4]);
+  const y = useTransform(scrollYProgress, [0, 1], [130, -140]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [-9, 9]);
   return <div ref={ref} className={`section-ambient section-ambient-${variant}`} aria-hidden="true"><motion.div className="ambient-depth" data-decorative-depth style={{ y: reduced ? 0 : y, rotate: reduced ? 0 : rotate }}>
-    <Image src={`/derived/ambient-${variant === "palm" ? "palm-overlay" : "site-plan"}-v1.webp`} alt="" fill sizes="(max-width: 760px) 300px, 650px"/>
+    <Image src={variant === "palm" ? "/derived/ambient-palm-color-v2.webp" : "/derived/ambient-site-plan-v1.webp"} alt="" fill sizes="(max-width: 760px) 320px, 650px"/>
   </motion.div></div>;
 }
 
 export function ReadingProgress() {
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  // El muelle suaviza el avance cuando el scroll llega a saltos.
-  const scaleX = useSpring(scrollYProgress, { stiffness: 130, damping: 26, restDelta: 0.001 });
-  if (reduced) return null;
-  return <motion.div className="reading-progress" aria-hidden="true" style={{ scaleX }}/>;
+  const { scrollYProgress } = useScroll({ trackContentSize: true });
+  // CSS handles reduced motion without changing the server/client tree.
+  return <motion.div className="reading-progress" aria-hidden="true" style={{ scaleX: scrollYProgress }}/>;
 }
 
 /* ==========================================================================
    PRIMITIVAS COMPLEMENTARIAS
-   Se unificaron aqui para que la aplicacion tenga una sola capa de movimiento.
-   Todas animan solo `transform` y `opacity`, y se apagan con movimiento
-   reducido, igual que las de arriba.
    ========================================================================== */
 
-/**
- * Hacia donde se esta desplazando la pagina.
- *
- * Permite que un bloque entre desde abajo al bajar y desde arriba al subir, de
- * modo que el movimiento acompaña al gesto. Se lee del `scrollY` de la libreria,
- * sin añadir otro escuchador de scroll.
- */
+/** Hacia donde se esta desplazando la pagina. */
 export function useScrollDirection() {
   const { scrollY } = useScroll();
   const [direction, setDirection] = useState<"down" | "up">("down");
@@ -110,7 +92,6 @@ export function useScrollDirection() {
   useEffect(() => {
     let previous = scrollY.get();
     return scrollY.on("change", (current) => {
-      // Umbral corto: ignora el temblor del scroll por inercia.
       if (Math.abs(current - previous) < 6) return;
       setDirection(current > previous ? "down" : "up");
       previous = current;
@@ -139,31 +120,57 @@ export function ScrollZoom({ children, from = 1.14, to = 1, className }: { child
 }
 
 /** Contenedor que orquesta la entrada de sus hijos, uno detras de otro. */
-export function Stagger({ children, className, gap = 0.09, delay = 0, amount = 0.2, once = false }: {
-  children: ReactNode; className?: string; gap?: number; delay?: number; amount?: number; once?: boolean;
+export function Stagger({
+  children,
+  className,
+  gap = 0.09,
+  delay = 0,
+  amount = 0.2,
+  once = false,
+  role,
+  "aria-label": ariaLabel,
+}: {
+  children: ReactNode;
+  className?: string;
+  gap?: number;
+  delay?: number;
+  amount?: number;
+  once?: boolean;
+  role?: string;
+  "aria-label"?: string;
 }) {
   const reduced = useReducedMotion();
   return (
     <motion.div
       className={className}
+      role={role}
+      aria-label={ariaLabel}
       initial={reduced ? false : "hidden"}
       whileInView="shown"
       viewport={{ once, amount, margin: "0px 0px -40px 0px" }}
-      variants={{ shown: { transition: { staggerChildren: gap, delayChildren: delay } } }}
+      variants={{
+        hidden: {},
+        shown: { transition: { staggerChildren: gap, delayChildren: delay } },
+      }}
     >
       {children}
     </motion.div>
   );
 }
 
-/** Hijo de `Stagger`. Su ritmo lo marca el contenedor, no un retardo propio. */
-export function StaggerItem({ children, className, distance = 26 }: { children: ReactNode; className?: string; distance?: number }) {
+/** Hijo de Stagger. */
+export function StaggerItem({ children, className, distance = 24 }: { children: ReactNode; className?: string; distance?: number }) {
   return (
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: distance },
-        shown: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } },
+        hidden: { opacity: 0, y: distance, scale: 0.98 },
+        shown: {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+        },
       }}
     >
       {children}
@@ -217,14 +224,12 @@ export function Magnetic({ children, strength = 0.3, className }: { children: Re
   const x = useSpring(rawX, { stiffness: 220, damping: 20, mass: 0.35 });
   const y = useSpring(rawY, { stiffness: 220, damping: 20, mass: 0.35 });
 
-  if (reduced) return <span className={className}>{children}</span>;
-
   return (
     <motion.span
       className={className}
-      style={{ x, y, display: "inline-flex" }}
+      style={{ x: reduced ? 0 : x, y: reduced ? 0 : y, display: "inline-flex" }}
       onPointerMove={(event) => {
-        if (event.pointerType !== "mouse" || !matchMedia("(pointer: fine)").matches) return;
+        if (reduced || event.pointerType !== "mouse" || !matchMedia("(pointer: fine)").matches) return;
         const box = event.currentTarget.getBoundingClientRect();
         rawX.set((event.clientX - box.left - box.width / 2) * strength);
         rawY.set((event.clientY - box.top - box.height / 2) * strength);
@@ -236,5 +241,337 @@ export function Magnetic({ children, strength = 0.3, className }: { children: Re
     >
       {children}
     </motion.span>
+  );
+}
+
+/** Revelado tipográfico meticuloso con máscara de línea y desenfoque óptico progresivo. */
+export function MaskedLineReveal({
+  text,
+  as: Tag = "h2",
+  className = "",
+  delay = 0,
+  stagger = 0.05,
+  once = false,
+}: {
+  text: string;
+  as?: "h1" | "h2" | "h3" | "h4" | "p" | "span";
+  className?: string;
+  delay?: number;
+  stagger?: number;
+  once?: boolean;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { amount: 0.3, once });
+  const reduced = useReducedMotion();
+  const words = text.split(" ");
+
+  return (
+    <Tag ref={ref as React.Ref<never>} className={`masked-line-reveal ${className}`}>
+      <span className="sr-only">{text}</span>
+      <span className="masked-words-container" aria-hidden="true">
+        {words.map((word, i) => (
+          <span className="masked-word-wrap" key={`${word}-${i}`}>
+            <motion.span
+              className="masked-word-inner"
+              initial={reduced ? false : { y: "115%", opacity: 0, filter: "blur(4px)" }}
+              animate={
+                inView || reduced
+                  ? { y: "0%", opacity: 1, filter: "blur(0px)" }
+                  : { y: "115%", opacity: 0, filter: "blur(4px)" }
+              }
+              transition={{
+                duration: 0.82,
+                delay: reduced ? 0 : delay + i * stagger,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+            >
+              {word}
+            </motion.span>
+            {i < words.length - 1 ? "\u00A0" : ""}
+          </span>
+        ))}
+      </span>
+    </Tag>
+  );
+}
+
+/** Kicker / subtítulo con revelado secuencial letra a letra y línea de cota expansiva. */
+export function CharacterKicker({
+  text,
+  className = "",
+  delay = 0,
+}: {
+  text: string;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.4, once: true });
+  const reduced = useReducedMotion();
+  const chars = Array.from(text);
+
+  return (
+    <div ref={ref} className={`character-kicker ${className}`}>
+      <span className="sr-only">{text}</span>
+      <motion.span
+        className="character-kicker-rule"
+        initial={reduced ? false : { scaleX: 0 }}
+        animate={inView || reduced ? { scaleX: 1 } : { scaleX: 0 }}
+        transition={{ duration: 0.65, delay: reduced ? 0 : delay, ease: [0.16, 1, 0.3, 1] }}
+        aria-hidden="true"
+      />
+      <span className="character-kicker-chars" aria-hidden="true">
+        {chars.map((char, i) => (
+          <motion.span
+            key={`${char}-${i}`}
+            className="character-kicker-char"
+            initial={reduced ? false : { opacity: 0, y: 3 }}
+            animate={inView || reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 3 }}
+            transition={{
+              duration: 0.35,
+              delay: reduced ? 0 : delay + 0.12 + i * 0.016,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          >
+            {char === " " ? "\u00A0" : char}
+          </motion.span>
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/** Crucetas técnicas arquitectónicas para encuadrar tarjetas y planos. */
+export function ArchitecturalCrosshair({
+  position = "top-left",
+  className = "",
+}: {
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  className?: string;
+}) {
+  return (
+    <span
+      className={`arch-crosshair arch-crosshair-${position} ${className}`}
+      aria-hidden="true"
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M6 1V11M1 6H11" stroke="currentColor" strokeWidth="1" strokeOpacity="0.45" />
+      </svg>
+    </span>
+  );
+}
+
+/** Escala métrica gráfica con marcas de cota animadas al entrar al viewport. */
+export function TechnicalRuler({
+  ticks = 5,
+  className = "",
+}: {
+  ticks?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.5, once: true });
+  const reduced = useReducedMotion();
+
+  return (
+    <div ref={ref} className={`tech-ruler ${className}`} aria-hidden="true">
+      <motion.span
+        className="tech-ruler-line"
+        initial={reduced ? false : { scaleX: 0 }}
+        animate={inView || reduced ? { scaleX: 1 } : { scaleX: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      />
+      <div className="tech-ruler-ticks">
+        {Array.from({ length: ticks }).map((_, i) => (
+          <motion.span
+            key={i}
+            className={`tech-ruler-tick ${i === 0 || i === ticks - 1 ? "is-major" : ""}`}
+            initial={reduced ? false : { scaleY: 0 }}
+            animate={inView || reduced ? { scaleY: 1 } : { scaleY: 0 }}
+            transition={{ duration: 0.35, delay: reduced ? 0 : 0.18 + i * 0.04 }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Contador dinámico mecánico con desaceleración cuártica y números tabulares. */
+export function MetricTicker({
+  value,
+  prefix = "",
+  suffix = "",
+  duration = 1300,
+  className = "",
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { amount: 0.4, once: true });
+  const reduced = useReducedMotion();
+  const [current, setCurrent] = useState(value);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- Animación fotograma a fotograma al entrar al viewport */
+    if (!mounted || reduced) {
+      setCurrent(value);
+      return;
+    }
+    if (!inView) return;
+
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const ease = 1 - Math.pow(1 - p, 4);
+      setCurrent(Math.round(value * ease));
+      if (p < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [mounted, inView, reduced, value, duration]);
+
+  return (
+    <span ref={ref} className={`metric-ticker ${className}`}>
+      <span className="sr-only">
+        {prefix}{value.toLocaleString("es-DO")}{suffix}
+      </span>
+      <span aria-hidden="true" className="metric-ticker-value">
+        {prefix}{current.toLocaleString("es-DO")}{suffix}
+      </span>
+    </span>
+  );
+}
+
+/** Desenmascarado tipo cortina arquitectónica para imágenes y renders. */
+export function ImageClipCurtain({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.2, once: true });
+  const reduced = useReducedMotion();
+
+  return (
+    <div ref={ref} className={`clip-curtain-wrap ${className}`}>
+      <motion.div
+        className="clip-curtain-inner"
+        initial={reduced ? false : { clipPath: "inset(0% 0% 100% 0%)", scale: 1.05 }}
+        animate={
+          inView || reduced
+            ? { clipPath: "inset(0% 0% 0% 0%)", scale: 1 }
+            : { clipPath: "inset(0% 0% 100% 0%)", scale: 1.05 }
+        }
+        transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+type TrackerLocale = "es" | "en" | "fr";
+
+/** Indicador lateral flotante de estaciones del recorrido en escritorio. */
+export function JourneyScrollTracker({
+  locale = "es",
+}: {
+  locale?: TrackerLocale;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("proyectos");
+  const { scrollYProgress } = useScroll();
+
+  const labels: Record<TrackerLocale, { id: string; label: string; num: string }[]> = {
+    es: [
+      { id: "proyectos", label: "Catálogo", num: "01" },
+      { id: "ubicacion", label: "Ubicación", num: "02" },
+      { id: "arquitectura", label: "Arquitectura", num: "03" },
+      { id: "sobre-mi", label: "Asesor", num: "04" },
+      { id: "inversion", label: "Inversión", num: "05" },
+    ],
+    en: [
+      { id: "proyectos", label: "Portfolio", num: "01" },
+      { id: "ubicacion", label: "Location", num: "02" },
+      { id: "arquitectura", label: "Architecture", num: "03" },
+      { id: "sobre-mi", label: "Advisor", num: "04" },
+      { id: "inversion", label: "Investment", num: "05" },
+    ],
+    fr: [
+      { id: "proyectos", label: "Catalogue", num: "01" },
+      { id: "ubicacion", label: "Emplacement", num: "02" },
+      { id: "arquitectura", label: "Architecture", num: "03" },
+      { id: "sobre-mi", label: "Conseiller", num: "04" },
+      { id: "inversion", label: "Investissement", num: "05" },
+    ],
+  };
+
+  const sections = labels[locale] ?? labels.es;
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + window.innerHeight * 0.35;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i].id);
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSection(sections[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [sections]);
+
+  if (!mounted) return null;
+
+  return (
+    <nav className="journey-tracker" aria-label="Navegación del recorrido">
+      <div className="journey-tracker-track">
+        <motion.div
+          className="journey-tracker-fill"
+          style={{ scaleY: scrollYProgress }}
+        />
+      </div>
+      <ul className="journey-tracker-list">
+        {sections.map((sec) => {
+          const isActive = activeSection === sec.id;
+          return (
+            <li key={sec.id} className={`journey-tracker-item ${isActive ? "is-active" : ""}`}>
+              <a
+                href={`#${sec.id}`}
+                className="journey-tracker-link"
+                title={sec.label}
+              >
+                <span className="journey-tracker-dot" />
+                <span className="journey-tracker-label">
+                  <small>{sec.num}</small>
+                  <strong>{sec.label}</strong>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

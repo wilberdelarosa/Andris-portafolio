@@ -1,32 +1,24 @@
 import Link from "next/link";
+import Script from "next/script";
 import { ExperienceProvider } from "@/components/experience-provider";
 import { ProjectCatalog } from "@/components/project-catalog";
 import { Shell } from "@/components/shell";
 import { catalogCopy } from "@/content/catalog-copy";
 import { getPublishedProjects } from "@/content/projects";
-import { pageMetadata, parseLocale } from "@/lib/page-metadata";
+import { pageMetadata } from "@/lib/page-metadata";
 import "@/components/project-catalog.css";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string }>;
-}) {
-  const locale = parseLocale((await searchParams).lang);
-  const c = catalogCopy[locale];
+export function generateMetadata() {
+  const c = catalogCopy.es;
   return {
-    ...pageMetadata(locale, c.title.join(" ")),
+    ...pageMetadata("es", c.title.join(" ")),
     description: c.intro,
   };
 }
 
-export default async function ProjectsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string }>;
-}) {
-  const locale = parseLocale((await searchParams).lang);
-  const c = catalogCopy[locale];
+export default function ProjectsPage() {
+  const locale = "es";
+  const c = catalogCopy.es;
 
   // Listado navegable para buscadores: describe el catalogo sin precios ni
   // disponibilidad, que son los datos todavia por confirmar.
@@ -43,11 +35,13 @@ export default async function ProjectsPage({
   };
 
   return (
-    <ExperienceProvider initialLocale={locale}>
+    <ExperienceProvider>
       <Shell detail>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <Script id="project-catalog-jsonld" type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </Script>
         <nav className="catalog-back" aria-label={c.backHome}>
-          <Link href={`/?lang=${locale}`}>{c.backHome}</Link>
+          <Link href={`/?lang=${locale}`} prefetch={false}>{c.backHome}</Link>
         </nav>
         <ProjectCatalog />
       </Shell>

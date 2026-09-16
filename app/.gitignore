@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.next-verify/
+.next-validation/
+.open-next/
+.wrangler/
+dist/
+out/
+andris-sites.tar.gz
+*.tgz
+.playwright-cli/
+midscene_run/
+*.log
+tsconfig.tsbuildinfo
+.dev.vars
+.env.local

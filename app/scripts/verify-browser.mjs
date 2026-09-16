@@ -26,6 +26,7 @@ const report = {
   checks: [],
   screenshots: [],
   consoleErrors: [],
+  resourceErrors: [],
   pageErrors: [],
 };
 let browser;
@@ -35,10 +36,6 @@ let expected404 = false;
 async function capture(name) {
   const filename = `${name}.png`;
   await page.evaluate(async () => {
-    for (const image of document.images) image.loading = "eager";
-    await Promise.all(
-      [...document.images].map((image) => image.decode().catch(() => {})),
-    );
     for (const animation of document.getAnimations()) {
       if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) {
         try {
@@ -53,9 +50,13 @@ async function capture(name) {
       requestAnimationFrame(() => requestAnimationFrame(resolve)),
     );
   });
+  // Chrome can freeze a full-page rasterization when a live WebGL map is part
+  // of the document. The viewport still verifies the rendered map; pages
+  // without it retain the full-page evidence used by the visual audit.
+  const hasLiveMap = (await page.locator(".maplibregl-canvas").count()) > 0;
   await page.screenshot({
     path: path.join(output, filename),
-    fullPage: true,
+    fullPage: !hasLiveMap,
     caret: "initial",
   });
   report.screenshots.push(filename);
@@ -87,6 +88,9 @@ async function navigate(pathname, locale = "es") {
     (lang) => document.documentElement.lang === lang,
     locale,
   );
+  await page.waitForFunction(
+    () => document.documentElement.dataset.experienceReady === "true",
+  );
   await page.evaluate(() => document.fonts.ready);
   return response;
 }
@@ -101,16 +105,16 @@ async function revealAndCheckImages() {
         requestAnimationFrame(() => requestAnimationFrame(resolve)),
       );
     }
-    for (const image of document.images) image.loading = "eager";
-    await Promise.all(
-      [...document.images].map((image) => image.decode().catch(() => {})),
-    );
   });
   await page.waitForFunction(
     () => {
       const rendered = [...document.images].filter((image) => {
         const style = getComputedStyle(image);
-        return image.getClientRects().length && style.visibility !== "hidden";
+        return (
+          image.currentSrc &&
+          image.getClientRects().length &&
+          style.visibility !== "hidden"
+        );
       });
       return (
         rendered.length > 0 &&
@@ -124,6 +128,7 @@ async function revealAndCheckImages() {
     [...document.images]
       .filter(
         (image) =>
+          image.currentSrc &&
           image.getClientRects().length &&
           getComputedStyle(image).visibility !== "hidden",
       )
@@ -267,7 +272,7 @@ async function checkCalculator() {
 async function checkContactPreview() {
   await navigate("/contacto?proyecto=terra-serena");
   const form = page.locator(".contact-form");
-  await form.locator('button[type="submit"]').click();
+  assert.equal(await form.locator('button[type="submit"]').isDisabled(), true);
   assert.equal(
     await form.evaluate((element) => element.checkValidity()),
     false,
@@ -277,6 +282,10 @@ async function checkContactPreview() {
   assert.equal(await form.locator('select[name="project"]').inputValue(), "Terra Serena");
   await form.locator('input[name="name"]').fill("Prueba navegador");
   await form.locator('input[name="email"]').fill("qa@example.com");
+  await form.locator('input[name="phone"]').fill("+1 809 000 0000");
+  await form.locator('input[name="country"]').fill("República Dominicana");
+  await form.locator('select[name="budget"]').selectOption({ index: 1 });
+  await form.locator('select[name="timeframe"]').selectOption({ index: 1 });
   await form
     .locator('textarea[name="message"]')
     .fill("Consulta automatizada local. No enviar.");
@@ -359,13 +368,6 @@ async function checkLanguages() {
 
 await mkdir(output, { recursive: true });
 try {
-  const health = await fetch(new URL("/api/v1/health", baseURL), {
-    signal: AbortSignal.timeout(10000),
-  });
-  assert.ok(
-    health.ok,
-    `El servidor respondió ${health.status} al comprobar disponibilidad`,
-  );
   browser = await chromium.launch({
     headless: process.env.HEADED !== "1",
     channel: process.env.BROWSER_CHANNEL || "chrome",
@@ -384,10 +386,21 @@ try {
   page.setDefaultTimeout(15000);
   page.setDefaultNavigationTimeout(45000);
   page.on("pageerror", (error) => report.pageErrors.push(error.message));
+  page.on("response", (response) => {
+    const url = response.url();
+    const resourceUrl = new URL(url);
+    const isExpectedNotFoundDocument =
+      response.status() === 404 &&
+      resourceUrl.origin === baseURL.origin &&
+      resourceUrl.pathname.replace(/\/$/, "") === "/proyectos/no-existe";
+    if (response.status() === 404 && !isExpectedNotFoundDocument)
+      report.resourceErrors.push(`404 ${url}`);
+  });
   page.on("console", (message) => {
     if (
       message.type() === "error" &&
-      !(expected404 && message.text().includes("404"))
+      !(expected404 && message.text().includes("404")) &&
+      !message.text().includes("Failed to load resource: the server responded with a status of 404")
     )
       report.consoleErrors.push(message.text());
   });
@@ -435,6 +448,7 @@ try {
   await check("Consola y errores de ejecución", async () => {
     assert.deepEqual(report.pageErrors, [], "Hay excepciones de JavaScript");
     assert.deepEqual(report.consoleErrors, [], "Hay errores de consola");
+    assert.deepEqual(report.resourceErrors, [], "Hay recursos 404 inesperados");
     return { errors: 0 };
   });
 } catch (error) {

@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
 } from "react";
 import { MotionConfig } from "motion/react";
@@ -47,16 +48,16 @@ export function ExperienceProvider({
   const [theme, updateTheme] = useState<Theme>("light");
   const [savedSlugs, updateSavedSlugs] = useState<string[]>([]);
   const [offline, setOffline] = useState(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- One post-hydration synchronization with browser storage; SSR must use the supplied locale and avoid reading window. */
     // Synchronize saved browser preferences after hydration.
     try {
+      const queryLanguage = new URLSearchParams(location.search).get("lang");
       const language = localStorage.getItem("ap-language");
       const appearance = localStorage.getItem("ap-theme");
-      if (
-        !new URLSearchParams(location.search).has("lang") &&
-        (language === "es" || language === "en" || language === "fr")
-      )
+      if (queryLanguage === "es" || queryLanguage === "en" || queryLanguage === "fr")
+        updateLocale(queryLanguage);
+      else if (language === "es" || language === "en" || language === "fr")
         updateLocale(language);
       if (
         appearance === "light" ||
@@ -75,26 +76,13 @@ export function ExperienceProvider({
     } catch {
       /* Default preferences remain fully usable. */
     }
-    const connectivity = new AbortController();
     const online = () => {
       setOffline(!navigator.onLine);
-      if (navigator.onLine)
-        fetch("/api/v1/health", {
-          cache: "no-store",
-          signal: connectivity.signal,
-        })
-          .then((response) => {
-            if (!connectivity.signal.aborted) setOffline(!response.ok);
-          })
-          .catch(() => {
-            if (!connectivity.signal.aborted) setOffline(true);
-          });
     };
     online();
     window.addEventListener("online", online);
     window.addEventListener("offline", online);
     return () => {
-      connectivity.abort();
       window.removeEventListener("online", online);
       window.removeEventListener("offline", online);
     };
@@ -103,6 +91,11 @@ export function ExperienceProvider({
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
+  useEffect(() => {
+    // Exposes completion of client hydration to the browser smoke test before
+    // it begins interacting with controlled inputs and dialogs.
+    document.documentElement.dataset.experienceReady = "true";
+  }, []);
   useEffect(() => {
     const media = matchMedia("(prefers-color-scheme: dark)");
     const apply = () => {
