@@ -139,7 +139,7 @@ create table if not exists public.project_unit_types (
   phase_id uuid references public.project_phases(id) on delete set null,
   name text not null,
   property_type text not null default 'otro'
-    check (property_type in ('apartamento','villa','townhouse','penthouse','otro')),
+    check (property_type in ('apartamento','villa','townhouse','penthouse','mixto','otro')),
   bedrooms_min numeric,
   bedrooms_max numeric,
   bathrooms_min numeric,
@@ -437,7 +437,7 @@ left join lateral (
   order by m.sort_order limit 1
 ) hero on true
 left join lateral (
-  select jsonb_agg(distinct jsonb_array[b.bedrooms_min, b.bedrooms_max]) as values
+  select jsonb_agg(distinct jsonb_build_array(b.bedrooms_min, b.bedrooms_max)) as values
   from (
     select bedrooms_min, bedrooms_max from public.project_unit_types ut
     where ut.project_id = p.id order by ut.sort_order
