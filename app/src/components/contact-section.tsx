@@ -23,6 +23,7 @@ import {
   getSafeLeadWebhookUrl,
   type ContactLeadInput,
 } from "@/lib/lead-payload";
+import { leadsStore } from "@/lib/cms/local-store";
 
 type LeadDelivery =
   | { state: "idle" }
@@ -77,7 +78,25 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
     setSummary(
       `Andris Peña | ${t.portfolio}\n\n${t.name}: ${lead.name}\n${t.email}: ${lead.email}\n${c.phone}: ${lead.phone}\n${c.country}: ${lead.country}\n${c.budget}: ${lead.budget}\n${c.timeframe}: ${lead.timeframe}\n${j.projectField}: ${lead.project || j.general}\n${t.interest}: ${lead.interest}\n${t.message}: ${lead.message || "—"}\n\n${c.consentRecord}`,
     );
+    // El lead queda registrado en el estudio CMS local sea cual sea el canal.
+    const recordLead = (status: "prepared" | "sent" | "failed") =>
+      leadsStore.add({
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        country: lead.country,
+        budget: lead.budget,
+        timeframe: lead.timeframe,
+        project: lead.project || String(j.general),
+        interest: lead.interest,
+        message: lead.message,
+        locale,
+        pageUrl: lead.pageUrl,
+        channel: "summary",
+        status,
+      });
     if (!leadWebhookUrl) {
+      recordLead("prepared");
       setDelivery({ state: "skipped" });
       return;
     }
@@ -96,6 +115,7 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
         logId?: string | number;
       };
       if (!response.ok) throw new Error("Lead webhook failed");
+      recordLead("sent");
       setDelivery({
         state: "sent",
         reference:
@@ -105,6 +125,7 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
           (result.logId ? String(result.logId) : undefined),
       });
     } catch {
+      recordLead("failed");
       setDelivery({ state: "failed" });
     } finally {
       setSubmitting(false);

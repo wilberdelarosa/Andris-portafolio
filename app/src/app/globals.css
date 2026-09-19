@@ -1187,6 +1187,86 @@ em {
 .calculator-top .text-button {
   font-size: 11px;
 }
+.project-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  padding: 0 14px;
+  margin: 10px 0 26px;
+  color: var(--muted);
+}
+.project-select select {
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+.plan-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -14px 0 22px;
+}
+.plan-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+.plan-chip small {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.plan-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--color-sand-deep);
+}
+.plan-chip.is-active {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--on-ink);
+}
+.plan-chip.is-active small {
+  color: var(--color-sand);
+}
+.preset-hint {
+  margin: -10px 0 20px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.result-project {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-sand);
+  margin-bottom: 18px;
+}
 .field-label {
   display: block;
   font-size: 13px;
@@ -1336,6 +1416,14 @@ em {
   border-radius: 5px;
   overflow: hidden;
   margin-block: 30px 18px;
+}
+.payment-bar span {
+  transition: width 0.6s var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .payment-bar span {
+    transition: none;
+  }
 }
 .payment-bar span:nth-child(1),
 .dot-0 {

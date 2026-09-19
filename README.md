@@ -4,7 +4,7 @@ Portafolio de Andris Peña, agente inmobiliario. Este repositorio contiene mater
 
 ## Aplicación
 
-La aplicación activa está en `app/` (Next.js, React y TypeScript). Lee [app/README.md](app/README.md) para ejecutarla. Incluye portada animada, catálogo de tres proyectos, fichas independientes, mapa interactivo, calculadora de pagos, galería, favoritos, contacto ES/EN/FR, temas claro/oscuro y PWA.
+La aplicación activa está en `app/` (Next.js, React y TypeScript). Lee [app/README.md](app/README.md) para ejecutarla. Incluye portada animada, catálogo de tres proyectos, fichas independientes, mapa interactivo, calculadora de pagos con PDF de marca, galería, favoritos, contacto ES/EN/FR, temas claro/oscuro y PWA. Añade además un estudio CMS en `/admin`, un API estática v1 en `/api/v1/` y la migración SQL lista para Supabase en `app/supabase/` (ver [docs/integrations/API-Y-CMS.md](docs/integrations/API-Y-CMS.md)).
 
 El recorrido se distribuye entre `/`, `/proyectos`, `/proyectos/[slug]`, `/mapa`, `/sobre-mi`, `/calculadora` y `/contacto`. Las fichas, favoritos, mapa y consulta comparten el identificador del proyecto. Contactos confirmados: +1 (849) 576-3822 y andrisprealtor@gmail.com.
 

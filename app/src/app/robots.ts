@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       ...(process.env.NEXT_PUBLIC_INDEXABLE === "true"
-        ? { allow: "/", disallow: "/api/" }
+        ? { allow: "/", disallow: ["/api/", "/admin/"] }
         : { disallow: "/" }),
     },
   };

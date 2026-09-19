@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Estructura del sitio · Andris Peña — Portafolio inmobiliario</title>
+<style>
+/* ── Fuentes de marca (licencia SIL OFL, servidas localmente) ── */
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("../../app/node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("../../app/node_modules/@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-italic.woff2") format("woff2");
+  font-weight: 200 800; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("../../app/node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("../../app/node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-italic.woff2") format("woff2");
+  font-weight: 500; font-style: italic; font-display: swap;
+}
+
+/* ── Tokens de marca ── */
+:root {
+  --ink: #0B1F3A; --ink-soft: #132E4A; --blue: #316692; --sand: #D8C8B4;
+  --sand-deep: #C8B79C; --surface: #F4F0E6; --raised: #FBF9F4;
+  --muted: #4E5A6B; --line: #DCE1E5; --on-ink: #FBF9F4; --on-ink-muted: #C4D0DB;
+  --ink-line: #38506A;
+}
+
+/* ── Paginación ── */
+@page {
+  size: A4;
+  margin: 20mm 18mm 18mm 18mm;
+  @top-left { content: "Estructura del sitio · Andris Peña"; font-family: "Plus Jakarta Sans"; font-size: 7.5pt; color: #4E5A6B; letter-spacing: 0.08em; text-transform: uppercase; }
+  @top-right { content: string(sectitle); font-family: "Plus Jakarta Sans"; font-size: 7.5pt; color: #4E5A6B; letter-spacing: 0.08em; text-transform: uppercase; }
+  @bottom-center { content: counter(page); font-family: "Plus Jakarta Sans"; font-size: 8.5pt; color: #4E5A6B; }
+  @bottom-right { content: "Portafolio inmobiliario"; font-family: "Cormorant Garamond"; font-size: 8.5pt; font-style: italic; color: #C8B79C; }
+}
+@page cover { margin: 0; @top-left { content: none; } @top-right { content: none; } @bottom-center { content: none; } @bottom-right { content: none; } }
+@page plain { @top-left { content: none; } @top-right { content: none; } }
+
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 9.6pt; line-height: 1.62; color: #33383f;
+  text-align: justify; text-align-last: left;
+  string-set: sectitle "";
+}
+p { margin: 0 0 0.55em 0; orphans: 2; widows: 2; }
+strong { color: var(--ink); }
+
+/* ── Portada ── */
+.cover { width: 210mm; height: 297mm; margin: 0; position: relative; overflow: hidden; page: cover; page-break-after: always; background: var(--raised); }
+.cover-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: 0; }
+.cover-content { position: absolute; top: 0; left: 0; z-index: 1; width: 128mm; padding: 22mm 0 0 18mm; }
+.cover-kicker { font-size: 8.5pt; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--blue); margin-bottom: 8mm; }
+.cover-title { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 30pt; line-height: 1.12; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 5mm 0; }
+.cover-accent { font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 500; font-size: 30pt; line-height: 1.1; color: var(--blue); margin: 0 0 9mm 0; }
+.cover-desc { font-size: 10pt; line-height: 1.7; color: var(--muted); width: 100mm; }
+.cover-band { position: absolute; left: 0; bottom: 0; z-index: 1; width: 210mm; background: var(--ink); padding: 7mm 18mm; box-sizing: border-box; }
+.cover-band table { width: 100%; border-collapse: collapse; }
+.cover-band td { border: none; padding: 0; font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-ink-muted); }
+.cover-band td.right { text-align: right; color: var(--sand); }
+.cover-name { font-family: "Cormorant Garamond", serif; font-size: 15pt; color: var(--on-ink); letter-spacing: 0.02em; text-transform: none; }
+
+/* ── Índice ── */
+.toc-page { page: plain; page-break-after: always; }
+.toc-kicker { font-size: 8.5pt; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--blue); margin: 2mm 0 3mm 0; }
+.toc-title { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 24pt; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 2mm 0; }
+.toc-accent { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 24pt; color: var(--blue); margin: 0 0 9mm 0; }
+ul.toc { list-style: none; margin: 0; padding: 0; }
+ul.toc li { border-bottom: 0.6pt dotted var(--sand-deep); padding: 2.6mm 0 1.6mm 0; font-size: 10.5pt; }
+ul.toc li.l2 { margin-left: 7mm; font-size: 9.5pt; color: var(--muted); }
+ul.toc a { color: var(--ink); text-decoration: none; }
+ul.toc a::after { content: target-counter(attr(href url), page); float: right; color: var(--blue); font-weight: 600; }
+.toc-note { margin-top: 9mm; font-size: 8.5pt; color: var(--muted); line-height: 1.7; }
+
+/* ── Estructura general ── */
+.section { page-break-before: always; }
+.sec-head { border-bottom: 2pt solid var(--ink); padding-bottom: 4mm; margin-bottom: 5mm; }
+.sec-num { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 30pt; color: var(--sand-deep); line-height: 1; }
+.sec-title { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 19pt; letter-spacing: -0.02em; color: var(--ink); margin: 1.5mm 0 0.8mm 0; line-height: 1.15; string-set: sectitle content(); }
+.sec-accent { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 16pt; color: var(--blue); margin: 0; }
+.sec-route { display: inline-block; margin-top: 2.5mm; font-size: 8pt; font-weight: 600; letter-spacing: 0.1em; color: var(--ink); background: var(--surface); border: 0.6pt solid var(--sand-deep); padding: 1mm 3mm; border-radius: 6px; }
+
+h3 { font-family: "Plus Jakarta Sans", sans-serif; font-weight: 600; font-size: 12pt; color: var(--ink); margin: 4mm 0 2mm 0; page-break-after: avoid; }
+h3 .em { font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 500; color: var(--blue); }
+
+/* Fila boceto + zonas */
+.page-row { display: flex; gap: 6mm; align-items: flex-start; margin-top: 2mm; }
+.wire-col { flex: 0 0 96mm; }
+.zones-col { flex: 1 1 auto; min-width: 0; }
+
+/* Captura de página completa (página siguiente) */
+.shot-fig { text-align: center; page-break-inside: avoid; margin-top: 2mm; }
+.shot-fig img { height: 220mm; width: auto; max-width: 158mm; }
+.shot-fig figcaption { max-width: 140mm; margin-left: auto; margin-right: auto; }
+
+figure { margin: 0 0 4mm 0; page-break-inside: avoid; }
+figcaption { font-size: 8pt; color: var(--muted); margin-top: 1.6mm; line-height: 1.45; text-align: left; }
+figcaption::before { content: attr(data-label) " · "; font-weight: 700; color: var(--ink); letter-spacing: 0.06em; }
+img { max-width: 100%; }
+.shot { border: 0.7pt solid var(--line); }
+.wire { border: 0.7pt solid var(--sand-deep); }
+
+/* Lista de zonas */
+.zones { list-style: none; margin: 0 0 3mm 0; padding: 0; }
+.zones li { border-left: 2.2pt solid var(--sand); padding: 0 0 2.2mm 3.2mm; margin-bottom: 2.2mm; page-break-inside: avoid; }
+.zones .z-name { font-weight: 700; color: var(--ink); font-size: 9.3pt; }
+.zones .z-name .z-tag { font-weight: 600; font-size: 7pt; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-right: 1.5mm; }
+.zones p { margin: 0.4mm 0 0 0; font-size: 8.8pt; color: var(--muted); line-height: 1.55; }
+
+.facts { margin: 2mm 0 0 0; border-top: 1.4pt solid var(--ink); border-bottom: 0.6pt solid var(--line); padding: 2mm 0; font-size: 8.6pt; }
+.facts td { border: none; padding: 1mm 4mm 1mm 0; vertical-align: top; }
+.facts .k { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.facts .v { color: var(--muted); }
+
+/* Tablas editoriales */
+table.data { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm 0; font-size: 8.8pt; }
+table.data th { text-align: left; font-weight: 700; color: var(--ink); border-top: 1.4pt solid var(--ink); border-bottom: 0.9pt solid var(--ink); padding: 1.8mm 2mm 1.8mm 0; }
+table.data td { border: none; border-bottom: 0.5pt solid var(--line); padding: 1.7mm 2mm 1.7mm 0; vertical-align: top; color: #3a4048; }
+table.data caption { caption-side: top; text-align: left; font-size: 8pt; color: var(--muted); margin-bottom: 1.6mm; }
+table.data caption::before { content: attr(data-label) " · "; font-weight: 700; color: var(--ink); }
+
+/* Paleta */
+.swatches { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm 0; font-size: 8.4pt; }
+.swatches td { border: none; border-bottom: 0.5pt solid var(--line); padding: 1.6mm 2mm 1.6mm 0; vertical-align: middle; }
+.sw { display: inline-block; width: 9mm; height: 5.5mm; border: 0.5pt solid var(--line); }
+.swatches .k { font-weight: 700; color: var(--ink); }
+.swatches .v { color: var(--muted); font-family: "Plus Jakarta Sans"; }
+
+/* Nota / aviso */
+.note { border-left: 2.2pt solid var(--blue); background: var(--raised); padding: 2.6mm 4mm; font-size: 8.6pt; color: var(--muted); margin: 3mm 0 5mm 0; page-break-inside: avoid; }
+.note strong { color: var(--ink); }
+
+/* Banda decorativa de separador */
+.band { width: 100%; height: 22mm; object-fit: cover; margin: 0 0 4mm 0; border: none; }
+
+/* Mermaid */
+.mermaid { max-width: 100%; margin: 2mm 0 4mm 0; }
+
+.lead { font-size: 10.5pt; line-height: 1.7; color: #3a4048; margin-bottom: 3mm; }
+.lead .em { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 1.18em; color: var(--blue); }
+.page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ PORTADA ═══════════ -->
+<div class="cover">
+  <img class="cover-bg" src="assets/cover-art.png" alt="">
+  <div class="cover-content">
+    <div class="cover-kicker">Documento de presentación</div>
+    <h1 class="cover-title">Estructura del sitio</h1>
+    <p class="cover-accent">Andris Peña · portafolio inmobiliario</p>
+    <p class="cover-desc">Segmentación página a página de la web: capturas reales, bocetos de estructura y el criterio con el que se organiza la información en cada sección. Tres proyectos en Punta Cana, un recorrido pensado para convertir visitas en conversaciones.</p>
+  </div>
+  <div class="cover-band">
+    <table><tr>
+      <td><span class="cover-name">Andris Peña</span> &nbsp;·&nbsp; Asesor inmobiliario</td>
+      <td class="right">Septiembre 2026 · Versión 1.0</td>
+    </tr></table>
+  </div>
+</div>
+
+<!-- ═══════════ ÍNDICE ═══════════ -->
+<div class="toc-page">
+  <div class="toc-kicker">Contenido</div>
+  <h2 class="toc-title">El sitio,</h2>
+  <p class="toc-accent">sección por sección.</p>
+  <ul class="toc">
+    <li><a href="#sec-vision">1. Visión general y arquitectura de la información</a></li>
+    <li class="l2"><a href="#sec-vision-rutas">1.2 Mapa de rutas y recorrido del visitante</a></li>
+    <li class="l2"><a href="#sec-vision-sistema">1.3 Sistema de diseño aplicado</a></li>
+    <li><a href="#sec-inicio">2. Inicio — portada y explorador</a></li>
+    <li><a href="#sec-catalogo">3. Catálogo de proyectos</a></li>
+    <li><a href="#sec-ficha">4. Ficha de proyecto (dossier)</a></li>
+    <li><a href="#sec-mapa">5. Mapa interactivo</a></li>
+    <li><a href="#sec-sobre-mi">6. Sobre mí — asesor y proceso</a></li>
+    <li><a href="#sec-calculadora">7. Calculadora de pagos</a></li>
+    <li><a href="#sec-contacto">8. Contacto — conversación</a></li>
+    <li><a href="#sec-responsive">9. Responsive, temas e idiomas</a></li>
+    <li><a href="#sec-cierre">10. Notas de contenido y cierre</a></li>
+  </ul>
+  <p class="toc-note">Las capturas de este documento se tomaron el 18 de septiembre de 2026 sobre el entorno de desarrollo del sitio, a 1440 px de ancho (escritorio) y 390 px (móvil). Los bocetos wireframe son ilustraciones de la estructura de cada página, dibujados con los tokens visuales oficiales de la marca. Este documento describe la arquitectura de la información; no constituye una oferta comercial.</p>
+</div>
+
+<!-- ═══════════ 1. VISIÓN GENERAL ═══════════ -->
+<div class="section" id="sec-vision">
+  <div class="sec-head">
+    <div class="sec-num">01</div>
+    <h2 class="sec-title">Visión general</h2>
+    <p class="sec-accent">y arquitectura de la información.</p>
+  </div>
+
+  <p class="lead">El sitio es el portafolio independiente de <strong>Andris Peña</strong>, asesor inmobiliario en Punta Cana. Su north star creativo es <span class="em">«la persona y el lugar»</span>: el retrato real y la fotografía de los proyectos conducen un recorrido claro y contemporáneo que presenta tres proyectos —Melcon Paradise, Terra Serena y The Beach at Punta Cana City Place— y convierte la visita en una conversación verificable, sin prometer envíos ni estados que el sistema no garantiza.</p>
+
+  <p>La información se organiza en <strong>siete rutas</strong> con responsabilidades bien definidas: una portada que orienta, un catálogo que compara, una ficha que documenta, un mapa que ubica, una página de asesor que genera confianza, una calculadora que pone números editables y un contacto que prepara la consulta. Todo el recorrido comparte el mismo identificador de proyecto, de modo que la selección del visitante se conserva entre ficha, mapa, favoritos y consulta.</p>
+
+  <h3 id="sec-vision-rutas">1.2 &nbsp;Mapa de rutas y recorrido del visitante</h3>
+  <div class="mermaid">
+flowchart LR
+    A["Portada<br>/"] --> B["Catálogo<br>/proyectos"]
+    B --> C["Ficha de proyecto<br>/proyectos/[slug]"]
+    A --> D["Mapa<br>/mapa"]
+    C --> D
+    C --> E["Contacto<br>/contacto"]
+    A --> F["Sobre mí<br>/sobre-mi"]
+    F --> E
+    G["Calculadora<br>/calculadora"] --> E
+  </div>
+
+  <table class="data">
+    <caption data-label="Tabla 1">Rutas del sitio y función de cada una</caption>
+    <thead><tr><th>Ruta</th><th>Nombre</th><th>Función en el recorrido</th></tr></thead>
+    <tbody>
+      <tr><td>/</td><td>Inicio</td><td>Portada con retrato y propuesta de valor; explorador de proyectos; mapa compacto; presentación breve y accesos a herramientas.</td></tr>
+      <tr><td>/proyectos</td><td>Catálogo</td><td>Comparar los tres proyectos: buscador, presupuesto, filtros por zona, guardados y comparación.</td></tr>
+      <tr><td>/proyectos/[slug]</td><td>Ficha</td><td>Dossier propio por proyecto: galería, hechos confirmados, amenidades, ubicación y contacto con el proyecto preseleccionado.</td></tr>
+      <tr><td>/mapa</td><td>Mapa</td><td>MapExplorer con los tres puntos verificados, panel sincronizado y vista 3D inicial; exploración limitada a Punta Cana.</td></tr>
+      <tr><td>/sobre-mi</td><td>Sobre mí</td><td>Escena editorial del asesor, proceso de acompañamiento en cuatro pasos y preguntas frecuentes.</td></tr>
+      <tr><td>/calculadora</td><td>Tu inversión</td><td>Simulador editable de pagos (firma, construcción, entrega) con escenario descargable. Cifras ilustrativas.</td></tr>
+      <tr><td>/contacto</td><td>Conversemos</td><td>Formulario validado que prepara un resumen local revisable antes de elegir WhatsApp o correo.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-break">
+    <h3 id="sec-vision-sistema">1.3 &nbsp;Sistema de diseño aplicado</h3>
+    <p>Toda la interfaz se construye sobre un único sistema de tokens: <strong>navy estructural</strong> para identidad, paneles y acciones; <strong>arena cálida</strong> para selección y acentos; <strong>superficies marfil</strong> que dan espacio a la fotografía. La tipografía combina una sans moderna para recorrer y operar con una serif editorial para la presencia personal.</p>
+
+    <table class="swatches">
+      <caption data-label="Tabla 2">Paleta de marca (tokens oficiales)</caption>
+      <tr><td><span class="sw" style="background:#0B1F3A"></span></td><td class="k">Ink · navy principal</td><td class="v">#0B1F3A — identidad, paneles, acciones</td></tr>
+      <tr><td><span class="sw" style="background:#132E4A"></span></td><td class="k">Ink suave</td><td class="v">#132E4A — superficie navy secundaria</td></tr>
+      <tr><td><span class="sw" style="background:#316692"></span></td><td class="k">Azul acento</td><td class="v">#316692 — foco, estados, marcador seleccionado</td></tr>
+      <tr><td><span class="sw" style="background:#D8C8B4"></span></td><td class="k">Arena</td><td class="v">#D8C8B4 — selección y acciones sobre navy</td></tr>
+      <tr><td><span class="sw" style="background:#F4F0E6"></span></td><td class="k">Superficie cálida</td><td class="v">#F4F0E6 — base cálida y alternancia</td></tr>
+      <tr><td><span class="sw" style="background:#FBF9F4; border-color:#DCE1E5"></span></td><td class="k">Marfil elevado</td><td class="v">#FBF9F4 — lienzo principal</td></tr>
+      <tr><td><span class="sw" style="background:#4E5A6B"></span></td><td class="k">Texto secundario</td><td class="v">#4E5A6B — apoyo y metadatos</td></tr>
+    </table>
+
+    <table class="data">
+      <caption data-label="Tabla 3">Tipografía, layout y componentes</caption>
+      <thead><tr><th>Decisión</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>Tipografía sans</td><td>Plus Jakarta Sans (SIL OFL) para texto, datos y controles; cuerpo base 15 px con interlineado 1.7.</td></tr>
+        <tr><td>Tipografía serif</td><td>Cormorant Garamond 500 para el nombre, la firma y los cierres en cursiva de los títulos editoriales.</td></tr>
+        <tr><td>Layout</td><td>Contenedor de 1440 px, márgenes fluidos (20–80 px), separación de sección de 72–120 px; catálogo de 1–3 columnas.</td></tr>
+        <tr><td>Componente firma</td><td>PropertyCard: fotografía amplia con información sobre vidrio navy, flechas manuales, contador, gesto horizontal y favorito.</td></tr>
+        <tr><td>Botones y foco</td><td>Botones de mínimo 52 px; foco visible azul de 3 px; contraste WCAG AA como objetivo en ambos temas.</td></tr>
+        <tr><td>Movimiento</td><td>Entradas con máscaras, parallax limitado y tarjetas que siguen al puntero (máx. 2.2°); <em>prefers-reduced-motion</em> deja todo estático.</td></tr>
+        <tr><td>Multi-tema e idiomas</td><td>Tema claro, oscuro y sistema; contenido en español, inglés y francés; PWA instalable con recuperación offline.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ 2. INICIO ═══════════ -->
+<div class="section" id="sec-inicio">
+  <div class="sec-head">
+    <div class="sec-num">02</div>
+    <h2 class="sec-title">Inicio — portada y explorador</h2>
+    <p class="sec-accent">la primera impresión, en capas.</p>
+    <span class="sec-route">Ruta: /</span>
+  </div>
+
+  <p class="lead">La portada presenta a <span class="em">la persona y el lugar</span> en cinco bloques: navegación global, escena de marca con el nombre monumental, explorador de proyectos, mapa compacto y un cierre que deriva a las herramientas.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-inicio.png" alt="Boceto de estructura del inicio" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 1">Boceto de estructura: bloques y jerarquía de la portada.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Orientar en menos de un scroll: quién es Andris, qué proyectos existen y dónde están.</td></tr>
+        <tr><td class="k">Acciones</td><td class="v">Ver proyectos · abrir mapa · guardar favorito · contactar.</td></tr>
+        <tr><td class="k">Móvil</td><td class="v">El hero se recompone como póster vertical; el selector pasa a lista horizontal desplazable.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Header</span>Navegación global</span>
+          <p>Monograma y nombre a la izquierda; rutas con estado actual, idioma ES/EN/FR, tema y ajustes a la derecha, cerradas con el CTA «Conversemos» en navy.</p></li>
+        <li><span class="z-name"><span class="z-tag">Hero</span>Escena de marca</span>
+          <p>Nombre monumental en dos planos —ANDRIS detrás, PEÑA delante— con el retrato real de traje centrado sobre un fondo arquitectónico con parallax. A la izquierda, la propuesta de valor («Un lugar para vivir. Una decisión para crecer.») con CTA; a la derecha, un panel de vidrio navy con datos de contacto directos.</p></li>
+        <li><span class="z-name"><span class="z-tag">Explorador</span>Proyectos destacados</span>
+          <p>Título editorial («Un lugar que va contigo.»), una tarjeta grande con fotografía, panel de vidrio navy —nombre, ubicación, hechos confirmados, CTA a la ficha y acción de mapa— y un selector lateral con los tres proyectos; flechas manuales, contador, gesto horizontal y favorito.</p></li>
+        <li><span class="z-name"><span class="z-tag">Mapa</span>Vista compacta del lugar</span>
+          <p>Mapa interactivo («Mira el lugar. Imagina tu vida.») con los tres puntos verificados y el panel del proyecto seleccionado, arrastrable desde la carga.</p></li>
+        <li><span class="z-name"><span class="z-tag">Cierre</span>Presentación breve</span>
+          <p>Resumen del asesor con retrato y accesos a herramientas; el footer navy repite la frase de marca y los contactos confirmados.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/home-full.png" alt="Captura completa de la portada">
+    <figcaption data-label="Figura 2">Captura real de la página de inicio a 1440 px (página completa).</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 3. CATÁLOGO ═══════════ -->
+<div class="section" id="sec-catalogo">
+  <div class="sec-head">
+    <div class="sec-num">03</div>
+    <h2 class="sec-title">Catálogo de proyectos</h2>
+    <p class="sec-accent">comparar sin perder el hilo.</p>
+    <span class="sec-route">Ruta: /proyectos</span>
+  </div>
+
+  <p class="lead">El catálogo resume el recorrido en una sola vista: <span class="em">un titular editorial</span>, una barra de filtros completa y las tres tarjetas comparables, con transparencia comercial al pie.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-catalogo.png" alt="Boceto de estructura del catálogo" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 3">Boceto de estructura: filtros arriba, tarjetas en grid.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Permitir comparar los tres proyectos en una sola vista y entrar al dossier.</td></tr>
+        <tr><td class="k">Acciones</td><td class="v">Filtrar · buscar · comparar · guardar favoritos · abrir ficha o mapa.</td></tr>
+        <tr><td class="k">Responsive</td><td class="v">Una, dos o tres columnas según ancho (umbrales 40 y 68 rem).</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Encabezado</span>Título editorial + intro</span>
+          <p>«Tres lugares. Un mismo acompañamiento.» con una línea de apoyo que anuncia qué se puede hacer aquí: explorar, comparar, guardar.</p></li>
+        <li><span class="z-name"><span class="z-tag">Herramientas</span>Barra de filtros</span>
+          <p>Chips de estado («Ver todos · 3», «Guardados»), buscador por nombre o zona, selector de presupuesto en USD, filtros avanzados y chips de zona (Vista Cana, Verón-Bávaro, Punta Cana City Place). Un filtro sin resultados permanece operable y explica su estado.</p></li>
+        <li><span class="z-name"><span class="z-tag">Grid</span>Tres PropertyCard</span>
+          <p>Cada tarjeta apila fotografía con etiqueta «Render del proyecto», acciones de comparar y favorito, contador con flechas y gesto horizontal; bajo el vidrio navy: ubicación, nombre, hechos confirmados (habitaciones y m²), CTA «Ver el proyecto» y enlace de ubicación.</p></li>
+        <li><span class="z-name"><span class="z-tag">Nota legal</span>Transparencia comercial</span>
+          <p>Aviso visible: renders entregados por el desarrollador; precios, disponibilidad y fechas se confirman antes de cualquier reserva.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/proyectos-full.png" alt="Captura completa del catálogo">
+    <figcaption data-label="Figura 4">Captura real del catálogo a 1440 px.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 4. FICHA ═══════════ -->
+<div class="section" id="sec-ficha">
+  <div class="sec-head">
+    <div class="sec-num">04</div>
+    <h2 class="sec-title">Ficha de proyecto</h2>
+    <p class="sec-accent">el dossier, dato a dato.</p>
+    <span class="sec-route">Ruta: /proyectos/[slug]</span>
+  </div>
+
+  <p class="lead">La ficha es el dossier de cada proyecto: <span class="em">galería, hechos clave, detalles</span> y ubicación embebida, siempre con enlaces que conservan la selección.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-ficha.png" alt="Boceto de estructura de la ficha" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 5">Boceto de estructura: galería, hechos, detalles y ubicación.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Documentar con hechos confirmados y derivar a mapa o contacto conservando el proyecto.</td></tr>
+        <tr><td class="k">Contenido</td><td class="v">Solo Melcon Paradise tiene ficha escrita completa; Terra Serena y The Beach muestran nombre, ubicación y renders verificados, con datos comerciales pendientes.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Cabecera</span>Migas + título + acciones</span>
+          <p>Migas de navegación («Inicio / Proyectos»), nombre del proyecto en titular grande, zona con coordenadas verificadas y acciones de compartir y favorito.</p></li>
+        <li><span class="z-name"><span class="z-tag">Galería</span>Fotografía protagonista</span>
+          <p>Imagen principal con dos vistas secundarias y botón «Abrir galería»: colección del proyecto con miniaturas, controles, teclado y gesto táctil; dimensiones reservadas y recuperación de error contextual.</p></li>
+        <li><span class="z-name"><span class="z-tag">Hechos</span>Franja de datos clave</span>
+          <p>Tres o cuatro cifras confirmadas en línea —tipologías, metrajes, terreno— antes de cualquier texto largo.</p></li>
+        <li><span class="z-name"><span class="z-tag">Detalles</span>Descripción + amenidades</span>
+          <p>«Los detalles hacen la diferencia.» abre la descripción aportada por el desarrollador y una lista de amenidades en dos columnas (piscina central, coworking, pet friendly, áreas comunes…), con CTA de disponibilidad.</p></li>
+        <li><span class="z-name"><span class="z-tag">Ubicación</span>Mapa embebido</span>
+          <p>Encabezado de zona, lista de los tres proyectos junto al mapa con el marcador activo, enlace externo «Ver en Google Maps» y atribución OpenStreetMap.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/ficha-melcon-full.png" alt="Captura completa de la ficha de Melcon Paradise">
+    <figcaption data-label="Figura 6">Captura real de la ficha de Melcon Paradise, la más documentada de las tres.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 5. MAPA ═══════════ -->
+<div class="section" id="sec-mapa">
+  <div class="sec-head">
+    <div class="sec-num">05</div>
+    <h2 class="sec-title">Mapa interactivo</h2>
+    <p class="sec-accent">el lugar, en contexto.</p>
+    <span class="sec-route">Ruta: /mapa</span>
+  </div>
+
+  <p class="lead">El mapa responde a una sola pregunta: <span class="em">¿dónde están?</span> Un panel lateral sincronizado con el lienzo, y una exploración acotada al contexto de Punta Cana.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-mapa.png" alt="Boceto de estructura del mapa" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 7">Boceto de estructura: panel lateral + lienzo del mapa.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Ubicar los proyectos entre sí y conectar el lugar con la ficha y la consulta.</td></tr>
+        <tr><td class="k">Sincronía</td><td class="v">Panel y marcadores comparten selección; /mapa?proyecto=slug abre el punto desde cualquier ruta.</td></tr>
+        <tr><td class="k">Móvil</td><td class="v">Mapa arriba y panel debajo; la rueda sigue desplazando la página en los mapas compactos.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Panel</span>«Dónde están»</span>
+          <p>Lista de los tres proyectos con miniatura, nombre y zona; la selección se marca con check azul. Debajo, la tarjeta del proyecto activo: fotografía, hechos confirmados y botones «Ver imágenes» y «Ver el proyecto», más enlace a Google Maps.</p></li>
+        <li><span class="z-name"><span class="z-tag">Lienzo</span>MapExplorer</span>
+          <p>MapLibre con OpenFreeMap y datos de OpenStreetMap: tres marcadores verificados, edificios extruidos y perspectiva 3D activada al inicio. Controles de zoom, brújula, vista plana y cambio 3D/plano.</p></li>
+        <li><span class="z-name"><span class="z-tag">Límites</span>Contexto sin distracciones</span>
+          <p>La cámara se limita al área de Punta Cana que engloba los tres proyectos; aviso visible de «Exploración limitada a Punta Cana» y atribución OSM siempre presente.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/mapa-full.png" alt="Captura real del mapa" style="height: 150mm;">
+    <figcaption data-label="Figura 8">Captura real del mapa a 1440 px, con Terra Serena seleccionado.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 6. SOBRE MÍ ═══════════ -->
+<div class="section" id="sec-sobre-mi">
+  <div class="sec-head">
+    <div class="sec-num">06</div>
+    <h2 class="sec-title">Sobre mí — asesor y proceso</h2>
+    <p class="sec-accent">la confianza, paso a paso.</p>
+    <span class="sec-route">Ruta: /sobre-mi</span>
+  </div>
+
+  <p class="lead">La página del asesor construye confianza con <span class="em">método visible</span>: una escena editorial del retrato, un proceso en cuatro pasos y preguntas directas.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-sobre-mi.png" alt="Boceto de estructura de Sobre mí" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 9">Boceto de estructura: escena editorial, proceso y preguntas.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Generar confianza mostrando método: escuchar, explorar, numerar y acompañar.</td></tr>
+        <tr><td class="k">Contenido</td><td class="v">Biografía breve confirmada; cursos, certificaciones y testimonios siguen pendientes y no se inventan.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Escena</span>Retrato + propuesta</span>
+          <p>El retrato real de camisa blanca recortado sobre un fondo editorial con el nombre en vertical; a la derecha, «La decisión es tuya. El camino lo hacemos juntos.», la presentación de Andris y el CTA al proceso. La foto rebasa el marco con sombra suave y luz ambiental.</p></li>
+        <li><span class="z-name"><span class="z-tag">Proceso</span>Cuatro pasos numerados</span>
+          <p>«Así damos el siguiente paso.» con numeración funcional 01–04: Te escucho, Exploramos, Hacemos números, Damos el siguiente paso. Sin etiquetas ornamentales: cada paso explica su contenido.</p></li>
+        <li><span class="z-name"><span class="z-tag">FAQ</span>Preguntas frecuentes</span>
+          <p>«Antes de decidir, conversemos.» usa <em>details/summary</em> nativo: accesible por teclado y sin JavaScript para abrir y cerrar.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/sobre-mi-full.png" alt="Captura completa de Sobre mí">
+    <figcaption data-label="Figura 10">Captura real de la página Sobre mí a 1440 px.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 7. CALCULADORA ═══════════ -->
+<div class="section" id="sec-calculadora">
+  <div class="sec-head">
+    <div class="sec-num">07</div>
+    <h2 class="sec-title">Calculadora de pagos</h2>
+    <p class="sec-accent">números editables, cero promesas.</p>
+    <span class="sec-route">Ruta: /calculadora</span>
+  </div>
+
+  <p class="lead">La calculadora convierte la incertidumbre en <span class="em">un escenario propio</span>: entradas simples a la izquierda, resultado navy a la derecha y un aviso legal permanente.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-calculadora.png" alt="Boceto de estructura de la calculadora" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 11">Boceto de estructura: escenario a la izquierda, resultado navy a la derecha.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Que el visitante juegue con su propio escenario y entienda el plan de pagos sin presión comercial.</td></tr>
+        <tr><td class="k">Cálculo</td><td class="v">Lógica pura e independiente de React; céntimos exactos con redondeo distribuido en la última cuota.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Título</span>«Ponle números a tu próximo paso.»</span>
+          <p>Titular sans con cierre en serif cursiva y una línea de apoyo; migas de navegación arriba.</p></li>
+        <li><span class="z-name"><span class="z-tag">Escenario</span>Formulario de entradas</span>
+          <p>Valor de la propiedad en USD, meses de construcción con deslizador (1–120), porcentajes a la firma y durante construcción; botón «Restablecer». Todos los campos son editables.</p></li>
+        <li><span class="z-name"><span class="z-tag">Resultado</span>Panel navy</span>
+          <p>Cuota mensual estimada en cifras tabulares, barra de progreso del plan, desglose por fases (a la firma 10 % · durante construcción 40 % · a la entrega 50 %), última cuota ajustada por redondeo y botón arena «Descargar mi escenario».</p></li>
+        <li><span class="z-name"><span class="z-tag">Aviso</span>Ilustrativo, no oferta</span>
+          <p>Nota permanente: ejercicio ilustrativo, no un cálculo hipotecario; reserva, gastos, impuestos y financiación excluidos; el plan 10/40/50 requiere confirmar vigencia.</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/calculadora-full.png" alt="Captura completa de la calculadora">
+    <figcaption data-label="Figura 12">Captura real de la calculadora con el escenario 150 000 USD / 24 meses.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 8. CONTACTO ═══════════ -->
+<div class="section" id="sec-contacto">
+  <div class="sec-head">
+    <div class="sec-num">08</div>
+    <h2 class="sec-title">Contacto — conversación</h2>
+    <p class="sec-accent">de la visita a la conversación.</p>
+    <span class="sec-route">Ruta: /contacto</span>
+  </div>
+
+  <p class="lead">El contacto baja la barrera de la conversación: <span class="em">datos directos</span> a la vista y un formulario que prepara el mensaje sin enviar nada por el visitante.</p>
+
+  <div class="page-row">
+    <div class="wire-col">
+      <figure>
+        <img class="wire" src="bocetos/boceto-contacto.png" alt="Boceto de estructura de contacto" style="width: 96mm; height: auto;">
+        <figcaption data-label="Figura 13">Boceto de estructura: panel navy con datos y tarjeta de formulario.</figcaption>
+      </figure>
+      <table class="facts">
+        <tr><td class="k">Objetivo</td><td class="v">Bajar la barrera de contacto y dejar la conversación en el canal que el visitante prefiera.</td></tr>
+        <tr><td class="k">Integración</td><td class="v">?proyecto=slug conserva la selección al llegar desde ficha, mapa o catálogo.</td></tr>
+      </table>
+    </div>
+    <div class="zones-col">
+      <h3>Cómo está organizada <span class="em">la información</span></h3>
+      <ul class="zones">
+        <li><span class="z-name"><span class="z-tag">Columna</span>Datos directos</span>
+          <p>Sobre el panel navy: «Hagamos espacio para tus planes.», el WhatsApp +1 (849) 576-3822 y el correo andrisprealtor@gmail.com, y la firma «Andris Peña · Asesor inmobiliario». El retrato de traje convive en una zona independiente del texto.</p></li>
+        <li><span class="z-name"><span class="z-tag">Tarjeta</span>Formulario validado</span>
+          <p>Nombre, correo, teléfono con código de país, país de residencia, presupuesto en USD, horizonte de compra, proyecto de interés (preseleccionado si se llega desde una ficha), motivo y mensaje abierto. Etiquetas persistentes, campos de mínimo 48 px y errores asociados.</p></li>
+        <li><span class="z-name"><span class="z-tag">Consentimiento</span>Privacidad explícita</span>
+          <p>Casilla de aceptación de condiciones de uso y privacidad antes de preparar la consulta; el CTA arena «Preparar mi consulta» resume localmente el mensaje.</p></li>
+        <li><span class="z-name"><span class="z-tag">Canales</span>El visitante decide</span>
+          <p>Preparar el resumen no envía nada: el visitante lo revisa y elige WhatsApp o correo. No se simula un estado de «mensaje enviado».</p></li>
+      </ul>
+    </div>
+  </div>
+
+  <figure class="shot-fig">
+    <img class="shot" src="shots/contacto-full.png" alt="Captura completa de contacto">
+    <figcaption data-label="Figura 14">Captura real de la página de contacto a 1440 px.</figcaption>
+  </figure>
+</div>
+
+<!-- ═══════════ 9. RESPONSIVE ═══════════ -->
+<div class="section" id="sec-responsive">
+  <div class="sec-head">
+    <div class="sec-num">09</div>
+    <h2 class="sec-title">Responsive, temas e idiomas</h2>
+    <p class="sec-accent">el mismo sitio, en cualquier pantalla.</p>
+  </div>
+
+  <p>El diseño es mobile-first con puntos de ajuste verificados a 320, 375, 768 y 1440 px. A 760 px el selector de proyectos se vuelve horizontal, el mapa pasa arriba con su panel debajo y los márgenes se reducen; la navegación de escritorio se repliega en menú a 1120 px y en móvil convive una barra inferior con cuatro accesos. El tema oscuro adapta superficies mediante tokens semánticos —el vidrio navy y el texto marfil se mantienen estables— y todo el contenido está disponible en español, inglés y francés.</p>
+
+  <table style="width: 100%; border-collapse: collapse; margin: 2mm 0 0 0; table-layout: fixed;">
+    <tr>
+      <td style="width: 13%; vertical-align: top; padding: 0 3mm 0 0;">
+        <img class="shot" src="shots/home-mobile.png" alt="Inicio en móvil" style="height: 150mm; width: auto;">
+        <div style="font-size: 8pt; color: #4E5A6B; margin-top: 1.6mm; line-height: 1.45;"><strong style="color:#0B1F3A;">Figura 15</strong> · Inicio a 390 px: el hero se recompone como póster vertical.</div>
+      </td>
+      <td style="width: 21%; vertical-align: top; padding: 0 3mm 0 0;">
+        <img class="shot" src="shots/proyectos-mobile.png" alt="Catálogo en móvil" style="height: 150mm; width: auto;">
+        <div style="font-size: 8pt; color: #4E5A6B; margin-top: 1.6mm; line-height: 1.45;"><strong style="color:#0B1F3A;">Figura 16</strong> · Catálogo a 390 px: tarjetas a una columna con la misma jerarquía.</div>
+      </td>
+      <td style="vertical-align: top;">
+        <img class="shot" src="shots/home-dark.png" alt="Portada en tema oscuro" style="width: 100%; height: auto;">
+        <div style="font-size: 8pt; color: #4E5A6B; margin-top: 1.6mm; line-height: 1.45;"><strong style="color:#0B1F3A;">Figura 17</strong> · Portada en tema oscuro: superficies adaptadas, vidrio navy estable.</div>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- ═══════════ 10. CIERRE ═══════════ -->
+<div class="section" id="sec-cierre">
+  <div class="sec-head">
+    <div class="sec-num">10</div>
+    <h2 class="sec-title">Notas de contenido y cierre</h2>
+    <p class="sec-accent">lo que se muestra y lo que falta por confirmar.</p>
+  </div>
+
+  <p class="lead">El sitio presenta a Andris Peña como asesor independiente y convierte la visita en <span class="em">conversaciones verificables</span>: cada cifra visible tiene fuente confirmada y cada promesa está limitada a lo que el sistema realmente hace.</p>
+
+  <h3>Contenido autorizado</h3>
+  <table class="data">
+    <thead><tr><th>Proyecto</th><th>Estado de contenido</th></tr></thead>
+    <tbody>
+      <tr><td>Melcon Paradise</td><td>Ficha documentada: unidades, amenidades, precios de referencia y entrega estimada; requiere confirmar vigencia comercial antes de publicitar.</td></tr>
+      <tr><td>Terra Serena</td><td>Nombre, ubicación y renders verificados; descripción comercial aportada el 14 de septiembre de 2026; datos pendientes de confirmación antes de reserva.</td></tr>
+      <tr><td>The Beach at Punta Cana City Place</td><td>Nombre, ubicación y renders verificados; tabla de precios pendiente y disponibilidad sujeta a fase y tipología.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>Política de contenido.</strong> No se inventan propiedades, precios, ubicaciones, disponibilidad, testimonios ni credenciales. Los cursos y la biografía ampliada del asesor siguen pendientes de material del cliente. Las cifras de la calculadora son un ejercicio editable sin referencia comercial a una unidad concreta. Las imágenes conceptuales y ambientación generadas se identifican como tales y no representan proyectos ofertados.</div>
+
+  <h3>Contacto confirmado</h3>
+  <p>WhatsApp <strong>+1 (849) 576-3822</strong> · Correo <strong>andrisprealtor@gmail.com</strong>. Confirmados por el cliente el 12 de septiembre de 2026; son la única fuente de contacto del sitio.</p>
+
+  <img class="band" src="assets/divider-art.png" alt="">
+
+  <p style="text-align:center; margin-top:6mm;">
+    <span style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16pt; color:#0B1F3A;">Cada gran historia empieza con un lugar.</span><br>
+    <span style="font-size:8pt; letter-spacing:0.2em; text-transform:uppercase; color:#4E5A6B;">Andris Peña · Asesor inmobiliario · Punta Cana · Septiembre 2026</span>
+  </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: "neutral",
+  themeVariables: {
+    primaryColor: "#FBF9F4",
+    primaryTextColor: "#0B1F3A",
+    primaryBorderColor: "#0B1F3A",
+    lineColor: "#316692",
+    fontFamily: "Plus Jakarta Sans, sans-serif",
+    fontSize: "13px"
+  },
+  flowchart: { htmlLabels: true, curve: "linear" }
+});
+</script>
+</body>
+</html>

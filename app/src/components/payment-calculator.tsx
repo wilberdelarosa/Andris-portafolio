@@ -1,24 +1,39 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowCounterClockwise,
-  DownloadSimple,
+  Buildings,
+  FilePdf,
   Info,
 } from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
 import { designCopy } from "@/content/design-copy";
 import { EditorialTitle } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
 import { calculatePayment } from "@/lib/payment";
+import { downloadPaymentPdf } from "@/lib/payment-pdf";
+import { getPublishedProjects, type PropertyProject } from "@/content/projects";
 import { localeTags } from "@/content/copy";
 import { useExperience } from "./experience-provider";
-import { Reveal, downloadText } from "./ui";
+import { Reveal } from "./ui";
+import { quotesStore } from "@/lib/cms/local-store";
+
+const DEFAULTS = { price: "150000", months: "24", signing: "10", construction: "40" };
 
 export function PaymentCalculator() {
   const { t, locale } = useExperience();
-  const [price, setPrice] = useState("150000");
-  const [months, setMonths] = useState("24");
-  const [signing, setSigning] = useState("10");
-  const [construction, setConstruction] = useState("40");
+  const projects = useMemo(() => getPublishedProjects(), []);
+  const [projectSlug, setProjectSlug] = useState("");
+  const [planIndex, setPlanIndex] = useState(0);
+  const [price, setPrice] = useState(DEFAULTS.price);
+  const [months, setMonths] = useState(DEFAULTS.months);
+  const [signing, setSigning] = useState(DEFAULTS.signing);
+  const [construction, setConstruction] = useState(DEFAULTS.construction);
+
+  const project: PropertyProject | null =
+    projects.find((item) => item.slug === projectSlug) ?? null;
+  const plans = project?.paymentReference.plans ?? [];
+
   let plan: ReturnType<typeof calculatePayment> | null = null;
   try {
     if (
@@ -36,6 +51,7 @@ export function PaymentCalculator() {
   } catch {
     /* Inline error replaces the result for invalid input. */
   }
+
   const money = (amount: number) =>
     new Intl.NumberFormat(localeTags[locale], {
       style: "currency",
@@ -43,19 +59,72 @@ export function PaymentCalculator() {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
-  const reset = () => {
-    setPrice("150000");
-    setMonths("24");
-    setSigning("10");
-    setConstruction("40");
+
+  const applyPlan = (target: PropertyProject, index: number | null) => {
+    const source =
+      index !== null && target.paymentReference.plans?.[index]
+        ? target.paymentReference.plans[index]
+        : target.paymentReference;
+    setSigning(String(source.signing));
+    setConstruction(String(source.construction));
+    if (index === null && target.price.status === "confirmed" && target.price.from) {
+      setPrice(String(target.price.from));
+    }
   };
+
+  const selectProject = (slug: string) => {
+    setProjectSlug(slug);
+    setPlanIndex(0);
+    const target = projects.find((item) => item.slug === slug);
+    if (target) applyPlan(target, target.paymentReference.plans ? 0 : null);
+  };
+
+  const selectPlan = (index: number) => {
+    setPlanIndex(index);
+    if (project) applyPlan(project, index);
+  };
+
+  const reset = () => {
+    setProjectSlug("");
+    setPlanIndex(0);
+    setPrice(DEFAULTS.price);
+    setMonths(DEFAULTS.months);
+    setSigning(DEFAULTS.signing);
+    setConstruction(DEFAULTS.construction);
+  };
+
   const download = () => {
     if (!plan) return;
-    downloadText(
-      "andris-pena-escenario.txt",
-      `Andris Peña | ${t.calcBadge}\n\n${t.propertyValue}: ${money(plan.total)}\n${t.signing} (${signing}%): ${money(plan.signing)}\n${t.construction} (${construction}%): ${money(plan.construction)}\n${t.months}: ${months}\n${t.monthly}: ${money(plan.monthly)}\n${t.lastPayment}: ${money(plan.lastMonthly)}\n${t.delivery} (${plan.deliveryPercent}%): ${money(plan.delivery)}\n\n${t.calcNote}`,
-    );
+    downloadPaymentPdf({
+      locale,
+      price: plan.total,
+      signingPercent: Number(signing),
+      constructionPercent: Number(construction),
+      months: Number(months),
+      plan,
+      projectName: project?.name ?? null,
+      reservationNote:
+        project?.reservation.amount != null
+          ? `${money(project.reservation.amount)}${
+              project.reservation.note
+                ? ` · ${project.reservation.note[locale]}`
+                : ""
+            }`
+          : null,
+    });
+    quotesStore.add({
+      locale,
+      projectSlug: project?.slug ?? null,
+      price: plan.total,
+      signingPercent: Number(signing),
+      constructionPercent: Number(construction),
+      months: Number(months),
+      monthly: plan.monthly,
+      deliveryPercent: plan.deliveryPercent,
+      format: "pdf",
+    });
   };
+
   return (
     <section id="inversion" className="section calculator-section">
       <div className="section-heading"><EditorialTitle text={designCopy[locale].calcTitle} accent={editorialAccents[locale].calculator}/><p className="section-description">{t.calcIntro}</p></div>
@@ -68,6 +137,57 @@ export function PaymentCalculator() {
               {t.reset}
             </button>
           </div>
+
+          <label className="field-label" htmlFor="calc-project">
+            {t.calcProject}
+          </label>
+          <div className="project-select">
+            <Buildings size={18} aria-hidden="true" />
+            <select
+              id="calc-project"
+              value={projectSlug}
+              onChange={(event) => selectProject(event.target.value)}
+            >
+              <option value="">{t.calcProjectNone}</option>
+              {projects.map((item) => (
+                <option key={item.slug} value={item.slug}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {plans.length > 1 && (
+            <div className="plan-chips" role="group" aria-label={t.calcPlan}>
+              {plans.map((item, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`plan-chip${index === planIndex ? " is-active" : ""}`}
+                  onClick={() => selectPlan(index)}
+                  aria-pressed={index === planIndex}
+                >
+                  {item.signing}/{item.construction}/{item.delivery}
+                  {item.discount && (
+                    <small>
+                      −{item.discount} {t.calcPlanDiscount}
+                    </small>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {project && (
+            <p className="preset-hint">
+              {project.price.status === "confirmed" && project.price.from
+                ? `${t.propertyValue}: ${money(project.price.from)}`
+                : t.pricePending}
+              {project.reservation.amount != null &&
+                ` · ${t.reservationLabel}: ${money(project.reservation.amount)}`}
+            </p>
+          )}
+
           <label className="field-label" htmlFor="property-price">
             {t.propertyValue}
           </label>
@@ -156,11 +276,25 @@ export function PaymentCalculator() {
         >
           {plan ? (
             <>
+              {project && <p className="result-project">{project.name}</p>}
               <div className="result-label">
                 <span className="tiny-line" />
                 {t.monthly}
               </div>
-              <div className="monthly-amount">{money(plan.monthly)}</div>
+              <div className="monthly-amount">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={plan.monthly}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ display: "inline-block" }}
+                  >
+                    {money(plan.monthly)}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
               <p className="monthly-caption">
                 {months} {t.monthsUnit} · {t.construction.toLowerCase()}
               </p>
@@ -189,8 +323,8 @@ export function PaymentCalculator() {
                 {t.lastPayment}: {money(plan.lastMonthly)}
               </p>
               <button className="button button-sand" onClick={download}>
-                <DownloadSimple size={19} />
-                {t.downloadPlan}
+                <FilePdf size={19} />
+                {t.downloadPdf}
               </button>
             </>
           ) : (

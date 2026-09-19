@@ -9,7 +9,10 @@ Este documento resume lo necesario para que otra persona pueda levantar, validar
 - La aplicación activa vive en `app/` y usa Next.js, React y TypeScript.
 - El sitio está preparado como portafolio independiente de Andris Peña, con rutas para inicio, proyectos, fichas, mapa, asesor, calculadora y contacto.
 - El mapa usa MapLibre/OpenFreeMap/OpenStreetMap con perspectiva 3D inicial y puntos de proyectos.
-- El formulario de contacto prepara consultas, valida datos obligatorios y puede enviar a un proxy externo si se configura `NEXT_PUBLIC_LEAD_WEBHOOK_URL`.
+- El formulario de contacto prepara consultas, valida datos obligatorios, puede enviar a un proxy externo si se configura `NEXT_PUBLIC_LEAD_WEBHOOK_URL` y registra cada consulta en la bandeja local del estudio CMS.
+- El estudio CMS vive en `/admin` (excluido de robots): panel, editor de borradores, leads, cotizaciones PDF y descarga del esquema SQL.
+- La API v1 estática se genera en cada build (`scripts/generate-static-api.mjs`) en `/api/v1/` con contrato OpenAPI.
+- La migración a Supabase está lista en `app/supabase/` (migración con RLS, seed idempotente y guía); se activa con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - GPT Sites está configurado para salida estática mediante `app/.openai/hosting.json` y `npm run build:sites`.
 - La integración con AlterEstate está documentada y preparada como proxy, pero no debe exponerse ninguna clave en el frontend.
 
@@ -143,5 +146,15 @@ No inventar datos para completar tarjetas, filtros, SEO o formularios.
 - Sobre mi: `/sobre-mi`
 - Calculadora: `/calculadora`
 - Contacto: `/contacto`
+- Estudio CMS: `/admin`
+
+API v1 (JSON estático):
+
+- `/api/v1/health.json`
+- `/api/v1/projects.json`
+- `/api/v1/projects/[slug].json`
+- `/api/v1/openapi.json`
+
+Migración Supabase: `app/supabase/README.md`.
 
 Los parametros `?lang=es`, `?lang=en`, `?lang=fr` cambian idioma. El parametro `?proyecto=slug` conserva la seleccion entre ficha, mapa y contacto.

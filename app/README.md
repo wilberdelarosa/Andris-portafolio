@@ -38,7 +38,7 @@ node scripts/check-hero-v3.mjs
 - Inicio con selector de proyectos, imágenes intercambiables, panel de vidrio navy y accesos a herramientas independientes.
 - `/sobre-mi`, `/calculadora` y `/contacto` completan recorridos propios. El contacto recibe `?proyecto=slug` desde la ficha.
 - Mapa MapLibre/OpenFreeMap/OpenStreetMap con los tres puntos verificados, vista 3D inicial, panel de proyecto, zoom, estilo detallado/gris, recuperación de errores y enlaces de Google Maps. `/mapa?proyecto=slug` abre la selección compartida; las vistas compactas se activan al solicitarlas. Evidencias de ubicación en `../docs/design/project-location-evidence.json`.
-- Simulador editable de pagos con firma, construcción, entrega y cuotas en centavos. Distribuye el redondeo en la última cuota y permite descargar el escenario.
+- Simulador editable de pagos con firma, construcción, entrega y cuotas en centavos. Distribuye el redondeo en la última cuota, ofrece presets por proyecto (incluidos los tres planes de The Beach) y descarga un PDF de marca con el escenario; cada descarga registra una cotización en el estudio CMS.
 - Formulario validado que prepara una consulta en el navegador. El visitante puede copiarla, descargarla o revisar el mensaje en WhatsApp/correo antes de enviarlo. No se inventa un estado de mensaje entregado.
 - ES/EN/FR, apariencia clara/oscura/sistema y favoritos guardados localmente.
 - PWA con iconos normales y maskable, página de recuperación offline, caché limitada de documentos y recursos visitados. No almacena formularios, API, mapas externos ni datos de contacto del visitante.
@@ -47,22 +47,29 @@ node scripts/check-hero-v3.mjs
 
 | Directorio | Responsabilidad |
 | --- | --- |
-| `src/app/` | Rutas, metadatos, manifiesto y handlers API |
+| `src/app/` | Rutas, metadatos, manifiesto y estudio CMS (`/admin`) |
 | `src/components/` | Interfaz, preferencias, interacciones y registro PWA |
 | `src/content/` | Perfil confirmado, catálogo tipado y diccionarios |
 | `src/lib/payment.ts` | Cálculo puro, independiente de React |
+| `src/lib/payment-pdf.ts` | PDF de marca del escenario (jsPDF) |
+| `src/lib/cms/` | Contratos del API v1, repositorio centralizado y persistencia local del estudio |
+| `supabase/` | Migración PostgreSQL, seed y guía para el CMS dinámico |
+| `public/api/v1/` | API estática generada en cada build |
 | `public/derived/` | Derivados optimizados de originales; nunca referencias |
-| `tests/` | Invariantes financieras y casos límite |
+| `tests/` | Invariantes financieras, contratos del API y casos límite |
 
-`getPublishedProjects`, `getProject` y `toPublicProject` forman el límite del repositorio editorial. Para incorporar un CMS, reemplazar estas consultas por un adaptador servidor que conserve `PropertyProject`, el filtro de aprobación y la proyección pública. No conectar una tabla directamente a la interfaz ni devolver borradores en la API.
+`getPublishedProjects`, `getProject` y `toPublicProject` siguen siendo el límite editorial del contenido público. Por encima, `src/lib/cms/repository.ts` centraliza las lecturas del API y del estudio: hoy usa el proveedor estático y, con las credenciales de Supabase configuradas, cambia al proveedor remoto que consume la vista `api_projects_v1`. No conectar una tabla directamente a la interfaz ni devolver borradores en la API.
 
-API de lectura, versión 1:
+API de lectura, versión 1 (estática, regenerada en cada build por `scripts/generate-static-api.mjs` desde la capa `src/lib/cms/`):
 
-- `GET /api/v1/projects`: catálogo público y metadatos de vigencia.
-- `GET /api/v1/projects/:slug`: ficha o 404.
-- `GET /api/v1/health`: disponibilidad de la aplicación.
+- `GET /api/v1/health.json`: estado, versión de esquema y proveedor activo.
+- `GET /api/v1/projects.json`: catálogo público con enlaces web/API por proyecto.
+- `GET /api/v1/projects/:slug.json`: ficha completa con galería, amenidades y plan de pago de referencia.
+- `GET /api/v1/openapi.json`: contrato OpenAPI 3.1 de los tres endpoints.
 
-No se usa Supabase ni se requiere una base de datos para esta fase. El futuro CMS necesita autenticación, permisos editoriales, revisión/publicación, media, auditoría de cambios y validación de vigencia. Una futura integración de leads debe validar en servidor, limitar solicitudes y confirmar persistencia/entrega antes de mostrar éxito; nunca reutilizar el estado local de consulta preparada como comprobante de envío.
+El CMS se sirve como estudio local en `/admin` (excluido de robots): panel de control, editor de borradores de proyectos, bandeja de leads, registro de cotizaciones PDF y descarga del esquema SQL. Los borradores, leads y cotizaciones se guardan en `localStorage` del dispositivo hasta la migración.
+
+La migración a Supabase está preparada en `supabase/`: `migrations/0001_cms_core.sql` (PostgreSQL con RLS y la vista pública `api_projects_v1`), `seed.sql` idempotente con los tres proyectos verificados y `README.md` con los pasos. Al configurar `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `getContentRepository()` cambia del proveedor estático al remoto sin tocar las vistas. Una integración de leads en servidor debe validar, limitar solicitudes y confirmar persistencia antes de mostrar éxito; el registro local del estudio no es un comprobante de envío.
 
 ## Contacto y pendientes
 

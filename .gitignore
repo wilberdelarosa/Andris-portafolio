@@ -27,3 +27,7 @@ referencias-web/
 web/
 tmp/
 output/playwright/
+
+# Artefactos generados por scripts/generate-static-api.mjs en cada build
+app/public/api/
+app/public/cms/

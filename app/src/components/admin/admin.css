@@ -1,0 +1,705 @@
+/* ==========================================================================
+   Estudio CMS /admin — estética de aplicación: barra lateral en escritorio,
+   barra de pestañas inferior en móvil, tarjetas y paneles con los tokens del
+   sistema de diseño. No introduce colores nuevos fuera de la paleta.
+   ========================================================================== */
+
+.admin-shell {
+  min-height: 100dvh;
+  display: flex;
+  background: var(--paper);
+  color: var(--text);
+}
+
+/* --- Barra lateral (escritorio) ---------------------------------------- */
+.admin-side {
+  width: 264px;
+  flex-shrink: 0;
+  background: var(--color-ink);
+  color: var(--on-ink);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px 20px;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+}
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px 24px;
+  border-bottom: 1px solid var(--ink-line);
+}
+.admin-brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--color-sand);
+  color: var(--color-ink);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+.admin-brand strong {
+  display: block;
+  font-size: 14px;
+}
+.admin-brand small {
+  color: var(--on-ink-muted);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 22px;
+  flex: 1;
+}
+.admin-nav button,
+.admin-tabbar a,
+.admin-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--on-ink-muted);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition:
+    background 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+.admin-nav button:hover,
+.admin-nav a:hover {
+  background: var(--color-ink-soft);
+  color: var(--on-ink);
+}
+.admin-nav button.is-active {
+  background: var(--color-ink-soft);
+  color: var(--color-sand);
+}
+.admin-nav button.is-active svg {
+  color: var(--color-sand);
+}
+.admin-side-foot {
+  border-top: 1px solid var(--ink-line);
+  padding-top: 14px;
+  display: grid;
+  gap: 4px;
+}
+.admin-side-foot a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  color: var(--on-ink-muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    background 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+.admin-side-foot a:hover {
+  background: var(--color-ink-soft);
+  color: var(--color-sand);
+}
+.admin-env {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--on-ink-muted);
+}
+.admin-env i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-sand);
+  box-shadow: 0 0 0 4px #d8c8b422;
+}
+
+/* --- Barra superior y pestañas (móvil) ---------------------------------- */
+.admin-topbar {
+  display: none;
+}
+.admin-tabbar {
+  display: none;
+}
+
+/* --- Contenido ------------------------------------------------------------ */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  padding: 40px clamp(20px, 4vw, 56px) 120px;
+}
+.admin-main-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+}
+.admin-page-head {
+  margin-bottom: 30px;
+}
+.admin-page-head .kicker {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.admin-page-head h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-top: 8px;
+}
+.admin-page-head p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 8px;
+  max-width: 60ch;
+  line-height: 1.7;
+}
+
+/* --- Tarjetas y rejillas --------------------------------------------------- */
+.admin-grid {
+  display: grid;
+  gap: 16px;
+}
+.admin-grid.stats {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.admin-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 22px;
+  box-shadow: 0 1px 0 #0b1f3a08;
+}
+.admin-card.pad-lg {
+  padding: 26px;
+}
+.admin-card h2 {
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stat-card .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--color-ink);
+  color: var(--color-sand);
+}
+.stat-card strong {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.stat-card span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-card.dark {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: var(--on-ink);
+}
+.admin-card.dark p {
+  color: var(--on-ink-muted);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+.admin-card.dark h2 {
+  color: var(--color-sand);
+}
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* --- Chips de estado -------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.chip.ok {
+  background: #2f7d4f1a;
+  color: #2f7d4f;
+  border-color: #2f7d4f33;
+}
+.chip.pending {
+  background: #b0722a14;
+  color: #b0722a;
+  border-color: #b072a230;
+}
+.chip.info {
+  background: #31669214;
+  color: var(--color-blue);
+  border-color: #31669230;
+}
+.chip.neutral {
+  background: var(--soft);
+  color: var(--muted);
+  border-color: var(--line);
+}
+[data-theme="dark"] .chip.ok {
+  color: #7fc79b;
+}
+[data-theme="dark"] .chip.pending {
+  color: #e0a45e;
+}
+
+/* --- Lista de proyectos ------------------------------------------------------ */
+.admin-projects {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 20px;
+  align-items: start;
+}
+.admin-project-list {
+  display: grid;
+  gap: 12px;
+}
+.admin-project-item {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.25s var(--ease),
+    transform 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+.admin-project-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-overlay);
+}
+.admin-project-item.is-active {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px #31669222;
+}
+.admin-project-thumb {
+  width: 74px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--soft);
+}
+.admin-project-item strong {
+  display: block;
+  font-size: 14px;
+}
+.admin-project-item small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.admin-project-item .meta {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.admin-project-item .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* --- Editor ------------------------------------------------------------------ */
+.admin-editor {
+  position: sticky;
+  top: 24px;
+}
+.admin-editor form {
+  display: grid;
+  gap: 16px;
+}
+.admin-field {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+}
+.admin-field textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.admin-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.admin-editor-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.7;
+  background: var(--soft);
+  border-radius: var(--radius-control);
+  padding: 12px 14px;
+}
+.admin-editor-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.admin-editor-head h2 {
+  margin: 0;
+}
+.admin-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 48px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-card);
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+/* --- Tablas responsivas ------------------------------------------------------- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.admin-table th {
+  text-align: left;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.admin-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.admin-table tr:last-child td {
+  border-bottom: 0;
+}
+.admin-table .num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.admin-table .strong {
+  font-weight: 600;
+}
+.admin-row-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.icon-action {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.icon-action:hover {
+  color: var(--text);
+  border-color: var(--color-blue);
+}
+.icon-action.danger:hover {
+  color: #b34747;
+  border-color: #b3474755;
+}
+
+/* --- Lista tipo app (móvil) ----------------------------------------------------- */
+.admin-list-cards {
+  display: none;
+}
+
+/* --- Esquema --------------------------------------------------------------------- */
+.schema-steps {
+  display: grid;
+  gap: 10px;
+  counter-reset: step;
+}
+.schema-steps li {
+  list-style: none;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-size: 13.5px;
+  line-height: 1.65;
+  padding: 12px 14px;
+  background: var(--soft);
+  border-radius: var(--radius-control);
+}
+.schema-steps li::before {
+  counter-increment: step;
+  content: counter(step, decimal-leading-zero);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-blue);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.code-line {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  background: var(--color-ink);
+  color: var(--color-sand);
+  padding: 3px 9px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.api-endpoints {
+  display: grid;
+  gap: 8px;
+}
+.api-endpoints a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13px;
+  transition: border-color 0.2s var(--ease);
+}
+.api-endpoints a:hover {
+  border-color: var(--color-blue);
+}
+.api-endpoints code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* --- Aviso de estudio local -------------------------------------------------------- */
+.admin-banner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--color-ink);
+  color: var(--on-ink);
+  border-radius: var(--radius-card);
+  padding: 14px 18px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.admin-banner svg {
+  color: var(--color-sand);
+  flex-shrink: 0;
+}
+.admin-banner a {
+  color: var(--color-sand);
+}
+
+/* --- Animación de entrada de pestañas ------------------------------------------------ */
+.admin-tab-panel {
+  outline: none;
+}
+
+/* --- Responsive: estética de app móvil -------------------------------------------------- */
+@media (max-width: 960px) {
+  .admin-projects {
+    grid-template-columns: 1fr;
+  }
+  .admin-editor {
+    position: static;
+  }
+}
+@media (max-width: 760px) {
+  .admin-shell {
+    display: block;
+  }
+  .admin-side {
+    display: none;
+  }
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--color-ink);
+    color: var(--on-ink);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .admin-topbar strong {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .admin-topbar .admin-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    font-size: 13px;
+  }
+  .admin-topbar a {
+    color: var(--color-sand);
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+  }
+  .admin-main {
+    padding: 22px 16px 110px;
+  }
+  .admin-tabbar {
+    display: flex;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 50;
+    background: var(--color-ink);
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
+    gap: 4px;
+    box-shadow: 0 -12px 40px #0b1f3a40;
+  }
+  .admin-tabbar button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 56px;
+    padding: 8px 2px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--on-ink-muted);
+    font: inherit;
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition:
+      background 0.25s var(--ease),
+      color 0.25s var(--ease);
+  }
+  .admin-tabbar button.is-active {
+    background: var(--color-ink-soft);
+    color: var(--color-sand);
+  }
+  /* Las tablas se convierten en tarjetas apiladas. */
+  .admin-table-wrap {
+    display: none;
+  }
+  .admin-list-cards {
+    display: grid;
+    gap: 12px;
+  }
+  .admin-lead-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+  }
+  .admin-lead-card .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .admin-lead-card .row small {
+    color: var(--muted);
+  }
+  .admin-lead-card strong {
+    font-size: 14px;
+  }
+  .admin-field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-project-item,
+  .plan-chip {
+    transition: none;
+  }
+  .admin-project-item:hover {
+    transform: none;
+  }
+}
