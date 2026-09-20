@@ -8,7 +8,7 @@
  */
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowRight, Warning, CheckCircle, Eye, EyeClosed, EnvelopeSimple, LockKey } from "@phosphor-icons/react";
 import { describeError, isSupabaseConfigured, signIn } from "@/lib/cms/session";
 import { motion, AnimatePresence } from "motion/react";
