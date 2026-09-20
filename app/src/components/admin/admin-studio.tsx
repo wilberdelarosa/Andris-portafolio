@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -12,7 +12,10 @@ import {
   Database,
   DownloadSimple,
   FileSql,
+  PlusCircle,
+  SignOut,
   SquaresFour,
+  Stethoscope,
   Trash,
   UploadSimple,
   UsersThree,
@@ -21,6 +24,8 @@ import {
 import "./admin.css";
 import { NewProjectForm } from "./new-project-form";
 import { NotificationCenter } from "./notification-center";
+import { LoginForm } from "./login-form";
+import { DiagnosticsPanel } from "./diagnostics-panel";
 
 import { getPublishedProjects, type PropertyProject } from "@/content/projects";
 import { getContentRepository } from "@/lib/cms/repository";
@@ -30,6 +35,12 @@ import {
   onCmsChange,
   quotesStore,
 } from "@/lib/cms/local-store";
+import {
+  getSessionServerSnapshot,
+  getSessionSnapshot,
+  onSessionChange,
+  signOut,
+} from "@/lib/cms/session";
 import type {
   CalculatorQuote,
   CmsLead,
@@ -37,15 +48,23 @@ import type {
   ProjectDraft,
 } from "@/lib/cms/types";
 
-type Tab = "resumen" | "proyectos" | "nuevo" | "leads" | "cotizaciones" | "esquema";
+type Tab =
+  | "resumen"
+  | "proyectos"
+  | "nuevo"
+  | "leads"
+  | "cotizaciones"
+  | "esquema"
+  | "diagnostico";
 
 const TABS: { id: Tab; label: string; icon: typeof SquaresFour }[] = [
   { id: "resumen", label: "Resumen", icon: SquaresFour },
   { id: "proyectos", label: "Proyectos", icon: Buildings },
-  { id: "nuevo", label: "Añadir Proyecto", icon: Buildings },
+  { id: "nuevo", label: "Añadir proyecto", icon: PlusCircle },
   { id: "leads", label: "Leads", icon: UsersThree },
   { id: "cotizaciones", label: "Cotizaciones", icon: Calculator },
   { id: "esquema", label: "Esquema", icon: Database },
+  { id: "diagnostico", label: "Diagnóstico", icon: Stethoscope },
 ];
 
 const money = new Intl.NumberFormat("es-DO", {
@@ -105,12 +124,37 @@ export function AdminStudio() {
     };
   }, []);
 
+  /**
+   * La sesion se lee del almacen externo en vez de copiarse a estado: asi
+   * cualquier parte del panel que detecte un token caducado devuelve a todos
+   * al acceso, sin renders en cascada dentro de un efecto.
+   * `undefined` significa que aun no se hidrato el cliente.
+   */
+  const session = useSyncExternalStore(
+    onSessionChange,
+    getSessionSnapshot,
+    getSessionServerSnapshot,
+  );
+
   const go = (next: Tab) => {
     setTab(next);
     history.replaceState(null, "", `#${next}`);
   };
 
   const active = TABS.find((item) => item.id === tab) ?? TABS[0];
+
+  if (session === undefined) {
+    return (
+      <div className="admin-login-wrapper">
+        <p className="admin-empty">Comprobando la sesión…</p>
+      </div>
+    );
+  }
+
+  if (session === null) {
+    // `useSyncExternalStore` vuelve a leer al entrar, no hace falta avisar.
+    return <LoginForm onSignedIn={() => undefined} />;
+  }
 
   return (
     <div className="admin-shell">
@@ -135,8 +179,15 @@ export function AdminStudio() {
               {item.label}
             </button>
           ))}
+          <button className="admin-nav-logout" onClick={() => void signOut()}>
+            <SignOut size={20} />
+            Cerrar sesión
+          </button>
         </nav>
         <div className="admin-side-foot">
+          <p className="admin-session-email" title={session.email}>
+            {session.email}
+          </p>
           <p className="admin-env">
             <i />
             {connection.provider === "supabase"
@@ -154,9 +205,14 @@ export function AdminStudio() {
         <strong>
           <span className="admin-brand-mark">AP</span> Estudio CMS
         </strong>
-        <Link href="/">
-          Sitio <ArrowSquareOut size={15} />
-        </Link>
+        <span className="admin-topbar-actions">
+          <Link href="/">
+            Sitio <ArrowSquareOut size={15} />
+          </Link>
+          <button type="button" onClick={() => void signOut()} aria-label="Cerrar sesión">
+            <SignOut size={16} />
+          </button>
+        </span>
       </header>
 
       <main className="admin-main">
@@ -189,6 +245,7 @@ export function AdminStudio() {
               {tab === "leads" && <LeadsPanel leads={leads} />}
               {tab === "cotizaciones" && <QuotesPanel quotes={quotes} projects={projects} />}
               {tab === "esquema" && <SchemaPanel />}
+              {tab === "diagnostico" && <DiagnosticsPanel />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -273,7 +330,10 @@ function Dashboard({
           <h2>Conexión del CMS</h2>
           <p>{connection.detail}</p>
           <div className="admin-actions">
-            <button className="button button-sand" onClick={() => go("esquema")}>
+            <button className="button button-sand" onClick={() => go("diagnostico")}>
+              <Stethoscope size={17} /> Comprobar estado real
+            </button>
+            <button className="button button-outline" onClick={() => go("esquema")}>
               <Database size={17} /> Ver esquema SQL
             </button>
           </div>
@@ -869,6 +929,16 @@ function QuotesPanel({
 /* ---------------------------------------------------------------------------
    Esquema SQL y migración
 --------------------------------------------------------------------------- */
+/** Debe coincidir con `supabase/migrations/`, que es lo que se copia a public/cms. */
+const MIGRATIONS = [
+  { file: "0001_cms_core.sql", title: "0001 — núcleo CMS", detail: "18 tablas · RLS · vista api_projects_v1" },
+  { file: "0002_allow_mixed_unit_types.sql", title: "0002 — tipologías mixtas", detail: "relaja el check de unit types" },
+  { file: "0003_notifications.sql", title: "0003 — avisos", detail: "tabla notifications · lectura autenticada" },
+  { file: "0004_storage_bucket.sql", title: "0004 — bucket de imágenes", detail: "necesaria para subir fotos" },
+  { file: "0005_categories_and_tags.sql", title: "0005 — catálogo de etiquetas", detail: "sugerencias de amenidades y tipologías" },
+  { file: "0006_cms_studio_access.sql", title: "0006 — permisos del estudio", detail: "necesaria para crear proyectos y ver leads" },
+];
+
 function SchemaPanel() {
   return (
     <>
@@ -884,12 +954,16 @@ function SchemaPanel() {
 
       <div className="admin-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
         <div className="admin-card pad-lg">
-          <h2>Descargas</h2>
+          <h2>Migraciones</h2>
           <div className="api-endpoints">
-            <a href="/cms/migrations/0001_cms_core.sql" download>
-              <span><FileSql size={17} style={{ verticalAlign: -3 }} /> Migración 0001 — núcleo CMS</span>
-              <code>24 tablas · RLS · vista api_projects_v1</code>
-            </a>
+            {MIGRATIONS.map((item) => (
+              <a key={item.file} href={`/cms/migrations/${item.file}`} download>
+                <span>
+                  <FileSql size={17} style={{ verticalAlign: -3 }} /> {item.title}
+                </span>
+                <code>{item.detail}</code>
+              </a>
+            ))}
             <a href="/cms/seed.sql" download>
               <span><FileSql size={17} style={{ verticalAlign: -3 }} /> Seed — 3 proyectos verificados</span>
               <code>idempotente</code>
@@ -904,10 +978,10 @@ function SchemaPanel() {
         <div className="admin-card pad-lg">
           <h2>Activación con credenciales</h2>
           <ol className="schema-steps">
-            <li>Crear el proyecto en Supabase y aplicar la migración y el seed.</li>
-            <li>Crear el usuario administrador y registrarlo en <code className="code-line">cms_profiles</code>.</li>
+            <li>Aplicar las migraciones <strong>en orden</strong> en el editor SQL de Supabase, o con <code className="code-line">supabase db push</code>.</li>
+            <li>Crear el usuario administrador en Authentication y añadir su fila en <code className="code-line">cms_profiles</code> con rol <code className="code-line">admin</code>.</li>
             <li>Configurar <code className="code-line">NEXT_PUBLIC_SUPABASE_URL</code> y <code className="code-line">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> en el despliegue.</li>
-            <li>Verificar que este panel muestre “Supabase conectado”.</li>
+            <li>Abrir <strong>Diagnóstico</strong> en este panel: ahí se comprueba pieza por pieza qué quedó activo.</li>
           </ol>
         </div>
       </div>

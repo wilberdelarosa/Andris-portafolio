@@ -1,53 +1,68 @@
+/**
+ * Alta de proyectos del estudio CMS.
+ *
+ * Cambios frente a la version anterior:
+ *  - importaba `LocationInput`, `NumberPicker`, `CurrencyInput` y `TagInput`
+ *    sin declararlos, asi que la pestana entera reventaba en tiempo de
+ *    ejecucion;
+ *  - el boton decia "Guardar y publicar" y "aparecera en el catalogo
+ *    automaticamente", pero solo escribia un borrador en `localStorage`.
+ *
+ * Ahora escribe en Supabase cuando la sesion tiene permiso y, si RLS lo
+ * rechaza, conserva el borrador local y explica que falta. El JSON del
+ * proyecto siempre se puede descargar para pegarlo en `src/content/projects.ts`.
+ */
 "use client";
 
-import { useState, useMemo } from "react";
-import type { PropertyProject, Localized } from "@/content/projects";
-import { draftsStore } from "@/lib/cms/local-store";
+import { useState } from "react";
 import {
-  Buildings,
-  MapPin,
-  Image as ImageIcon,
-  CurrencyDollar,
-  FileText,
-  CheckCircle,
-  ArrowRight,
   ArrowLeft,
-  Ruler,
+  ArrowRight,
+  Buildings,
+  CheckCircle,
+  CurrencyDollar,
+  DownloadSimple,
+  FileText,
+  Image as ImageIcon,
   ListChecks,
+  MapPin,
+  Ruler,
+  Warning,
 } from "@phosphor-icons/react";
+import type { Localized, PropertyProject } from "@/content/projects";
+import { draftsStore } from "@/lib/cms/local-store";
+import { describeError, isSupabaseConfigured } from "@/lib/cms/session";
+import { createProject, WriteDeniedError } from "@/lib/cms/project-writer";
+import { CurrencyInput } from "./currency-input";
+import { ImageInput } from "./image-input";
+import { NumberPicker } from "./number-picker";
+import { LocationInput } from "./rd-location-selector";
+import { TagInput } from "./tag-input";
 
 function loc(text: string): Localized {
   return { es: text, en: text, fr: text };
 }
 
-function parseArray(text: string): string[] {
-  return text
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+/** Slug ASCII: la version anterior dejaba acentos y signos en la URL. */
+function slugify(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-function parseNumbers(text: string): number[] {
-  return parseArray(text)
-    .map(Number)
-    .filter((n) => !isNaN(n));
-}
-
-type TabId =
-  | "basico"
-  | "mapa"
-  | "espacios"
-  | "precios"
-  | "especificaciones"
-  | "media";
+type TabId = "basico" | "mapa" | "espacios" | "precios" | "especificaciones" | "media";
+type FieldValue = string | number | string[];
 
 const TABS: { id: TabId; label: string; icon: typeof FileText }[] = [
   { id: "basico", label: "General", icon: FileText },
-  { id: "mapa", label: "Ubicaci\u00F3n", icon: MapPin },
+  { id: "mapa", label: "Ubicación", icon: MapPin },
   { id: "espacios", label: "Dimensiones", icon: Ruler },
   { id: "precios", label: "Precios", icon: CurrencyDollar },
   { id: "especificaciones", label: "Specs", icon: ListChecks },
-  { id: "media", label: "Galer\u00EDa", icon: ImageIcon },
+  { id: "media", label: "Galería", icon: ImageIcon },
 ];
 
 const TAB_FIELDS: Record<TabId, string[]> = {
@@ -59,31 +74,54 @@ const TAB_FIELDS: Record<TabId, string[]> = {
   media: ["heroImg", "gallery1"],
 };
 
+function isFilled(value: FieldValue | undefined): boolean {
+  if (typeof value === "string") return value.trim() !== "";
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "number") return value > 0;
+  return false;
+}
+
+type Feedback = { tone: "ok" | "error" | "info"; message: string };
+
 export function NewProjectForm() {
   const [activeTab, setActiveTab] = useState<TabId>("basico");
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [location, setLocation] = useState("");
+  const [province, setProvince] = useState("La Altagracia");
+  const [sector, setSector] = useState("");
+  const [city, setCity] = useState("");
   const [desc, setDesc] = useState("");
 
-  const [bedrooms, setBedrooms] = useState("");
-  const [bathrooms, setBathrooms] = useState("");
-  const [parking, setParking] = useState("1");
-  const [areaMin, setAreaMin] = useState("");
-  const [areaMax, setAreaMax] = useState("");
-  const [greenArea, setGreenArea] = useState("0");
+  const [bedrooms, setBedrooms] = useState(1);
+  const [bathrooms, setBathrooms] = useState(1);
+  const [parking, setParking] = useState(1);
+  const [areaMin, setAreaMin] = useState(0);
+  const [areaMax, setAreaMax] = useState(0);
+  const [greenArea, setGreenArea] = useState(0);
 
-  const [priceFrom, setPriceFrom] = useState("");
-  const [priceTo, setPriceTo] = useState("");
-  const [reservation, setReservation] = useState("");
-  const [deliveryYear, setDeliveryYear] = useState("");
+  const [priceFrom, setPriceFrom] = useState(0);
+  const [priceTo, setPriceTo] = useState(0);
+  const [reservation, setReservation] = useState(0);
+  const [deliveryYear, setDeliveryYear] = useState(new Date().getFullYear() + 2);
+  const [deliveryLabel, setDeliveryLabel] = useState("");
+  /**
+   * El ano y el precio llegan prerrellenados o en cero, asi que enviarlos como
+   * confirmados publicaria cifras que nadie verifico. La evidencia se declara
+   * a mano, igual que en el editor de proyectos existentes.
+   */
+  const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
+  const [priceConfirmed, setPriceConfirmed] = useState(false);
+  const [signing, setSigning] = useState(10);
+  const [construction, setConstruction] = useState(30);
+  const [onDelivery, setOnDelivery] = useState(60);
 
-  const [amenities, setAmenities] = useState("");
-  const [productTypes, setProductTypes] = useState("");
-  const [typologies, setTypologies] = useState("");
-  const [nearby, setNearby] = useState("");
-  const [investmentBenefits, setInvestmentBenefits] = useState("");
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [productTypes, setProductTypes] = useState<string[]>([]);
+  const [typologies, setTypologies] = useState<string[]>([]);
+  const [nearby, setNearby] = useState<string[]>([]);
+  const [investmentBenefits, setInvestmentBenefits] = useState<string[]>([]);
   const [includesAppliances, setIncludesAppliances] = useState(false);
 
   const [mapUrl, setMapUrl] = useState("");
@@ -94,88 +132,95 @@ export function NewProjectForm() {
   const [gallery2, setGallery2] = useState("");
   const [gallery3, setGallery3] = useState("");
 
+  const [publish, setPublish] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
-  const fieldValues: Record<string, string> = {
+  const fieldValues: Record<string, FieldValue> = {
     name, location, desc, mapUrl, mapCoords, bedrooms, areaMin,
     priceFrom, reservation, deliveryYear, amenities, typologies,
     investmentBenefits, nearby, heroImg, gallery1,
   };
 
   const totalFields = Object.keys(fieldValues).length;
-  const filledFields = Object.values(fieldValues).filter((v) => v.trim()).length;
+  const filledFields = Object.values(fieldValues).filter(isFilled).length;
   const completionPct = Math.round((filledFields / totalFields) * 100);
 
-  const tabCompletion = useMemo(() => {
-    const result = {} as Record<TabId, { filled: number; total: number }>;
-    for (const tab of TABS) {
+  const tabCompletion = Object.fromEntries(
+    TABS.map((tab) => {
       const keys = TAB_FIELDS[tab.id];
-      const filled = keys.filter((k) => fieldValues[k]?.trim()).length;
-      result[tab.id] = { filled, total: keys.length };
-    }
-    return result;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, location, desc, mapUrl, mapCoords, bedrooms, areaMin, priceFrom, reservation, deliveryYear, amenities, typologies, investmentBenefits, nearby, heroImg, gallery1]);
+      return [tab.id, { filled: keys.filter((key) => isFilled(fieldValues[key])).length, total: keys.length }];
+    }),
+  ) as Record<TabId, { filled: number; total: number }>;
 
-  const tabIndex = TABS.findIndex((t) => t.id === activeTab);
-  const nextTab = () => {
-    if (tabIndex < TABS.length - 1) setActiveTab(TABS[tabIndex + 1].id);
-  };
-  const prevTab = () => {
-    if (tabIndex > 0) setActiveTab(TABS[tabIndex - 1].id);
-  };
+  const tabIndex = TABS.findIndex((tab) => tab.id === activeTab);
+  const nextTab = () => tabIndex < TABS.length - 1 && setActiveTab(TABS[tabIndex + 1].id);
+  const prevTab = () => tabIndex > 0 && setActiveTab(TABS[tabIndex - 1].id);
 
-  const generateJson = () => {
-    setIsSaving(true);
-    const coords = mapCoords.split(",").map(Number);
-    const validCoords =
-      coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])
-        ? ([coords[0], coords[1]] as [number, number])
-        : null;
+  const effectiveSlug = slug.trim() ? slugify(slug) : slugify(name);
+  const coords = mapCoords
+    .split(",")
+    .map((part) => Number(part.trim()))
+    .filter((part) => Number.isFinite(part));
+  const validCoords: [number, number] | null =
+    coords.length === 2 ? [coords[0], coords[1]] : null;
 
-    const gallery = [
-      { src: heroImg || "/derived/terra-serena-hero.webp", alt: loc("Vista principal") },
-    ];
-    if (gallery1) gallery.push({ src: gallery1, alt: loc("Vista 2") });
-    if (gallery2) gallery.push({ src: gallery2, alt: loc("Vista 3") });
-    if (gallery3) gallery.push({ src: gallery3, alt: loc("Vista 4") });
+  const galleryUrls = [gallery1, gallery2, gallery3].filter(Boolean);
 
-    const project: PropertyProject = {
-      id: crypto.randomUUID(),
-      slug: slug || name.toLowerCase().replace(/[\s_]+/g, "-"),
-      name,
-      status: "reviewed",
-      location,
-      description: loc(desc),
-      bedrooms: parseNumbers(bedrooms),
-      bathrooms: parseNumbers(bathrooms),
-      parking: parseInt(parking) || null,
-      area: { min: parseInt(areaMin) || 0, max: parseInt(areaMax) || 0, unit: "m\u00B2" },
-      greenArea: parseInt(greenArea) || 0,
-      delivery: {
-        label: loc("Diciembre"),
-        year: parseInt(deliveryYear) || new Date().getFullYear() + 2,
-        status: "confirmed",
-      },
-      reservation: { amount: parseInt(reservation) || null, currency: "USD", note: null },
-      productTypes: parseArray(productTypes).map(loc),
-      typologies: parseArray(typologies).map(loc),
-      includesAppliances,
-      investmentBenefits: parseArray(investmentBenefits).map(loc),
-      nearby: parseArray(nearby).map(loc),
-      hero: heroImg || "/derived/terra-serena-hero.webp",
-      gallery,
-      amenities: parseArray(amenities).map(loc),
-      map: {
-        url: mapUrl,
-        coordinates: validCoords,
-        precision: validCoords ? "exact" : "unverified",
-      },
-      paymentReference: { signing: 10, construction: 30, delivery: 60, commercialStatus: "En Venta" },
-      source: "Admin CMS Form",
-      price: { from: parseInt(priceFrom) || null, to: parseInt(priceTo) || null, currency: "USD", status: "confirmed" },
-    };
+  /** Registro en el formato de `src/content/projects.ts`, para exportarlo. */
+  const buildProject = (): PropertyProject => ({
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : effectiveSlug,
+    slug: effectiveSlug,
+    name: name.trim(),
+    status: publish ? "reviewed" : "draft",
+    location,
+    description: loc(desc),
+    bedrooms: bedrooms ? [bedrooms] : [],
+    bathrooms: bathrooms ? [bathrooms] : [],
+    parking: parking || null,
+    area: { min: areaMin || 0, max: areaMax || areaMin || 0, unit: "m²" },
+    greenArea: greenArea || 0,
+    delivery: {
+      label: loc(deliveryLabel || "Por confirmar"),
+      year: deliveryYear || null,
+      status: deliveryConfirmed ? "confirmed" : "pending",
+    },
+    reservation: { amount: reservation || null, currency: "USD", note: null },
+    productTypes: productTypes.map(loc),
+    typologies: typologies.map(loc),
+    includesAppliances,
+    investmentBenefits: investmentBenefits.map(loc),
+    nearby: nearby.map(loc),
+    hero: heroImg,
+    gallery: [
+      ...(heroImg ? [{ src: heroImg, alt: loc(`Vista principal de ${name}`) }] : []),
+      ...galleryUrls.map((src, index) => ({ src, alt: loc(`${name}, imagen ${index + 1}`) })),
+    ],
+    amenities: amenities.map(loc),
+    map: {
+      url: mapUrl,
+      coordinates: validCoords,
+      precision: validCoords ? "exact" : "unverified",
+    },
+    paymentReference: {
+      signing,
+      construction,
+      delivery: onDelivery,
+      commercialStatus: publish ? "En venta" : "Por confirmar",
+    },
+    source: "Estudio CMS",
+    price: {
+      from: priceFrom || null,
+      to: priceTo || null,
+      currency: "USD",
+      status: priceConfirmed && priceFrom ? "confirmed" : "pending",
+    },
+  });
 
+  const saveLocalDraft = (project: PropertyProject) => {
     draftsStore.save({
       projectId: project.slug,
       fields: {
@@ -185,29 +230,117 @@ export function NewProjectForm() {
         reservationAmount: project.reservation.amount,
         deliveryLabelEs: project.delivery.label.es,
         deliveryYear: project.delivery.year,
-        status: "draft",
+        status: project.status,
       },
       notes: JSON.stringify(project, null, 2),
     });
-    setIsSaving(false);
-    alert("\u00A1Borrador guardado en este dispositivo!");
-    window.location.reload();
+  };
+
+  const downloadJson = () => {
+    const project = buildProject();
+    const blob = new Blob([JSON.stringify(project, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${project.slug || "proyecto"}.json`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const missing: string[] = [];
+  if (!name.trim()) missing.push("nombre");
+  if (!desc.trim()) missing.push("descripción");
+  if (!location.trim()) missing.push("ubicación");
+  if (!heroImg.trim()) missing.push("imagen principal");
+
+  const handleSave = async () => {
+    if (missing.length > 0 || isSaving) return;
+    setIsSaving(true);
+    setFeedback(null);
+
+    const project = buildProject();
+    // El borrador local se guarda siempre: pase lo que pase con la red,
+    // el trabajo escrito no se pierde.
+    saveLocalDraft(project);
+
+    if (!isSupabaseConfigured()) {
+      setFeedback({
+        tone: "info",
+        message:
+          "Supabase no está configurado, así que el proyecto quedó como borrador en este dispositivo. Descarga el JSON para añadirlo al contenido del sitio.",
+      });
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      await createProject({
+        slug: project.slug,
+        name: project.name,
+        publish,
+        sector,
+        city,
+        province,
+        description: desc,
+        deliveryLabel: deliveryLabel || "Por confirmar",
+        deliveryYear: deliveryYear || null,
+        deliveryConfirmed,
+        priceConfirmed,
+        bedrooms,
+        bathrooms,
+        parking,
+        areaMin,
+        areaMax: areaMax || areaMin,
+        greenArea,
+        priceFrom: priceFrom || null,
+        priceTo: priceTo || null,
+        reservation: reservation || null,
+        productTypes,
+        typologies,
+        amenities,
+        investmentBenefits,
+        nearby,
+        includesAppliances,
+        mapUrl,
+        coordinates: validCoords,
+        hero: heroImg,
+        gallery: galleryUrls,
+        payment: { signing, construction, delivery: onDelivery },
+      });
+      setFeedback({
+        tone: "ok",
+        message: publish
+          ? `«${project.name}» se creó en Supabase y ya aparece en el catálogo.`
+          : `«${project.name}» se creó en Supabase como borrador. Publícalo cuando los datos estén confirmados.`,
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message:
+          error instanceof WriteDeniedError
+            ? "Supabase rechazó la escritura: esta sesión no tiene permiso de edición. Aplica la migración 0006_cms_studio_access.sql y registra tu usuario en cms_profiles. El borrador quedó guardado en este dispositivo."
+            : `${describeError(error)} El borrador quedó guardado en este dispositivo.`,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <div className="npf">
-      {/* Header + progress */}
       <div className="npf-header">
         <div>
           <h2 className="npf-title">
-            <Buildings size={22} weight="duotone" /> A\u00F1adir Proyecto
+            <Buildings size={22} weight="duotone" /> Añadir proyecto
           </h2>
           <p className="npf-subtitle">
-            Completa cada secci\u00F3n para publicar en el cat\u00E1logo, la matriz y el mapa.
+            Completa cada sección para publicar en el catálogo, la matriz y el mapa.
           </p>
         </div>
         <div className="npf-progress-pill" data-complete={completionPct === 100 ? "" : undefined}>
-          <svg viewBox="0 0 36 36" className="npf-progress-ring">
+          <svg viewBox="0 0 36 36" className="npf-progress-ring" aria-hidden="true">
             <circle cx="18" cy="18" r="15.9" />
             <circle cx="18" cy="18" r="15.9" strokeDasharray={`${completionPct} 100`} />
           </svg>
@@ -215,12 +348,11 @@ export function NewProjectForm() {
         </div>
       </div>
 
-      {/* Tab bar */}
       <nav className="npf-tabs" role="tablist" aria-label="Secciones del proyecto">
         {TABS.map((tab) => {
           const Icon = tab.icon;
-          const tc = tabCompletion[tab.id];
-          const isComplete = tc.filled === tc.total;
+          const count = tabCompletion[tab.id];
+          const isComplete = count.filled === count.total;
           return (
             <button
               key={tab.id}
@@ -233,121 +365,245 @@ export function NewProjectForm() {
               <Icon size={17} weight={activeTab === tab.id ? "fill" : "regular"} />
               <span className="npf-tab-label">{tab.label}</span>
               {isComplete && <CheckCircle size={14} weight="fill" className="npf-tab-check" />}
-              {!isComplete && tc.filled > 0 && (
-                <span className="npf-tab-badge">{tc.filled}/{tc.total}</span>
+              {!isComplete && count.filled > 0 && (
+                <span className="npf-tab-badge">{count.filled}/{count.total}</span>
               )}
             </button>
           );
         })}
       </nav>
 
-      {/* Panels */}
       <div className="npf-panel" role="tabpanel">
         {activeTab === "basico" && (
           <fieldset className="npf-fieldset">
-            <legend>Informaci\u00F3n B\u00E1sica</legend>
+            <legend>Información básica</legend>
             <div className="admin-field-row">
               <label className="admin-field">
-                Nombre del Proyecto *
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ej: Torre Esmeralda" />
+                Nombre del proyecto *
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Torre Esmeralda"
+                />
               </label>
               <label className="admin-field">
                 Slug (URL)
-                <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="torre-esmeralda" />
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(event) => setSlug(event.target.value)}
+                  placeholder={slugify(name) || "torre-esmeralda"}
+                />
+                <small className="admin-field-help">
+                  /proyectos/{effectiveSlug || "…"}
+                </small>
               </label>
             </div>
+            <LocationInput
+              value={location}
+              onChange={setLocation}
+              province={province}
+              onProvinceChange={setProvince}
+              onPartsChange={(parts) => {
+                setSector(parts.sector);
+                setCity(parts.city);
+                setProvince(parts.province);
+              }}
+            />
             <label className="admin-field">
-              Ubicaci\u00F3n (Sector, Ciudad) *
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Piantini, Santo Domingo" />
-            </label>
-            <label className="admin-field">
-              Descripci\u00F3n *
-              <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={4} placeholder="Descripci\u00F3n completa del proyecto\u2026" />
+              Descripción *
+              <textarea
+                value={desc}
+                onChange={(event) => setDesc(event.target.value)}
+                rows={4}
+                placeholder="Descripción completa del proyecto…"
+              />
             </label>
           </fieldset>
         )}
 
         {activeTab === "mapa" && (
           <fieldset className="npf-fieldset">
-            <legend>Mapa y Tour 360</legend>
+            <legend>Mapa y ubicación exacta</legend>
             <label className="admin-field">
-              URL Tour 360 / Google Maps
-              <input type="url" value={mapUrl} onChange={(e) => setMapUrl(e.target.value)} placeholder="https://maps.app.goo.gl/\u2026" />
+              Enlace de Google Maps o tour 360
+              <input
+                type="url"
+                value={mapUrl}
+                onChange={(event) => setMapUrl(event.target.value)}
+                placeholder="https://maps.app.goo.gl/…"
+              />
             </label>
             <label className="admin-field">
-              Coordenadas (Lat, Lng)
-              <input type="text" value={mapCoords} onChange={(e) => setMapCoords(e.target.value)} placeholder="18.4718, -69.9234" />
+              Coordenadas (latitud, longitud)
+              <input
+                type="text"
+                value={mapCoords}
+                onChange={(event) => setMapCoords(event.target.value)}
+                placeholder="18.4718, -69.9234"
+              />
+              <small className="admin-field-help">
+                {validCoords
+                  ? "Coordenadas válidas: el proyecto se marcará como ubicación exacta."
+                  : "Sin coordenadas válidas el mapa marcará la zona como no verificada."}
+              </small>
             </label>
           </fieldset>
         )}
 
         {activeTab === "espacios" && (
           <fieldset className="npf-fieldset">
-            <legend>Dimensiones y Espacios</legend>
+            <legend>Dimensiones y espacios</legend>
             <div className="admin-field-row admin-field-row--triple">
-              <label className="admin-field">Habitaciones<input type="text" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} placeholder="1, 2, 3" /></label>
-              <label className="admin-field">Ba\u00F1os<input type="text" value={bathrooms} onChange={(e) => setBathrooms(e.target.value)} placeholder="1, 2.5" /></label>
-              <label className="admin-field">Parqueos<input type="number" value={parking} onChange={(e) => setParking(e.target.value)} /></label>
+              <NumberPicker label="Habitaciones (máx)" value={bedrooms} onChange={setBedrooms} min={0} max={10} />
+              <NumberPicker label="Baños (máx)" value={bathrooms} onChange={setBathrooms} min={0} max={10} step={0.5} />
+              <NumberPicker label="Parqueos (máx)" value={parking} onChange={setParking} min={0} max={10} />
             </div>
             <div className="admin-field-row admin-field-row--triple">
-              <label className="admin-field">\u00C1rea m\u00EDn (m\u00B2)<input type="number" value={areaMin} onChange={(e) => setAreaMin(e.target.value)} /></label>
-              <label className="admin-field">\u00C1rea m\u00E1x (m\u00B2)<input type="number" value={areaMax} onChange={(e) => setAreaMax(e.target.value)} /></label>
-              <label className="admin-field">\u00C1rea verde (m\u00B2)<input type="number" value={greenArea} onChange={(e) => setGreenArea(e.target.value)} /></label>
+              <label className="admin-field">
+                Área mín (m²)
+                <input type="number" min="0" value={areaMin || ""} onChange={(event) => setAreaMin(Number(event.target.value) || 0)} />
+              </label>
+              <label className="admin-field">
+                Área máx (m²)
+                <input type="number" min="0" value={areaMax || ""} onChange={(event) => setAreaMax(Number(event.target.value) || 0)} />
+              </label>
+              <label className="admin-field">
+                Área verde (m²)
+                <input type="number" min="0" value={greenArea || ""} onChange={(event) => setGreenArea(Number(event.target.value) || 0)} />
+              </label>
             </div>
           </fieldset>
         )}
 
         {activeTab === "precios" && (
           <fieldset className="npf-fieldset">
-            <legend>Precios y Comercial</legend>
+            <legend>Precios y plan de pago</legend>
             <div className="admin-field-row">
-              <label className="admin-field">Precio desde (USD)<input type="number" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} /></label>
-              <label className="admin-field">Precio hasta (USD)<input type="number" value={priceTo} onChange={(e) => setPriceTo(e.target.value)} /></label>
+              <CurrencyInput label="Precio desde" value={priceFrom} onChange={setPriceFrom} currency="US$" />
+              <CurrencyInput label="Precio hasta" value={priceTo} onChange={setPriceTo} currency="US$" />
             </div>
             <div className="admin-field-row">
-              <label className="admin-field">Reserva (USD)<input type="number" value={reservation} onChange={(e) => setReservation(e.target.value)} /></label>
-              <label className="admin-field">A\u00F1o de entrega<input type="number" value={deliveryYear} onChange={(e) => setDeliveryYear(e.target.value)} /></label>
+              <CurrencyInput label="Reserva" value={reservation} onChange={setReservation} currency="US$" />
+              <NumberPicker label="Año de entrega" value={deliveryYear} onChange={setDeliveryYear} min={2025} max={2040} />
             </div>
+            <label className="admin-field">
+              Texto público de entrega
+              <input
+                type="text"
+                value={deliveryLabel}
+                onChange={(event) => setDeliveryLabel(event.target.value)}
+                placeholder="Diciembre"
+              />
+            </label>
+            <div className="admin-field-row admin-field-row--triple">
+              <NumberPicker label="Firma (%)" value={signing} onChange={setSigning} min={0} max={100} step={5} />
+              <NumberPicker label="Construcción (%)" value={construction} onChange={setConstruction} min={0} max={100} step={5} />
+              <NumberPicker label="Entrega (%)" value={onDelivery} onChange={setOnDelivery} min={0} max={100} step={5} />
+            </div>
+            {signing + construction + onDelivery !== 100 && (
+              <p className="admin-error-text">
+                El plan suma {signing + construction + onDelivery}%; debería sumar 100%.
+              </p>
+            )}
+            <label className="npf-check">
+              <input
+                type="checkbox"
+                checked={priceConfirmed}
+                onChange={(event) => setPriceConfirmed(event.target.checked)}
+                disabled={!priceFrom}
+              />
+              El precio está confirmado por el desarrollador
+            </label>
+            <label className="npf-check">
+              <input
+                type="checkbox"
+                checked={deliveryConfirmed}
+                onChange={(event) => setDeliveryConfirmed(event.target.checked)}
+              />
+              La fecha de entrega está confirmada por el desarrollador
+            </label>
+            <small className="admin-field-help">
+              Sin marcar, el dato se publica como «por confirmar». Nunca se
+              anuncia una cifra que nadie verificó.
+            </small>
           </fieldset>
         )}
 
         {activeTab === "especificaciones" && (
           <fieldset className="npf-fieldset">
             <legend>Especificaciones</legend>
-            <p className="npf-hint">Separa los valores con coma.</p>
-            <label className="admin-field">Tipos de producto<input type="text" value={productTypes} onChange={(e) => setProductTypes(e.target.value)} placeholder="Apartamento, Penthouse, Villa\u2026" /></label>
-            <label className="admin-field">Tipolog\u00EDas<input type="text" value={typologies} onChange={(e) => setTypologies(e.target.value)} placeholder="A (1 Hab), B (2 Habs)\u2026" /></label>
-            <label className="admin-field">Amenidades<input type="text" value={amenities} onChange={(e) => setAmenities(e.target.value)} placeholder="Piscina, Gimnasio, Seguridad 24/7\u2026" /></label>
-            <label className="admin-field">Beneficios de inversi\u00F3n<input type="text" value={investmentBenefits} onChange={(e) => setInvestmentBenefits(e.target.value)} placeholder="Alta rentabilidad, Exenci\u00F3n CONFOTUR\u2026" /></label>
-            <label className="admin-field">Lugares cercanos<input type="text" value={nearby} onChange={(e) => setNearby(e.target.value)} placeholder="Plaza Central (5 min), Aeropuerto (15 min)\u2026" /></label>
+            <TagInput label="Tipos de producto" values={productTypes} onChange={setProductTypes} categoryType="product_type" placeholder="Apartamento, villa…" />
+            <TagInput label="Tipologías" values={typologies} onChange={setTypologies} categoryType="typology" placeholder="A (1 hab), PH…" />
+            <TagInput label="Amenidades" values={amenities} onChange={setAmenities} categoryType="amenity" placeholder="Piscina, gimnasio…" />
+            <TagInput label="Beneficios de inversión" values={investmentBenefits} onChange={setInvestmentBenefits} categoryType="investment_benefit" placeholder="Ley CONFOTUR…" />
+            <TagInput label="Lugares cercanos" values={nearby} onChange={setNearby} categoryType="nearby_place" placeholder="Aeropuerto (15 min)…" />
             <label className="npf-check">
-              <input type="checkbox" checked={includesAppliances} onChange={(e) => setIncludesAppliances(e.target.checked)} />
-              Incluye l\u00EDnea blanca (electrodom\u00E9sticos)
+              <input
+                type="checkbox"
+                checked={includesAppliances}
+                onChange={(event) => setIncludesAppliances(event.target.checked)}
+              />
+              Incluye línea blanca (electrodomésticos)
             </label>
           </fieldset>
         )}
 
         {activeTab === "media" && (
           <fieldset className="npf-fieldset">
-            <legend>Galer\u00EDa de fotos</legend>
-            <label className="admin-field">Imagen principal (Hero) *<input type="text" value={heroImg} onChange={(e) => setHeroImg(e.target.value)} placeholder="/derived/\u2026 o https://\u2026" /></label>
+            <legend>Galería de fotos</legend>
+            <ImageInput label="Imagen principal (hero)" value={heroImg} onChange={setHeroImg} required />
             <div className="admin-field-row admin-field-row--triple">
-              <label className="admin-field">Foto 2<input type="text" value={gallery1} onChange={(e) => setGallery1(e.target.value)} /></label>
-              <label className="admin-field">Foto 3<input type="text" value={gallery2} onChange={(e) => setGallery2(e.target.value)} /></label>
-              <label className="admin-field">Foto 4<input type="text" value={gallery3} onChange={(e) => setGallery3(e.target.value)} /></label>
+              <ImageInput label="Foto 2" value={gallery1} onChange={setGallery1} />
+              <ImageInput label="Foto 3" value={gallery2} onChange={setGallery2} />
+              <ImageInput label="Foto 4" value={gallery3} onChange={setGallery3} />
             </div>
+
             <div className="npf-save-card">
-              <h4>\u00BFTodo listo?</h4>
-              <p>El proyecto se guardar\u00E1 y aparecer\u00E1 en el cat\u00E1logo autom\u00E1ticamente.</p>
-              <button type="button" onClick={generateJson} disabled={isSaving || !name.trim()} className="npf-save-btn">
-                {isSaving ? "Guardando\u2026" : "Guardar y publicar"}
-              </button>
+              <h4>¿Todo listo?</h4>
+              <label className="npf-check">
+                <input
+                  type="checkbox"
+                  checked={publish}
+                  onChange={(event) => setPublish(event.target.checked)}
+                />
+                Publicar en el catálogo ahora (si no, se crea como borrador)
+              </label>
+
+              {missing.length > 0 && (
+                <p className="admin-error-text">
+                  <Warning size={15} weight="fill" /> Falta completar: {missing.join(", ")}.
+                </p>
+              )}
+
+              {feedback && (
+                <div
+                  className={`admin-notification is-${feedback.tone === "ok" ? "success" : feedback.tone === "error" ? "error" : "info"}`}
+                  role="status"
+                >
+                  <span>{feedback.message}</span>
+                </div>
+              )}
+
+              <div className="admin-actions">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSaving || missing.length > 0}
+                  className="npf-save-btn"
+                >
+                  {isSaving ? "Guardando…" : publish ? "Guardar y publicar" : "Guardar borrador"}
+                </button>
+                <button type="button" className="button button-outline" onClick={downloadJson}>
+                  <DownloadSimple size={16} /> Descargar JSON
+                </button>
+              </div>
             </div>
           </fieldset>
         )}
       </div>
 
-      {/* Footer nav */}
       <div className="npf-footer">
         <button type="button" onClick={prevTab} disabled={tabIndex === 0} className="npf-nav-btn">
           <ArrowLeft size={16} /> Anterior
@@ -358,7 +614,9 @@ export function NewProjectForm() {
             Siguiente <ArrowRight size={16} />
           </button>
         ) : (
-          <span className="npf-done-label"><CheckCircle size={16} weight="fill" /> \u00DAltimo paso</span>
+          <span className="npf-done-label">
+            <CheckCircle size={16} weight="fill" /> Último paso
+          </span>
         )}
       </div>
     </div>

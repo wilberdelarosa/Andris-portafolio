@@ -1116,3 +1116,465 @@
   background: var(--soft);
   color: var(--text);
 }
+/* Login */
+.admin-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--soft);
+  padding: 24px;
+}
+.admin-login-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  width: 100%;
+  max-width: 400px;
+  padding: 40px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+}
+.admin-login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.admin-login-header .admin-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--on-ink);
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.admin-login-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.admin-login-header p {
+  color: var(--muted);
+  font-size: 14.5px;
+}
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.admin-login-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 15px;
+}
+/* Image Input */
+.admin-image-input {
+  margin-top: 4px;
+}
+.admin-image-input-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.admin-image-tabs {
+  display: flex;
+  background: var(--line);
+  padding: 2px;
+  border-radius: 6px;
+}
+.admin-image-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-image-tabs button.is-active {
+  background: var(--paper);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.admin-image-clear {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.admin-image-clear:hover {
+  background: rgba(0,0,0,0.8);
+}
+.admin-image-preview {
+  position: relative;
+}
+/* UI Components */
+.admin-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  min-height: 44px;
+}
+.admin-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--soft);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--text);
+}
+.admin-tag button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+.admin-tag button:hover {
+  color: #ef4444;
+}
+.admin-tag-input {
+  border: none !important;
+  outline: none !important;
+  background: transparent;
+  flex: 1;
+  min-width: 120px;
+  padding: 4px 0 !important;
+}
+.admin-tag-suggestions {
+  margin-top: 4px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.tag-suggestion-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+.tag-suggestion-item:last-child {
+  border-bottom: none;
+}
+.tag-suggestion-item:hover {
+  background: var(--soft);
+}
+.tag-suggestion-item.is-new {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.admin-number-picker {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  width: fit-content;
+}
+.admin-number-picker button {
+  background: var(--soft);
+  border: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text);
+}
+.admin-number-picker button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.admin-number-picker input {
+  width: 60px;
+  text-align: center;
+  border: none !important;
+  border-left: 1px solid var(--line) !important;
+  border-right: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  -moz-appearance: textfield;
+}
+.admin-number-picker input::-webkit-outer-spin-button,
+.admin-number-picker input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.admin-currency-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.admin-currency-symbol {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.admin-currency-input input {
+  padding-left: 50px !important;
+}
+.admin-location-fieldset {
+  border: 1px solid var(--line);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.admin-location-fieldset legend {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 8px;
+}
+
+/* ===========================================================================
+   Piezas añadidas al corregir el estudio: cierre de sesión, ayudas de campo,
+   zona de subida, diagnóstico. Solo tokens del proyecto.
+   =========================================================================== */
+
+/* ── Barra lateral: cierre de sesión y usuario ── */
+.admin-nav-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.admin-nav-logout:hover {
+  color: #ef4444;
+  background: var(--soft);
+}
+.admin-nav-logout:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+.admin-session-email {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-topbar-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--muted);
+  cursor: pointer;
+}
+.admin-topbar-actions button:hover {
+  color: #ef4444;
+}
+
+/* ── Ayudas y errores de campo ── */
+.admin-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+.admin-field-help {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.admin-field-input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+}
+.admin-error-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #ef4444;
+}
+
+/* ── Etiquetas: el contenedor es un div, no un label ── */
+.admin-tag-field {
+  display: grid;
+  gap: 7px;
+}
+
+/* ── Subida de imágenes ── */
+.admin-image-dropzone {
+  position: relative;
+}
+.admin-image-upload-box {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 26px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.admin-image-upload-box:hover:not(:disabled) {
+  border-color: var(--color-blue);
+}
+.admin-image-upload-box:disabled {
+  cursor: progress;
+}
+.admin-image-upload-box span {
+  font-size: 13px;
+  color: var(--text);
+}
+.admin-image-upload-box small {
+  font-size: 11px;
+}
+.admin-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 190px;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+  background: var(--soft);
+}
+
+/* Spinner compartido por la subida y las sugerencias. */
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: admin-spin 0.9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 3s;
+  }
+}
+
+/* ── Diagnóstico ── */
+.admin-checks {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.admin-check {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--soft);
+}
+.admin-check strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+}
+.admin-check p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.admin-check-fix {
+  margin-top: 6px !important;
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+  color: var(--text) !important;
+}
+.admin-check.is-ok > svg {
+  color: #10b981;
+}
+.admin-check.is-warn > svg {
+  color: #f59e0b;
+}
+.admin-check.is-fail > svg {
+  color: #ef4444;
+}
+.admin-check.is-info > svg {
+  color: var(--color-blue);
+}
+.admin-check.is-fail {
+  border-color: #ef444455;
+}
+
+@media (max-width: 760px) {
+  .admin-field-row--triple {
+    grid-template-columns: 1fr;
+  }
+}
