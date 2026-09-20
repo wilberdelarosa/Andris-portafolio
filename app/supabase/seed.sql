@@ -245,3 +245,9 @@ insert into public.project_media (project_id, media_type, url, alt_es, alt_en, a
 on conflict do nothing;
 
 commit;
+
+
+-- Seed Notificaciones
+insert into public.notifications (type, title, message) values
+('success', 'Sistema listo para producción', 'Todos los proyectos y configuraciones han sido validados. El sistema de notificaciones está activo y conectado a la base de datos.'),
+('info', 'Migración completada', 'El proyecto ya no depende de datos estáticos de prueba. Puedes agregar y eliminar proyectos usando el gestor.');

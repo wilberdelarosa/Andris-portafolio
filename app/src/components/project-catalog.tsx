@@ -182,8 +182,8 @@ export function ProjectCatalog() {
         <EditorialTitle
           as="h1"
           className="catalog-title"
-          text={c.title.join(" ")}
-          accent={c.title[1]}
+          text={c.title(projects.length).join(" ")}
+          accent={c.title(projects.length)[1]}
         />
         <p className="catalog-intro">{c.intro}</p>
       </header>
@@ -223,7 +223,7 @@ export function ProjectCatalog() {
             <Scales size={18} />
             {comparisonSlugs.length
               ? c.compareSelected(comparisonSlugs.length)
-              : c.compareAll}
+              : c.compareAll(projects.length)}
           </button>
           <Link
             className="catalog-map-link text-link"

@@ -533,44 +533,67 @@ alter table public.calculator_quotes enable row level security;
 alter table public.cms_profiles enable row level security;
 
 -- Lectura pública de contenido publicado
+drop policy if exists "projects public read" on public.projects;
 create policy "projects public read" on public.projects
   for select using (public_status = 'published');
+
+drop policy if exists "translations public read" on public.project_translations;
 create policy "translations public read" on public.project_translations
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "phases public read" on public.project_phases;
 create policy "phases public read" on public.project_phases
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "locations public read" on public.project_locations;
 create policy "locations public read" on public.project_locations
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "unit types public read" on public.project_unit_types;
 create policy "unit types public read" on public.project_unit_types
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "prices public read" on public.project_price_snapshots;
 create policy "prices public read" on public.project_price_snapshots
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "plans public read" on public.project_payment_plans;
 create policy "plans public read" on public.project_payment_plans
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "spec fields public read" on public.specification_fields;
 create policy "spec fields public read" on public.specification_fields
   for select using (true);
+
+drop policy if exists "spec values public read" on public.project_spec_values;
 create policy "spec values public read" on public.project_spec_values
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "amenities public read" on public.amenities;
 create policy "amenities public read" on public.amenities
   for select using (true);
+
+drop policy if exists "project amenities public read" on public.project_amenities;
 create policy "project amenities public read" on public.project_amenities
   for select using (exists (
     select 1 from public.projects p
     where p.id = project_id and p.public_status = 'published'));
+
+drop policy if exists "media public read" on public.project_media;
 create policy "media public read" on public.project_media
   for select using (is_public and exists (
     select 1 from public.projects p
@@ -578,12 +601,16 @@ create policy "media public read" on public.project_media
 
 -- Formularios públicos: cualquiera puede registrar un lead o una cotización,
 -- nadie sin autenticación puede leerlos.
+drop policy if exists "leads public insert" on public.leads;
 create policy "leads public insert" on public.leads
   for insert with check (true);
+
+drop policy if exists "quotes public insert" on public.calculator_quotes;
 create policy "quotes public insert" on public.calculator_quotes
   for insert with check (true);
 
 -- Perfil CMS: cada usuario autenticado lee solo su propio perfil.
+drop policy if exists "profiles self read" on public.cms_profiles;
 create policy "profiles self read" on public.cms_profiles
   for select using (auth.uid() = id);
 

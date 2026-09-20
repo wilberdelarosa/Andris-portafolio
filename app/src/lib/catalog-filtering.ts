@@ -32,8 +32,8 @@ export function matchesCatalog(
   project: PropertyProject,
   filters: CatalogFilters,
 ) {
-  const from = project.price.from;
-  const priceKnown = project.price.status === "confirmed" && from !== null;
+  const from = project?.price?.from ?? null;
+  const priceKnown = project?.price?.status === "confirmed" && from !== null;
   const priceMatches =
     filters.price === null ||
     (filters.price === "pending"

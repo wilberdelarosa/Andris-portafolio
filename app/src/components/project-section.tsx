@@ -317,14 +317,14 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
         <div>
           <button onClick={() => showGallery(1)} aria-label={t.gallery}>
             <Photo
-              src={project.gallery[1].src}
-              alt={project.gallery[1].alt[locale]}
+              src={(project.gallery[1]?.src || project.gallery[0]?.src || '')}
+              alt={(project.gallery[1]?.alt?.[locale] || project.gallery[0]?.alt?.[locale] || '')}
             />
           </button>
           <button onClick={() => showGallery(2)} aria-label={t.gallery}>
             <Photo
-              src={project.gallery[2].src}
-              alt={project.gallery[2].alt[locale]}
+              src={(project.gallery[2]?.src || project.gallery[0]?.src || '')}
+              alt={(project.gallery[2]?.alt?.[locale] || project.gallery[0]?.alt?.[locale] || '')}
             />
           </button>
         </div>

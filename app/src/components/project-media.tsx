@@ -8,6 +8,7 @@ import {
   ArrowUpRight,
   Panorama,
   Images,
+  MapPin,
 } from "@phosphor-icons/react";
 import type { PropertyProject } from "@/content/projects";
 import { discoveryCopy, projectTours } from "@/content/project-discovery";
@@ -297,21 +298,40 @@ export function ProjectMedia({
 export function ProjectTourButton({ project }: { project: PropertyProject }) {
   const { locale } = useExperience();
   const [open, setOpen] = useState(false);
-  if (!projectTours[project.slug]) return null;
+  const hasTour = !!projectTours[project.slug];
+  const hasMapUrl = !!project.map?.url;
+
+  if (!hasTour && !hasMapUrl) return null;
+
+  if (hasTour) {
+    return (
+      <>
+        <button
+          type="button"
+          className="button button-outline project-tour-launch"
+          onClick={() => setOpen(true)}
+        >
+          <Panorama size={22} />
+          {discoveryCopy[locale].openTour}
+          <ArrowUpRight size={18} />
+        </button>
+        {open && (
+          <ProjectMedia project={project} open={open} onOpenChange={setOpen} />
+        )}
+      </>
+    );
+  }
+
   return (
-    <>
-      <button
-        type="button"
-        className="button button-outline project-tour-launch"
-        onClick={() => setOpen(true)}
-      >
-        <Panorama size={22} />
-        {discoveryCopy[locale].openTour}
-        <ArrowUpRight size={18} />
-      </button>
-      {open && (
-        <ProjectMedia project={project} open={open} onOpenChange={setOpen} />
-      )}
-    </>
+    <a
+      className="button button-outline project-tour-launch"
+      href={project.map.url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <MapPin size={22} />
+      {locale === "es" ? "Ver en Mapa / 360" : locale === "fr" ? "Voir sur la Carte / 360" : "View on Map / 360"}
+      <ArrowUpRight size={18} />
+    </a>
   );
 }

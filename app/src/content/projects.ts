@@ -65,6 +65,7 @@ export interface PropertyProject {
   source: string;
 }
 const l = (es: string, en: string, fr: string): Localized => ({ es, en, fr });
+
 export const melcon: PropertyProject = {
   id: "melcon-paradise",
   slug: "melcon-paradise",
@@ -341,6 +342,7 @@ export const theBeach: PropertyProject = {
   },
   source: "ASSETS/projects/project-03-unidentified/ · docs/design/project-location-evidence.json",
 };
+
 export const getPublishedProjects = (): PropertyProject[] => [
   melcon,
   terraSerena,

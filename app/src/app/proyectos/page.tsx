@@ -8,10 +8,12 @@ import { getPublishedProjects } from "@/content/projects";
 import { pageMetadata } from "@/lib/page-metadata";
 import "@/components/project-catalog.css";
 
-export function generateMetadata() {
+export async function generateMetadata() {
   const c = catalogCopy.es;
+  const { getPublishedProjects } = await import('@/content/projects');
+  const total = getPublishedProjects().length;
   return {
-    ...pageMetadata("es", c.title.join(" ")),
+    ...pageMetadata("es", c.title(total).join(" ")),
     description: c.intro,
   };
 }
@@ -25,7 +27,7 @@ export default function ProjectsPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: c.title.join(" "),
+    name: c.title(getPublishedProjects().length).join(" "),
     itemListElement: getPublishedProjects().map((project, index) => ({
       "@type": "ListItem",
       position: index + 1,

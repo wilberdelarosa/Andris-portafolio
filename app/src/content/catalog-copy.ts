@@ -8,9 +8,9 @@
 export const catalogCopy = {
   es: {
     eyebrow: "Catálogo",
-    title: ["Tres lugares.", "Un mismo acompañamiento."],
+    title: (total: number) => [`${total} lugares.`, "Un mismo acompa\u00f1amiento."],
     intro:
-      "Explora los proyectos en Punta Cana. Compara sus espacios, guarda tus favoritos y encuentra tu próximo paso.",
+      "Explora los proyectos. Compara sus espacios, guarda tus favoritos y encuentra tu próximo paso.",
     filtersLabel: "Filtrar proyectos",
     zone: "Zona",
     bedrooms: "Habitaciones",
@@ -62,7 +62,7 @@ export const catalogCopy = {
     addToCompare: (name: string) => `Añadir ${name} al comparador`,
     removeFromCompare: (name: string) => `Quitar ${name} del comparador`,
     compareSelected: (count: number) => `Comparar (${count})`,
-    compareAll: "Comparar los 3",
+    compareAll: (total: number) => `Comparar los ${total}`,
     compareTitle: "Comparativa de proyectos",
     compareSubtitle: "Revisa precio, entrega, ubicación, tipologías y amenidades en una sola matriz.",
     compareTrayLabel: "Abrir opciones de comparación",
@@ -98,9 +98,9 @@ export const catalogCopy = {
   },
   en: {
     eyebrow: "Catalogue",
-    title: ["Three places.", "The same guidance."],
+    title: (total: number) => [`${total} places.`, "The same guidance."],
     intro:
-      "Explore projects in Punta Cana. Compare their spaces, save your favourites and find your next step.",
+      "Explore projects. Compare their spaces, save your favourites and find your next step.",
     filtersLabel: "Filter projects",
     zone: "Area",
     bedrooms: "Bedrooms",
@@ -152,7 +152,7 @@ export const catalogCopy = {
     addToCompare: (name: string) => `Add ${name} to comparison`,
     removeFromCompare: (name: string) => `Remove ${name} from comparison`,
     compareSelected: (count: number) => `Compare (${count})`,
-    compareAll: "Compare all 3",
+    compareAll: (total: number) => `Compare all ${total}`,
     compareTitle: "Project Comparison",
     compareSubtitle: "Review price, delivery, location, layouts and amenities in one matrix.",
     compareTrayLabel: "Open comparison options",
@@ -188,7 +188,7 @@ export const catalogCopy = {
   },
   fr: {
     eyebrow: "Catalogue",
-    title: ["Trois lieux.", "Un même accompagnement."],
+    title: (total: number) => [`${total} lieux.`, "Un m\u00eame accompagnement."],
     intro:
       "Explorez les projets à Punta Cana. Comparez les espaces, enregistrez vos favoris et préparez la prochaine étape.",
     filtersLabel: "Filtrer les projets",
@@ -242,7 +242,7 @@ export const catalogCopy = {
     addToCompare: (name: string) => `Ajouter ${name} au comparateur`,
     removeFromCompare: (name: string) => `Retirer ${name} du comparateur`,
     compareSelected: (count: number) => `Comparer (${count})`,
-    compareAll: "Comparer les 3",
+    compareAll: (total: number) => `Comparer les ${total}`,
     compareTitle: "Comparatif des Projets",
     compareSubtitle: "Comparez prix, livraison, localisation, typologies et prestations dans une seule matrice.",
     compareTrayLabel: "Ouvrir les options de comparaison",

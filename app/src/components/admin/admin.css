@@ -495,7 +495,8 @@
 .schema-steps li {
   list-style: none;
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 6px 14px;
   align-items: baseline;
   font-size: 13.5px;
   line-height: 1.65;
@@ -519,7 +520,8 @@
   color: var(--color-sand);
   padding: 3px 9px;
   border-radius: 6px;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  display: inline;
 }
 .api-endpoints {
   display: grid;
@@ -702,4 +704,415 @@
   .admin-project-item:hover {
     transform: none;
   }
+}
+
+/* ==========================================================================
+   New Project Form (npf-*)
+   Uses project tokens exclusively: --text, --muted, --soft, --line, --panel,
+   --paper, --color-ink, --color-sand, --color-blue, --on-ink, --radius-*
+   ========================================================================== */
+
+.npf {
+  max-width: 780px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Header ── */
+.npf-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.npf-title {
+  font-size: 20px;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.npf-subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 48ch;
+}
+
+/* ── Circular progress ── */
+.npf-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.npf-progress-pill[data-complete] {
+  color: #2f7d4f;
+}
+.npf-progress-ring {
+  width: 36px;
+  height: 36px;
+  transform: rotate(-90deg);
+}
+.npf-progress-ring circle {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.npf-progress-ring circle:first-child {
+  stroke: var(--line);
+}
+.npf-progress-ring circle:last-child {
+  stroke: var(--color-blue);
+  transition: stroke-dasharray 0.4s var(--ease);
+}
+.npf-progress-pill[data-complete] .npf-progress-ring circle:last-child {
+  stroke: #2f7d4f;
+}
+
+/* ── Tab bar ── */
+.npf-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.npf-tabs::-webkit-scrollbar { display: none; }
+
+.npf-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.npf-tab:hover {
+  background: var(--soft);
+  color: var(--text);
+}
+
+/* ✦ Active tab: ink background, sand text — guaranteed contrast */
+.npf-tab.is-active {
+  background: var(--color-ink);
+  color: var(--on-ink);
+  border-color: var(--color-ink);
+}
+
+/* ✦ Completed tab: subtle green accent */
+.npf-tab.is-done:not(.is-active) {
+  color: #2f7d4f;
+}
+
+.npf-tab-label {
+  display: inline;
+}
+.npf-tab-check {
+  color: #2f7d4f;
+  flex-shrink: 0;
+}
+.npf-tab-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--color-blue);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Panel ── */
+.npf-panel {
+  outline: none;
+  min-height: 340px;
+  animation: npf-fade 0.25s var(--ease) both;
+}
+@keyframes npf-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Fieldset ── */
+.npf-fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  padding: 24px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.npf-fieldset legend {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 0 8px;
+  color: var(--text);
+}
+.npf-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: -8px 0 0;
+  line-height: 1.5;
+}
+
+/* Triple-column grid variant */
+.admin-field-row--triple {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ── Checkbox ── */
+.npf-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+}
+.npf-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--color-blue);
+  cursor: pointer;
+}
+
+/* ── Save card ── */
+.npf-save-card {
+  background: var(--soft);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-card);
+  padding: 28px;
+  margin-top: 8px;
+  text-align: center;
+}
+.npf-save-card h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--text);
+}
+.npf-save-card p {
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+.npf-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+  min-height: 52px;
+  padding: 14px 24px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-ink);
+  color: var(--on-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.npf-save-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+.npf-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.npf-save-btn:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+/* ── Footer nav ── */
+.npf-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.npf-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+.npf-nav-btn:hover:not(:disabled) {
+  border-color: var(--color-blue);
+  background: var(--soft);
+}
+.npf-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.npf-nav-btn:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+.npf-nav-btn--next {
+  background: var(--color-ink);
+  color: var(--on-ink);
+  border-color: var(--color-ink);
+}
+.npf-nav-btn--next:hover:not(:disabled) {
+  background: var(--color-ink-soft);
+  border-color: var(--color-ink-soft);
+}
+.npf-step-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.npf-done-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2f7d4f;
+}
+
+/* ── Focus-visible for all admin inputs ── */
+.admin-field input:focus-visible,
+.admin-field select:focus-visible,
+.admin-field textarea:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 1px;
+  border-color: var(--color-blue);
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  .npf-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .npf-progress-pill {
+    align-self: flex-start;
+  }
+  .npf-tab-label {
+    display: none;
+  }
+  .npf-tab {
+    padding: 10px 12px;
+    justify-content: center;
+    flex: 1;
+  }
+  .npf-fieldset {
+    padding: 18px 14px;
+  }
+  .admin-field-row--triple {
+    grid-template-columns: 1fr;
+  }
+  .npf-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .npf-step-indicator {
+    order: -1;
+    width: 100%;
+    text-align: center;
+  }
+}
+/* Notifications */
+.admin-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+.admin-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.admin-notification.is-success .admin-notification-icon { color: #10b981; }
+.admin-notification.is-warning .admin-notification-icon { color: #f59e0b; }
+.admin-notification.is-error .admin-notification-icon { color: #ef4444; }
+.admin-notification.is-info .admin-notification-icon { color: var(--color-blue); }
+
+.admin-notification-content {
+  flex: 1;
+  font-size: 14px;
+}
+.admin-notification-content strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.admin-notification-content p {
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+.admin-notification-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.admin-notification-close:hover {
+  background: var(--soft);
+  color: var(--text);
 }

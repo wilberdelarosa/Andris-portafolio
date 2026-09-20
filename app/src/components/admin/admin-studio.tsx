@@ -12,7 +12,6 @@ import {
   Database,
   DownloadSimple,
   FileSql,
-  Info,
   SquaresFour,
   Trash,
   UploadSimple,
@@ -20,9 +19,10 @@ import {
   X,
 } from "@phosphor-icons/react";
 import "./admin.css";
+import { NewProjectForm } from "./new-project-form";
+import { NotificationCenter } from "./notification-center";
 
 import { getPublishedProjects, type PropertyProject } from "@/content/projects";
-import { advisor } from "@/content/advisor";
 import { getContentRepository } from "@/lib/cms/repository";
 import {
   draftsStore,
@@ -37,11 +37,12 @@ import type {
   ProjectDraft,
 } from "@/lib/cms/types";
 
-type Tab = "resumen" | "proyectos" | "leads" | "cotizaciones" | "esquema";
+type Tab = "resumen" | "proyectos" | "nuevo" | "leads" | "cotizaciones" | "esquema";
 
 const TABS: { id: Tab; label: string; icon: typeof SquaresFour }[] = [
   { id: "resumen", label: "Resumen", icon: SquaresFour },
   { id: "proyectos", label: "Proyectos", icon: Buildings },
+  { id: "nuevo", label: "Añadir Proyecto", icon: Buildings },
   { id: "leads", label: "Leads", icon: UsersThree },
   { id: "cotizaciones", label: "Cotizaciones", icon: Calculator },
   { id: "esquema", label: "Esquema", icon: Database },
@@ -160,18 +161,7 @@ export function AdminStudio() {
 
       <main className="admin-main">
         <div className="admin-main-inner">
-          <div className="admin-banner">
-            <Info size={22} weight="fill" />
-            <span>
-              Estudio local del portafolio de {advisor.name}. Los borradores,
-              leads y cotizaciones se guardan en este dispositivo hasta conectar
-              Supabase — el esquema SQL y la guía están en la pestaña{" "}
-              <a href="#esquema" onClick={() => go("esquema")}>
-                Esquema
-              </a>
-              .
-            </span>
-          </div>
+          <NotificationCenter />
 
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -195,6 +185,7 @@ export function AdminStudio() {
               {tab === "proyectos" && (
                 <ProjectsPanel projects={projects} drafts={drafts} />
               )}
+              {tab === "nuevo" && <NewProjectForm />}
               {tab === "leads" && <LeadsPanel leads={leads} />}
               {tab === "cotizaciones" && <QuotesPanel quotes={quotes} projects={projects} />}
               {tab === "esquema" && <SchemaPanel />}
@@ -585,6 +576,19 @@ function ProjectEditor({
               <Trash size={16} /> Descartar borrador
             </button>
           )}
+          <button
+            type="button"
+            className="button button-outline"
+            style={{ color: "var(--color-red, #ef4444)", borderColor: "var(--color-red, #ef4444)" }}
+            onClick={() => {
+              if (confirm("¿Estás seguro de limpiar el borrador local de este proyecto?")) {
+                draftsStore.remove(project.slug);
+                window.location.reload();
+              }
+            }}
+          >
+            <Trash size={16} /> Limpiar borrador local
+          </button>
         </div>
       </form>
     </div>

@@ -103,9 +103,9 @@ export function PropertyCard({
         <div className="pcard-info">
           <p className="pcard-location"><MapPin size={15} aria-hidden="true" />{project.location}</p>
           <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{project.name}</Link></h3>
-          {project.bedrooms.length > 0 ? <ul className="pcard-specs">
-            <li><Bed size={18} /><span>{project.bedrooms.join(", ")} {c.bedroomsShort}</span></li>
-            <li><Ruler size={18} /><span>{project.area.min}–{project.area.max} {project.area.unit}</span></li>
+          {(project.bedrooms?.length || 0) > 0 ? <ul className="pcard-specs">
+            <li><Bed size={18} /><span>{(project.bedrooms || []).join(", ")} {c.bedroomsShort}</span></li>
+            <li><Ruler size={18} /><span>{project.area?.min || 0}–{project.area.max} {project.area.unit}</span></li>
             {featured && project.greenArea > 0 && <li><Tree size={18} /><span>{project.greenArea.toLocaleString("en-US")}+ m²</span></li>}
           </ul> : <p className="pcard-pending">{c.pending}</p>}
         </div>

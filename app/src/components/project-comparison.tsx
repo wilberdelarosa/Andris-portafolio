@@ -253,7 +253,7 @@ export function ProjectComparisonDock({
                   className="compare-dock-btn-secondary"
                   onClick={onSelectAll}
                 >
-                  {c.compareAll}
+                  {c.compareAll(allProjects.length)}
                 </button>
               )}
 
@@ -380,7 +380,7 @@ export function ProjectComparisonModal({
                   className="compare-btn-add-all"
                   onClick={onSelectAll}
                 >
-                  {c.compareAll}
+                  {c.compareAll(allProjects.length)}
                 </button>
               )}
 
