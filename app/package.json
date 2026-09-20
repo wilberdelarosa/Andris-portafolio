@@ -16,7 +16,10 @@
     "lint": "eslint .",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:alterestate": "node scripts/test-alterestate-lead.mjs",
-    "test:browser": "node scripts/verify-browser.mjs"
+    "test:browser": "node scripts/verify-browser.mjs",
+    "test:cms-browser": "node scripts/verify-cms-browser.mjs",
+    "test:quality": "npm run lint && npm run typecheck && npm test && npm run build:sites",
+    "test:updates": "node scripts/check-test-updates.mjs"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",

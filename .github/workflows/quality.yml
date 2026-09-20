@@ -1,0 +1,69 @@
+name: Quality gate
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - ".github/workflows/quality.yml"
+  push:
+    branches: [main, master]
+    paths:
+      - "app/**"
+      - ".github/workflows/quality.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate static site and CMS
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    env:
+      BROWSER_CHANNEL: chrome
+      TEST_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Require updated test evidence
+        run: npm run test:updates -- "$TEST_BASE_SHA"
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and contract tests
+        run: npm test
+      - name: Build GPT Sites artifact
+        run: npm run build:sites
+      - name: Browser smoke tests for public routes and CMS
+        shell: bash
+        run: |
+          node scripts/serve-for-test.mjs &
+          server_pid=$!
+          trap 'kill $server_pid' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3012/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:3012/ > /dev/null
+          BASE_URL=http://127.0.0.1:3012 npm run test:browser
+          BASE_URL=http://127.0.0.1:3012 npm run test:cms-browser
+      - name: Upload browser reports when a check fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-reports
+          path: app/output/playwright
+          if-no-files-found: ignore

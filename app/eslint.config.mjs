@@ -11,7 +11,9 @@ export default defineConfig([
     ".open-next/**",
     ".wrangler/**",
     "dist/**",
+    "output/**",
     "public/**",
+    "test-trello.mjs",
     "next-env.d.ts",
   ]),
 ]);
