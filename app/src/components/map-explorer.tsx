@@ -18,6 +18,26 @@ const projects = getPublishedProjects().filter((project) => project.map.coordina
 let mapLibreWorkerConfigured = false;
 // The maintained style includes road names, neighbourhoods, land use and POIs.
 const mapStyle = "https://tiles.openfreemap.org/styles/bright";
+const satelliteSource = {
+  type: "raster" as const,
+  tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+  tileSize: 256,
+  maxzoom: 19,
+  attribution: 'Imagery: <a href="https://www.esri.com/en-us/arcgis/products/arcgis-online/overview" target="_blank" rel="noopener noreferrer">Esri, Maxar, Earthstar Geographics</a>',
+};
+type SatelliteTone = "natural" | "vivid" | "nocturne";
+const satelliteTones: Record<SatelliteTone, {
+  opacity: number;
+  contrast: number;
+  saturation: number;
+  brightnessMin: number;
+  brightnessMax: number;
+  hueRotate: number;
+}> = {
+  natural: { opacity: 0.96, contrast: 0.05, saturation: 0.08, brightnessMin: 0.04, brightnessMax: 1, hueRotate: 0 },
+  vivid: { opacity: 0.98, contrast: 0.22, saturation: 0.34, brightnessMin: 0.03, brightnessMax: 1, hueRotate: 0 },
+  nocturne: { opacity: 0.96, contrast: 0.18, saturation: -0.04, brightnessMin: 0.01, brightnessMax: 0.84, hueRotate: -8 },
+};
 const terrainSource = {
   type: "raster-dem" as const,
   tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
@@ -37,6 +57,24 @@ function applyDimension(instance: MapLibreMap, enabled: boolean) {
       paint: { "fill-extrusion-color": "#c5b79f", "fill-extrusion-height": ["coalesce", ["get", "render_height"], 0], "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0], "fill-extrusion-opacity": 0.85 } }, firstLabel);
   }
   if (instance.getLayer("ap-buildings")) instance.setLayoutProperty("ap-buildings", "visibility", enabled ? "visible" : "none");
+}
+
+function applySatellite(instance: MapLibreMap, enabled: boolean, tone: SatelliteTone) {
+  if (enabled && !instance.getSource("ap-satellite")) {
+    instance.addSource("ap-satellite", satelliteSource);
+    const firstSymbol = instance.getStyle().layers.find((layer) => layer.type === "symbol")?.id;
+    instance.addLayer({ id: "ap-satellite-layer", type: "raster", source: "ap-satellite", paint: {} }, firstSymbol);
+  }
+  if (!instance.getLayer("ap-satellite-layer")) return;
+  instance.setLayoutProperty("ap-satellite-layer", "visibility", enabled ? "visible" : "none");
+  if (!enabled) return;
+  const values = satelliteTones[tone];
+  instance.setPaintProperty("ap-satellite-layer", "raster-opacity", values.opacity);
+  instance.setPaintProperty("ap-satellite-layer", "raster-contrast", values.contrast);
+  instance.setPaintProperty("ap-satellite-layer", "raster-saturation", values.saturation);
+  instance.setPaintProperty("ap-satellite-layer", "raster-brightness-min", values.brightnessMin);
+  instance.setPaintProperty("ap-satellite-layer", "raster-brightness-max", values.brightnessMax);
+  instance.setPaintProperty("ap-satellite-layer", "raster-hue-rotate", values.hueRotate);
 }
 const toLngLat = ([latitude, longitude]: [number, number]) => [longitude, latitude] as [number, number];
 const projectBounds = () => {
@@ -73,6 +111,10 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   const viewMode = useRef<"all" | "selected" | "free">(initialSlug ? "selected" : "all");
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [muted, setMuted] = useState(false);
+  const [satellite, setSatellite] = useState(true);
+  const [satelliteTone, setSatelliteTone] = useState<SatelliteTone>("vivid");
+  const satelliteRef = useRef(true);
+  const satelliteToneRef = useRef<SatelliteTone>("vivid");
   const [threeD, setThreeD] = useState(false);
   const threeDRef = useRef(false);
   const [media, setMedia] = useState(false);
@@ -175,6 +217,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       instance.once("load", () => {
         if (!cancelled) {
           if (threeDRef.current) applyDimension(instance, true);
+          applySatellite(instance, satelliteRef.current, satelliteToneRef.current);
           setStatus("ready");
         }
       });
@@ -230,6 +273,11 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   }, [c, d, compact, focus, initialSlug, offline, retry, shouldReduce]);
 
   useEffect(() => {
+    if (!map.current || status !== "ready") return;
+    applySatellite(map.current, satellite, satelliteTone);
+  }, [satellite, satelliteTone, status]);
+
+  useEffect(() => {
     for (const [slug, marker] of Object.entries(markers.current)) {
       const element = marker.getElement();
       element.classList.toggle("is-selected", slug === selected);
@@ -273,8 +321,8 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
           </div>
         </div>
       </aside>
-      <div className={`explorer-map-area ${muted ? "is-muted" : ""}`} data-lenis-prevent={compact ? undefined : true}>
-        <div ref={container} className="explorer-canvas" role="region" aria-label={c.title} data-map-dimension={threeD ? "3d" : "2d"} data-map-ready={status === "ready"} />
+      <div className={`explorer-map-area ${muted ? "is-muted" : ""} ${satellite ? "is-satellite" : ""}`} data-lenis-prevent={compact ? undefined : true}>
+        <div ref={container} className="explorer-canvas" role="region" aria-label={c.title} data-map-dimension={threeD ? "3d" : "2d"} data-map-layer={satellite ? "satellite" : "street"} data-map-ready={status === "ready"} />
         {(offline || status !== "ready") && <div className="explorer-blocker" role="status">
           <MapPin size={32} weight="light" /><p>{offline ? c.offline : status === "loading" ? j.loading : c.error}</p>
           {!offline && status === "error" && <button type="button" className="button button-primary" onClick={() => { setStatus("loading"); setRetry((value) => value + 1); }}><ArrowClockwise size={18} />{c.retry}</button>}
@@ -282,7 +330,16 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
         </div>}
         <div className="explorer-controls">
           <div className="explorer-layers"><button ref={layersButton} type="button" className="explorer-button" aria-label={c.style} aria-expanded={layersOpen} onClick={() => setLayersOpen(!layersOpen)}><Stack size={21} /></button>
-            {layersOpen && <div className="explorer-layer-menu" role="group" aria-label={c.style}>{[false, true].map((value) => <button type="button" key={String(value)} aria-pressed={muted === value} onClick={() => { setMuted(value); setLayersOpen(false); layersButton.current?.focus(); }}>{value ? c.muted : c.detailed}{muted === value && <Check size={16} />}</button>)}</div>}
+            {layersOpen && <div className="explorer-layer-menu" role="group" aria-label={c.style}>
+              {[false, true].map((value) => <button type="button" key={String(value)} aria-pressed={muted === value && !satellite} onClick={() => { setMuted(value); satelliteRef.current = false; setSatellite(false); setLayersOpen(false); layersButton.current?.focus(); }}>{value ? c.muted : c.detailed}{muted === value && !satellite && <Check size={16} />}</button>)}
+              <div className="explorer-layer-divider" />
+              <span className="explorer-layer-label">{c.satelliteView}</span>
+              <button type="button" aria-pressed={satellite} onClick={() => { const next = !satellite; satelliteRef.current = next; setSatellite(next); if (next) setMuted(false); setLayersOpen(false); layersButton.current?.focus(); }}>{satellite ? c.streetView : c.satelliteView}<span className="explorer-layer-action">{satellite ? <Check size={16} /> : <Panorama size={16} />}</span></button>
+              {satellite && <div className="explorer-tone-picker" role="group" aria-label={c.satelliteTone}>
+                <span className="explorer-layer-label">{c.satelliteTone}</span>
+                {(["natural", "vivid", "nocturne"] as const).map((tone) => <button type="button" key={tone} className="explorer-tone" aria-pressed={satelliteTone === tone} onClick={() => { satelliteToneRef.current = tone; setSatelliteTone(tone); }}>{c[tone]}{satelliteTone === tone && <Check size={14} />}</button>)}
+              </div>}
+            </div>}
           </div>
           <button type="button" disabled={status !== "ready" || offline} className="explorer-button explorer-3d-button" title={d.terrainNote} aria-label={threeD ? c.disable3d : c.enable3d} aria-pressed={threeD} onClick={toggleThreeD}><Cube size={19} /><span>{threeD ? "2D" : "3D"}</span></button>
           <button type="button" disabled={status !== "ready" || offline} className="explorer-button" aria-label={c.zoomIn} onClick={() => { viewMode.current = "free"; map.current?.zoomIn({ duration: shouldReduce ? 0 : 250 }); }}><Plus size={21} /></button>

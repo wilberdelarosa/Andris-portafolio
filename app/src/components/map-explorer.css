@@ -29,6 +29,12 @@
 .explorer-layer-menu { position: absolute; right: 58px; top: 0; width: 200px; padding: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-overlay); }
 .explorer-layer-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px; min-height: 44px; font-size: 13px; text-align: left; }
 .explorer-layer-menu button[aria-pressed="true"] { background: var(--soft); border-radius: 6px; }
+.explorer-layer-divider { height: 1px; margin: 6px 4px; background: var(--line); }
+.explorer-layer-label { display: block; padding: 7px 12px 4px; color: var(--muted); font: 10px/1.2 var(--sans); letter-spacing: .08em; text-transform: uppercase; }
+.explorer-layer-action { display: inline-flex; align-items: center; }
+.explorer-tone-picker { margin-top: 2px; padding-top: 4px; border-top: 1px solid var(--line); }
+.explorer-tone { display: flex !important; align-items: center; justify-content: space-between; min-height: 36px !important; padding-block: 8px !important; font-size: 12px !important; }
+.explorer-tone[aria-pressed="true"] { color: var(--color-blue); background: color-mix(in srgb, var(--color-blue) 10%, transparent); }
 .explorer-dimension, .explorer-privacy { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--glass-paper); border: 1px solid var(--line); backdrop-filter: blur(12px); border-radius: 7px; font-size: 10px; }
 .explorer-dimension { top: 20px; left: 20px; color: var(--text); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .explorer-privacy { bottom: 28px; left: 16px; max-width: calc(100% - 32px); }
