@@ -1,6 +1,8 @@
-.footer .footer-credit { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-height: 44px; margin-top: 20px; color: var(--muted); font-size: 12px; }
-.footer-credit strong { font-size: 11px; letter-spacing: .06em; font-weight: 600; }
-.footer-credit:hover { color: var(--text); }
+.footer .footer-credit { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 20px; color: var(--muted); font-size: 12px; }
+.footer-credit-links { display: flex; align-items: center; gap: 12px; }
+.footer-credit-links a { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); text-decoration: none; transition: color 0.2s; min-height: 44px; }
+.footer-credit-links a strong { font-size: 11px; letter-spacing: .06em; font-weight: 600; }
+.footer-credit-links a:hover { color: var(--text); }
 .privacy-notice { display: grid; gap: 16px; font-size: 14px; line-height: 1.75; }
 .privacy-notice p { margin: 0; }
 .contact-form .form-row > label { min-width: 0; }

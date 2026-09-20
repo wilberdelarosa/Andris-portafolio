@@ -22,6 +22,7 @@ import {
   ArrowUp,
   X,
   List,
+  InstagramLogo,
 } from "@phosphor-icons/react";
 import { useExperience, type Theme } from "./experience-provider";
 import { Modal } from "./ui";
@@ -234,9 +235,17 @@ export function Shell({
             <button onClick={() => setPrivacy(true)}>{t.privacy}</button>
             <button onClick={() => setSettings(true)}>{t.settings}</button>
           </div>
-          <a className="footer-credit" href="https://www.instagram.com/viltrumtek/" target="_blank" rel="noopener noreferrer">
-            {locale === "es" ? "Desarrollado por" : locale === "fr" ? "Développé par" : "Developed by"} <strong>VILTRUM TEK</strong><ArrowUpRight size={14} aria-hidden="true" />
-          </a>
+          <div className="footer-credit">
+            <span>{locale === "es" ? "Desarrollado por" : locale === "fr" ? "Développé par" : "Developed by"}</span>
+            <div className="footer-credit-links">
+              <a href="https://viltrumtek.com" target="_blank" rel="noopener noreferrer">
+                <strong>VILTRUM TEK</strong><ArrowUpRight size={14} aria-hidden="true" />
+              </a>
+              <a href="https://www.instagram.com/viltrumtek/" target="_blank" rel="noopener noreferrer" aria-label="Viltrum Tek Instagram">
+                <InstagramLogo size={18} aria-hidden="true" />
+              </a>
+            </div>
+          </div>
         </footer>
         </>}
       </div>
