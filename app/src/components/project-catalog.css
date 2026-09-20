@@ -520,7 +520,12 @@
 
 .catalog-card {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
+
+.catalog-card > .pcard { flex: 1 1 auto; height: auto; }
 
 .catalog-grid .pcard-glass {
   flex: 1;

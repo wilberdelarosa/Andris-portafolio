@@ -15,6 +15,8 @@ import { ProjectMedia } from "./project-media";
 import "./map-explorer.css";
 
 const projects = getPublishedProjects().filter((project) => project.map.coordinates);
+const MAP_LAYER_STORAGE = "andris-map-layer";
+const MAP_TONE_STORAGE = "andris-map-tone";
 let mapLibreWorkerConfigured = false;
 // The maintained style includes road names, neighbourhoods, land use and POIs.
 const mapStyle = "https://tiles.openfreemap.org/styles/bright";
@@ -107,6 +109,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   const markers = useRef<Record<string, Marker>>({});
   const layersButton = useRef<HTMLButtonElement>(null);
   const [selected, setSelected] = useState(projects.find((project) => project.slug === initialSlug)?.slug ?? projects[0]?.slug ?? "");
+  const [mapSelectionMode, setMapSelectionMode] = useState<"overview" | "focus">(initialSlug ? "focus" : "overview");
   const selectedRef = useRef(selected);
   const viewMode = useRef<"all" | "selected" | "free">(initialSlug ? "selected" : "all");
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -115,6 +118,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   const [satelliteTone, setSatelliteTone] = useState<SatelliteTone>("vivid");
   const satelliteRef = useRef(true);
   const satelliteToneRef = useRef<SatelliteTone>("vivid");
+  const [mapPreferenceReady, setMapPreferenceReady] = useState(false);
   const [threeD, setThreeD] = useState(false);
   const threeDRef = useRef(false);
   const [media, setMedia] = useState(false);
@@ -127,13 +131,47 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   const [retry, setRetry] = useState(0);
   const project = projects.find((item) => item.slug === selected) ?? projects[0];
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Hydrate an optional persisted map preference before creating MapLibre. */
+  useEffect(() => {
+    try {
+      const storedLayer = window.localStorage.getItem(MAP_LAYER_STORAGE);
+      const storedTone = window.localStorage.getItem(MAP_TONE_STORAGE);
+      const nextSatellite = storedLayer !== "street";
+      const nextTone = storedTone === "natural" || storedTone === "vivid" || storedTone === "nocturne" ? storedTone : "vivid";
+      satelliteRef.current = nextSatellite;
+      satelliteToneRef.current = nextTone;
+      setSatellite(nextSatellite);
+      setSatelliteTone(nextTone);
+    } catch {
+      // Private browsing or blocked storage keeps the premium satellite default.
+    } finally {
+      setMapPreferenceReady(true);
+    }
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const setSatelliteView = useCallback((next: boolean) => {
+    satelliteRef.current = next;
+    setSatellite(next);
+    if (next) setMuted(false);
+    try { window.localStorage.setItem(MAP_LAYER_STORAGE, next ? "satellite" : "street"); } catch { /* optional preference */ }
+  }, []);
+
+  const setSatelliteTreatment = useCallback((next: SatelliteTone) => {
+    satelliteToneRef.current = next;
+    setSatelliteTone(next);
+    try { window.localStorage.setItem(MAP_TONE_STORAGE, next); } catch { /* optional preference */ }
+  }, []);
+
   const fitAll = useCallback(() => {
+    setMapSelectionMode("overview");
     if (!map.current || !projects.length) return;
     viewMode.current = "all";
     map.current.fitBounds(projectBounds(), { padding: 64, maxZoom: 14.5, duration: shouldReduce ? 0 : 550 });
   }, [shouldReduce]);
 
   const focus = useCallback((slug: string) => {
+    setMapSelectionMode("focus");
     viewMode.current = "selected";
     setSelected(slug);
     selectedRef.current = slug;
@@ -170,7 +208,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   }, [focus]);
 
   useEffect(() => {
-    if (offline || !container.current || !projects.length) return;
+    if (!mapPreferenceReady || offline || !container.current || !projects.length) return;
     let cancelled = false;
     let observer: ResizeObserver | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -270,7 +308,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       map.current = null;
       markers.current = {};
     };
-  }, [c, d, compact, focus, initialSlug, offline, retry, shouldReduce]);
+  }, [c, d, compact, focus, initialSlug, mapPreferenceReady, offline, retry, shouldReduce]);
 
   useEffect(() => {
     if (!map.current || status !== "ready") return;
@@ -282,8 +320,11 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       const element = marker.getElement();
       element.classList.toggle("is-selected", slug === selected);
       element.setAttribute("aria-pressed", String(slug === selected));
+      const hidden = mapSelectionMode === "focus" && slug !== selected;
+      element.hidden = hidden;
+      element.setAttribute("aria-hidden", String(hidden));
     }
-  }, [selected, status]);
+  }, [mapSelectionMode, selected, status]);
 
   useEffect(() => {
     if (!layersOpen) return;
@@ -302,6 +343,11 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
     <div className={`explorer ${compact ? "explorer-compact" : ""}`}>
       <aside className="explorer-panel" aria-label={c.listLabel} data-lenis-prevent>
         <header className="explorer-panel-head"><h2>{c.title}</h2><p>{j.mapHelp}</p></header>
+        <button type="button" className="explorer-overview" aria-pressed={mapSelectionMode === "overview"} onClick={fitAll}>
+          <MapPin size={19} aria-hidden="true" />
+          <span><strong>{c.overview}</strong><small>{c.overviewHint}</small></span>
+          {mapSelectionMode === "overview" && <Check size={16} aria-hidden="true" />}
+        </button>
         <div className="explorer-list" role="group" aria-label={j.select}>
           {projects.map((item) => <button key={item.slug} type="button" className="explorer-item" aria-label={c.select(item.name)} aria-pressed={selected === item.slug} onClick={() => focus(item.slug)}>
             <Photo src={item.hero} alt="" sizes="64px" />
@@ -331,16 +377,17 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
         <div className="explorer-controls">
           <div className="explorer-layers"><button ref={layersButton} type="button" className="explorer-button" aria-label={c.style} aria-expanded={layersOpen} onClick={() => setLayersOpen(!layersOpen)}><Stack size={21} /></button>
             {layersOpen && <div className="explorer-layer-menu" role="group" aria-label={c.style}>
-              {[false, true].map((value) => <button type="button" key={String(value)} aria-pressed={muted === value && !satellite} onClick={() => { setMuted(value); satelliteRef.current = false; setSatellite(false); setLayersOpen(false); layersButton.current?.focus(); }}>{value ? c.muted : c.detailed}{muted === value && !satellite && <Check size={16} />}</button>)}
+              {[false, true].map((value) => <button type="button" key={String(value)} aria-pressed={muted === value && !satellite} onClick={() => { setMuted(value); setSatelliteView(false); setLayersOpen(false); layersButton.current?.focus(); }}>{value ? c.muted : c.detailed}{muted === value && !satellite && <Check size={16} />}</button>)}
               <div className="explorer-layer-divider" />
               <span className="explorer-layer-label">{c.satelliteView}</span>
-              <button type="button" aria-pressed={satellite} onClick={() => { const next = !satellite; satelliteRef.current = next; setSatellite(next); if (next) setMuted(false); setLayersOpen(false); layersButton.current?.focus(); }}>{satellite ? c.streetView : c.satelliteView}<span className="explorer-layer-action">{satellite ? <Check size={16} /> : <Panorama size={16} />}</span></button>
+              <button type="button" aria-pressed={satellite} onClick={() => { setSatelliteView(!satellite); setLayersOpen(false); layersButton.current?.focus(); }}>{satellite ? c.streetView : c.satelliteView}<span className="explorer-layer-action">{satellite ? <Check size={16} /> : <Panorama size={16} />}</span></button>
               {satellite && <div className="explorer-tone-picker" role="group" aria-label={c.satelliteTone}>
                 <span className="explorer-layer-label">{c.satelliteTone}</span>
-                {(["natural", "vivid", "nocturne"] as const).map((tone) => <button type="button" key={tone} className="explorer-tone" aria-pressed={satelliteTone === tone} onClick={() => { satelliteToneRef.current = tone; setSatelliteTone(tone); }}>{c[tone]}{satelliteTone === tone && <Check size={14} />}</button>)}
+                {(["natural", "vivid", "nocturne"] as const).map((tone) => <button type="button" key={tone} className="explorer-tone" aria-pressed={satelliteTone === tone} onClick={() => setSatelliteTreatment(tone)}>{c[tone]}{satelliteTone === tone && <Check size={14} />}</button>)}
               </div>}
             </div>}
           </div>
+          <button type="button" disabled={status !== "ready" || offline} className={`explorer-button explorer-view-toggle ${satellite ? "is-active" : ""}`} aria-label={satellite ? c.streetView : c.satelliteView} aria-pressed={satellite} title={satellite ? c.streetView : c.satelliteView} onClick={() => setSatelliteView(!satellite)}>{satellite ? <Panorama size={20} /> : <MapPin size={20} />}</button>
           <button type="button" disabled={status !== "ready" || offline} className="explorer-button explorer-3d-button" title={d.terrainNote} aria-label={threeD ? c.disable3d : c.enable3d} aria-pressed={threeD} onClick={toggleThreeD}><Cube size={19} /><span>{threeD ? "2D" : "3D"}</span></button>
           <button type="button" disabled={status !== "ready" || offline} className="explorer-button" aria-label={c.zoomIn} onClick={() => { viewMode.current = "free"; map.current?.zoomIn({ duration: shouldReduce ? 0 : 250 }); }}><Plus size={21} /></button>
           <button type="button" disabled={status !== "ready" || offline} className="explorer-button" aria-label={c.zoomOut} onClick={() => { viewMode.current = "free"; map.current?.zoomOut({ duration: shouldReduce ? 0 : 250 }); }}><Minus size={21} /></button>

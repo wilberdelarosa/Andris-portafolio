@@ -38,6 +38,7 @@ import { ImageInput } from "./image-input";
 import { NumberPicker } from "./number-picker";
 import { LocationInput } from "./rd-location-selector";
 import { TagInput } from "./tag-input";
+import { LivePreviewPanel } from "./live-preview-panel";
 
 function loc(text: string): Localized {
   return { es: text, en: text, fr: text };
@@ -329,8 +330,10 @@ export function NewProjectForm() {
   };
 
   return (
-    <div className="npf">
-      <div className="npf-header">
+    <div className="npf-split-layout">
+      <div className="npf-form-area">
+        <div className="npf">
+          <div className="npf-header">
         <div>
           <h2 className="npf-title">
             <Buildings size={22} weight="duotone" /> Añadir proyecto
@@ -431,9 +434,17 @@ export function NewProjectForm() {
               <input
                 type="url"
                 value={mapUrl}
-                onChange={(event) => setMapUrl(event.target.value)}
+                onChange={(event) => {
+                  const val = event.target.value;
+                  setMapUrl(val);
+                  const match = val.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+                  if (match && !mapCoords) {
+                    setMapCoords(`${match[1]}, ${match[2]}`);
+                  }
+                }}
                 placeholder="https://maps.app.goo.gl/…"
               />
+              <span className="admin-field-help">Pega un enlace completo de Google Maps con `@lat,lng` para extraer automáticamente las coordenadas a la derecha.</span>
             </label>
             <label className="admin-field">
               Coordenadas (latitud, longitud)
@@ -619,6 +630,9 @@ export function NewProjectForm() {
           </span>
         )}
       </div>
+    </div>
+      </div>
+      <LivePreviewPanel activeTab={activeTab} draft={fieldValues as unknown as Parameters<typeof LivePreviewPanel>[0]["draft"]} />
     </div>
   );
 }

@@ -26,6 +26,7 @@ import { NewProjectForm } from "./new-project-form";
 import { NotificationCenter } from "./notification-center";
 import { LoginForm } from "./login-form";
 import { DiagnosticsPanel } from "./diagnostics-panel";
+import { LivePreviewPanel, type DraftPreview } from "./live-preview-panel";
 
 import { getPublishedProjects, type PropertyProject } from "@/content/projects";
 import { getContentRepository } from "@/lib/cms/repository";
@@ -527,23 +528,53 @@ function ProjectEditor({
     setTimeout(() => setSaved(false), 2400);
   };
 
+  const previewDraft: DraftPreview = {
+    name: project.name,
+    location: project.location,
+    desc: project.description.es,
+    bedrooms: project.bedrooms.at(-1),
+    bathrooms: project.bathrooms.at(-1),
+    parking: project.parking ?? undefined,
+    areaMin: project.area.min,
+    areaMax: project.area.max,
+    greenArea: project.greenArea,
+    deliveryLabel,
+    deliveryYear: toNumber(deliveryYear) ?? undefined,
+    reservation: toNumber(reservation) ?? undefined,
+    productTypes: project.productTypes.map((item) => item.es),
+    typologies: project.typologies.map((item) => item.es),
+    includesAppliances: project.includesAppliances ?? false,
+    investmentBenefits: project.investmentBenefits.map((item) => item.es),
+    nearby: project.nearby.map((item) => item.es),
+    priceFrom: toNumber(priceFrom) ?? undefined,
+    priceTo: toNumber(priceTo) ?? undefined,
+    heroImg: project.hero,
+    mapUrl: project.map.url,
+    mapCoords: project.map.coordinates?.join(","),
+    amenities: project.amenities.map((item) => item.es),
+    signing: project.paymentReference.signing,
+    construction: project.paymentReference.construction,
+    onDelivery: project.paymentReference.delivery,
+  };
+
   return (
-    <div className="admin-card pad-lg admin-editor">
-      <div className="admin-editor-head">
-        <h2>{project.name}</h2>
-        {draft && (
-          <span className="chip info">
-            <i />
-            {dateTime.format(new Date(draft.updatedAt))}
-          </span>
-        )}
-      </div>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          save();
-        }}
-      >
+    <div className="npf-split-layout admin-editor-split">
+      <div className="admin-card pad-lg admin-editor">
+        <div className="admin-editor-head">
+          <h2>{project.name}</h2>
+          {draft && (
+            <span className="chip info">
+              <i />
+              {dateTime.format(new Date(draft.updatedAt))}
+            </span>
+          )}
+        </div>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            save();
+          }}
+        >
         <div className="admin-field-row">
           <label className="admin-field">
             Precio desde (USD)
@@ -650,7 +681,9 @@ function ProjectEditor({
             <Trash size={16} /> Limpiar borrador local
           </button>
         </div>
-      </form>
+        </form>
+      </div>
+      <LivePreviewPanel activeTab="proyecto" draft={previewDraft} />
     </div>
   );
 }
