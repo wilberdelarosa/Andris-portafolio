@@ -23,7 +23,7 @@ export function PropertyCard({
   isComparing?: boolean;
   onToggleCompare?: () => void;
 }) {
-  const { locale, t, isSaved, toggleSlug } = useExperience();
+  const { locale, t, isSaved, toggleSlug, hideProjectNames } = useExperience();
   const c = catalogCopy[locale];
   const j = journeyCopy[locale];
   const reduced = useReducedMotion();
@@ -34,6 +34,7 @@ export function PropertyCard({
   const saved = isSaved(project.slug);
   const slides = project.gallery;
   const slide = slides[index];
+  const displayName = hideProjectNames ? `Proyecto en ${project.location}` : project.name;
   const changeImage = (next: number) => {
     setDirection(next > index ? 1 : -1);
     setIndex((next + slides.length) % slides.length);
@@ -102,7 +103,7 @@ export function PropertyCard({
       <div className="pcard-glass">
         <div className="pcard-info">
           <p className="pcard-location"><MapPin size={15} aria-hidden="true" />{project.location}</p>
-          <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{project.name}</Link></h3>
+          <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{displayName}</Link></h3>
           {(project.bedrooms?.length || 0) > 0 ? <ul className="pcard-specs">
             <li><Bed size={18} /><span>{(project.bedrooms || []).join(", ")} {c.bedroomsShort}</span></li>
             <li><Ruler size={18} /><span>{project.area?.min || 0}–{project.area.max} {project.area.unit}</span></li>

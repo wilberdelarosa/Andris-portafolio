@@ -25,6 +25,8 @@ interface Experience {
   toggleSlug: (slug: string) => void;
   reset: () => void;
   offline: boolean;
+  hideProjectNames: boolean;
+  setHideProjectNames: (value: boolean) => void;
   t: typeof dictionaries.es;
 }
 const Context = createContext<Experience | null>(null);
@@ -48,6 +50,7 @@ export function ExperienceProvider({
   const [theme, updateTheme] = useState<Theme>("light");
   const [savedSlugs, updateSavedSlugs] = useState<string[]>([]);
   const [offline, setOffline] = useState(false);
+  const [hideProjectNames, updateHideProjectNames] = useState(false);
   useLayoutEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect -- One post-hydration synchronization with browser storage; SSR must use the supplied locale and avoid reading window. */
     // Synchronize saved browser preferences after hydration.
@@ -73,6 +76,8 @@ export function ExperienceProvider({
         // Migracion del favorito unico anterior, que solo podia ser Melcon.
         updateSavedSlugs([LEGACY_SLUG]);
       }
+      const hideNames = localStorage.getItem("ap-hide-names");
+      if (hideNames === "true") updateHideProjectNames(true);
     } catch {
       /* Default preferences remain fully usable. */
     }
@@ -134,6 +139,10 @@ export function ExperienceProvider({
   const isSaved = useCallback((slug: string) => savedSlugs.includes(slug), [savedSlugs]);
   const toggleSaved = useCallback(() => toggleSlug(LEGACY_SLUG), [toggleSlug]);
   const saved = savedSlugs.includes(LEGACY_SLUG);
+  const setHideProjectNames = useCallback((value: boolean) => {
+    updateHideProjectNames(value);
+    persist("hide-names", String(value));
+  }, []);
   const reset = () => {
     setLocale("es");
     setTheme("light");
@@ -155,6 +164,8 @@ export function ExperienceProvider({
         toggleSlug,
         reset,
         offline,
+        hideProjectNames,
+        setHideProjectNames,
         t: dictionaries[locale],
       }}
     >

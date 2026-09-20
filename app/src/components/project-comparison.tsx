@@ -16,6 +16,7 @@ import {
   MapPin,
   Scales,
   ShieldCheck,
+  ShareNetwork,
   Sparkle,
   Tree,
   WhatsappLogo,
@@ -308,9 +309,22 @@ export function ProjectComparisonModal({
   onSelectAll,
   onClearAll,
 }: ComparisonProps) {
-  const { locale } = useExperience();
+  const { locale, hideProjectNames } = useExperience();
   const c = catalogCopy[locale];
   const [onlyDiffs, setOnlyDiffs] = useState(false);
+  const dn = (p: PropertyProject) => hideProjectNames ? `Proyecto en ${p.location}` : p.name;
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const text = activeProjects.map((p) => dn(p)).join(" vs ");
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: c.compareTitle, text, url });
+      } catch { /* User cancelled share */ }
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+    }
+  };
 
   const allProjects = useMemo(() => getPublishedProjects(), []);
   const activeProjects = useMemo(
@@ -408,11 +422,11 @@ export function ProjectComparisonModal({
 
                 {activeProjects.map((project) => (
                   <div key={project.slug} className="compare-cell compare-card-cell" role="columnheader">
-                    <div className="compare-card">
+                    <Link href={`/proyectos/${project.slug}?lang=${locale}`} className="compare-card compare-card--clickable" prefetch={false}>
                       <div className="compare-card-image-wrap">
                         <Image
                           src={project.hero}
-                          alt={project.name}
+                          alt={dn(project)}
                           fill
                           sizes="(max-width: 760px) 260px, 320px"
                           className="compare-card-img"
@@ -420,7 +434,9 @@ export function ProjectComparisonModal({
                         <button
                           type="button"
                           className="compare-card-remove"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             if (activeProjects.length > 1) {
                               onToggleSlug(project.slug);
                             } else {
@@ -428,8 +444,8 @@ export function ProjectComparisonModal({
                               onOpenChange(false);
                             }
                           }}
-                          aria-label={c.removeFromCompare(project.name)}
-                          title={c.removeFromCompare(project.name)}
+                          aria-label={c.removeFromCompare(dn(project))}
+                          title={c.removeFromCompare(dn(project))}
                         >
                           <X size={14} weight="bold" aria-hidden="true" />
                         </button>
@@ -440,20 +456,16 @@ export function ProjectComparisonModal({
                           <MapPin size={13} aria-hidden="true" />
                           {project.location}
                         </span>
-                        <h3 className="compare-card-title">{project.name}</h3>
+                        <h3 className="compare-card-title">{dn(project)}</h3>
 
                         <div className="compare-card-actions">
-                          <Link
-                            href={`/proyectos/${project.slug}?lang=${locale}`}
-                            className="compare-card-link"
-                            prefetch={false}
-                          >
+                          <span className="compare-card-link">
                             <span>{c.open}</span>
                             <ArrowUpRight size={14} />
-                          </Link>
+                          </span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -527,7 +539,7 @@ export function ProjectComparisonModal({
                     </div>
                     {activeProjects.map((project) => (
                       <div key={project.slug} className="compare-validation-cell is-project" role="columnheader">
-                        {project.name}
+                        {dn(project)}
                       </div>
                     ))}
                   </div>
@@ -578,7 +590,7 @@ export function ProjectComparisonModal({
                     </div>
                     <div>
                       <span>{project.location}</span>
-                      <h3>{project.name}</h3>
+                      <h3>{dn(project)}</h3>
                     </div>
                     <button
                       type="button"
@@ -591,8 +603,8 @@ export function ProjectComparisonModal({
                           onOpenChange(false);
                         }
                       }}
-                      aria-label={c.removeFromCompare(project.name)}
-                      title={c.removeFromCompare(project.name)}
+                      aria-label={c.removeFromCompare(dn(project))}
+                      title={c.removeFromCompare(dn(project))}
                     >
                       <X size={14} weight="bold" aria-hidden="true" />
                     </button>
@@ -617,7 +629,7 @@ export function ProjectComparisonModal({
                       <div role="columnheader">{c.amenityColumn}</div>
                       {activeProjects.map((project) => (
                         <div key={project.slug} role="columnheader">
-                          {project.name}
+                          {dn(project)}
                         </div>
                       ))}
                     </div>
@@ -667,7 +679,7 @@ export function ProjectComparisonModal({
                             key={project.slug}
                             className={`compare-mobile-value ${value.isHighlight ? "is-highlight" : ""} ${value.isUnavailable ? "is-unavailable" : ""} ${value.isChecklist ? "is-checklist" : ""}`}
                           >
-                            <strong>{project.name}</strong>
+                            <strong>{dn(project)}</strong>
                             {value.isChecklist ? (
                               <ValidationMark
                                 value={value}
@@ -696,6 +708,14 @@ export function ProjectComparisonModal({
             </div>
 
             <div className="compare-footer-actions">
+              <button
+                type="button"
+                className="compare-share-btn"
+                onClick={handleShare}
+                aria-label="Compartir comparativa"
+              >
+                <ShareNetwork size={20} weight="bold" aria-hidden="true" />
+              </button>
               <a
                 href={whatsappUrl}
                 target="_blank"

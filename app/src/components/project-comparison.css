@@ -442,7 +442,8 @@
 .compare-card-image-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
+  max-height: 150px;
   border-radius: 8px;
   overflow: hidden;
   background: var(--soft);
@@ -803,6 +804,28 @@
 
 .compare-footer-actions {
   margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.compare-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--text);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.compare-share-btn:hover {
+  background: var(--paper);
+  border-color: var(--text);
+  transform: translateY(-1px);
 }
 
 .compare-whatsapp-btn {

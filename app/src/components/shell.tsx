@@ -45,7 +45,7 @@ export function Shell({
   /** Retira el pie de pagina: para rutas donde el contenido llena la pantalla. */
   bare?: boolean;
 }) {
-  const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline } =
+  const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline, hideProjectNames, setHideProjectNames } =
     useExperience();
   const pathname = usePathname();
   const j = journeyCopy[locale];
@@ -298,6 +298,18 @@ export function Shell({
               </button>
             ))}
           </div>
+        </div>
+        <div className="settings-section">
+          <h3>Privacidad (Modo Broker)</h3>
+          <button 
+            className="settings-favorite" 
+            onClick={() => setHideProjectNames(!hideProjectNames)}
+          >
+            Ocultar nombres reales
+            <span style={{ fontSize: '13px', fontWeight: 'bold' }}>
+              {hideProjectNames ? "ACTIVO" : "INACTIVO"}
+            </span>
+          </button>
         </div>
         <div className="settings-section">
           <button
