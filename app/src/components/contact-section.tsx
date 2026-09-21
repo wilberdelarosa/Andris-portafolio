@@ -269,9 +269,22 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
           <Check size={26} className="summary-check" />
           <pre>{summary}</pre>
         </div>
+        
+        {whatsapp && (
+          <a
+            className="button button-primary"
+            style={{ width: "100%", height: "54px", marginBottom: "16px", fontSize: "16px", background: "#25D366", color: "#fff", borderColor: "#25D366" }}
+            href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsappLogo size={22} weight="fill" />
+            {t.sendWhatsApp}
+          </a>
+        )}
         <div className="summary-actions">
           <button
-            className="button button-primary"
+            className="button button-outline"
             onClick={() => downloadText("consulta-andris-pena.txt", summary)}
           >
             <DownloadSimple size={18} />
@@ -295,22 +308,10 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
         {email && (
           <a
             className="contact-channel"
-            href={`mailto:${email}?subject=${encodeURIComponent("Consulta · Andris Peña")}&body=${encodeURIComponent(summary)}`}
+            href={`mailto:${email}?subject=${encodeURIComponent("Consulta a Andris Peña")}&body=${encodeURIComponent(summary)}`}
           >
             <EnvelopeSimple size={20} />
             {t.sendEmail}
-            <ArrowUpRight />
-          </a>
-        )}
-        {whatsapp && (
-          <a
-            className="contact-channel"
-            href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <WhatsappLogo size={20} />
-            {t.sendWhatsApp}
             <ArrowUpRight />
           </a>
         )}

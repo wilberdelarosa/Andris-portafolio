@@ -28,6 +28,8 @@ import {
   MapPin,
   Ruler,
   Warning,
+  Eye,
+  X,
 } from "@phosphor-icons/react";
 import type { Localized, PropertyProject } from "@/content/projects";
 import { draftsStore } from "@/lib/cms/local-store";
@@ -84,7 +86,73 @@ function isFilled(value: FieldValue | undefined): boolean {
 
 type Feedback = { tone: "ok" | "error" | "info"; message: string };
 
+
+function RichAmenityBuilder({ amenities, setAmenities }: { amenities: any[]; setAmenities: (v: any[]) => void }) {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [feature, setFeature] = useState("");
+  const [features, setFeatures] = useState<string[]>([]);
+
+  const addFeature = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (feature.trim()) {
+        setFeatures([...features, feature.trim()]);
+        setFeature("");
+      }
+    }
+  };
+
+  const addAmenity = () => {
+    if (name.trim()) {
+      setAmenities([...amenities, {
+        name: { es: name, en: name, fr: name },
+        image: image || undefined,
+        features: features.map(f => ({ es: f, en: f, fr: f }))
+      }]);
+      setName("");
+      setImage("");
+      setFeatures([]);
+    }
+  };
+
+  return (
+    <div className="admin-card" style={{ marginBottom: '16px', background: 'var(--soft)' }}>
+      <label>
+        Construir Amenidad Interactiva
+        <input type="text" placeholder="Nombre (ej. Piscina)" value={name} onChange={e => setName(e.target.value)} />
+      </label>
+      <ImageInput label="Imagen de Amenidad" value={image} onChange={setImage} />
+      <label style={{ marginTop: '10px' }}>
+        Añadir viñeta (Enter para confirmar)
+        <input type="text" placeholder="ej. Climatizada" value={feature} onChange={e => setFeature(e.target.value)} onKeyDown={addFeature} />
+      </label>
+      {features.length > 0 && (
+        <ul style={{ paddingLeft: '20px', marginBottom: '10px' }}>
+          {features.map((f, i) => <li key={i}>{f}</li>)}
+        </ul>
+      )}
+      <button type="button" className="button button-outline" onClick={addAmenity}>Agregar Amenidad</button>
+      
+      {amenities.length > 0 && (
+        <div style={{ marginTop: '16px' }}>
+          <strong>Amenidades agregadas:</strong>
+          <ul>
+            {amenities.map((a, idx) => (
+              <li key={idx}>
+                {a.name?.es || a} 
+                <button type="button" style={{ marginLeft: '10px', color: 'red' }} onClick={() => setAmenities(amenities.filter((_, i) => i !== idx))}>Quitar</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function NewProjectForm() {
+
   const [activeTab, setActiveTab] = useState<TabId>("basico");
 
   const [name, setName] = useState("");
@@ -118,7 +186,7 @@ export function NewProjectForm() {
   const [construction, setConstruction] = useState(30);
   const [onDelivery, setOnDelivery] = useState(60);
 
-  const [amenities, setAmenities] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<any[]>([]);
   const [productTypes, setProductTypes] = useState<string[]>([]);
   const [typologies, setTypologies] = useState<string[]>([]);
   const [nearby, setNearby] = useState<string[]>([]);
@@ -547,7 +615,7 @@ export function NewProjectForm() {
             <legend>Especificaciones</legend>
             <TagInput label="Tipos de producto" values={productTypes} onChange={setProductTypes} categoryType="product_type" placeholder="Apartamento, villa…" />
             <TagInput label="Tipologías" values={typologies} onChange={setTypologies} categoryType="typology" placeholder="A (1 hab), PH…" />
-            <TagInput label="Amenidades" values={amenities} onChange={setAmenities} categoryType="amenity" placeholder="Piscina, gimnasio…" />
+            <RichAmenityBuilder amenities={amenities} setAmenities={setAmenities} />
             <TagInput label="Beneficios de inversión" values={investmentBenefits} onChange={setInvestmentBenefits} categoryType="investment_benefit" placeholder="Ley CONFOTUR…" />
             <TagInput label="Lugares cercanos" values={nearby} onChange={setNearby} categoryType="nearby_place" placeholder="Aeropuerto (15 min)…" />
             <label className="npf-check">

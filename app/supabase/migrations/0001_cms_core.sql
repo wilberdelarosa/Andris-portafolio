@@ -244,6 +244,8 @@ create table if not exists public.amenities (
   label_fr text,
   category text not null default 'general',
   icon_name text,
+  image_url text,
+  is_template boolean not null default true,
   display_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -260,6 +262,10 @@ create table if not exists public.project_amenities (
     check (source_status in ('documented','pending','varies','not_applicable','archived')),
   source_record_id uuid references public.project_source_records(id) on delete set null,
   note text,
+  features_es text[],
+  features_en text[],
+  features_fr text[],
+  custom_image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (project_id, amenity_id, phase_id)

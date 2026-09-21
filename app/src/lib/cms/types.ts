@@ -86,7 +86,7 @@ export interface ApiProjectDetail extends Omit<ApiProjectSummary, "links"> {
   investmentBenefits: Localized[];
   nearby: Localized[];
   gallery: { src: string; alt: Localized }[];
-  amenities: Localized[];
+  amenities: any[];
   mapUrl: string;
   paymentReference: {
     signing: number;

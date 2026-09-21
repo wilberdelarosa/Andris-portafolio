@@ -577,8 +577,13 @@
 
 /* --- Responsive: estética de app móvil -------------------------------------------------- */
 @media (max-width: 960px) {
+  .admin-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
   .admin-projects {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .admin-editor {
     position: static;
@@ -626,6 +631,24 @@
   }
   .admin-main {
     padding: 22px 16px 110px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-x: hidden;
+  }
+  .admin-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .admin-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .admin-actions button,
+  .admin-actions a {
+    width: 100%;
+    justify-content: center;
   }
   .admin-tabbar {
     display: flex;
@@ -1656,6 +1679,7 @@
 @media (max-width: 960px) {
   .npf-split-layout {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .admin-preview-panel {
     position: static;

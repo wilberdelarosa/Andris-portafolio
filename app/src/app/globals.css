@@ -1765,9 +1765,8 @@ em {
   font-size: 13px;
 }
 .language-options button[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--nav-active) 80%, black 15%);
+  background: var(--nav-active);
   font-weight: 650;
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 .language-options span {
   font-size: 10px;
@@ -3064,3 +3063,17 @@ em {
 .process-spotlight-index small, .process-spotlight-copy p { color: var(--muted); }
 .process-spotlight-index i { background: var(--line); }
 .process-navigation button { color: var(--text); border-color: var(--line); width: 44px; height: 44px; }
+
+/* --- Amenities Carousel --- */
+.amenities-carousel-wrapper { position: relative; width: 100%; max-width: 1000px; margin: 40px auto; overflow: hidden; padding-bottom: 30px; }
+.amenities-carousel-container { display: flex; align-items: center; justify-content: center; height: 350px; position: relative; perspective: 1000px; }
+.amenities-carousel-item { position: absolute; width: 60%; max-width: 400px; height: 280px; will-change: transform, opacity; cursor: grab; }
+.amenities-carousel-item:active { cursor: grabbing; }
+.amenities-carousel-card { position: relative; width: 100%; height: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: var(--panel); }
+.amenities-carousel-image { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.amenities-carousel-fallback { width: 100%; height: 100%; background: var(--soft); }
+.amenities-carousel-label { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: #fff; font-weight: 500; font-size: 18px; pointer-events: none; }
+.amenities-carousel-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+.amenities-carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); border: none; padding: 0; cursor: pointer; transition: all 0.2s ease; }
+.amenities-carousel-dot.active { background: var(--text); transform: scale(1.2); }
+@media(max-width: 760px) { .amenities-carousel-item { width: 80%; height: 220px; } .amenities-carousel-container { height: 260px; } }

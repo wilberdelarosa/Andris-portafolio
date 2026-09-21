@@ -1,4 +1,5 @@
 "use client";
+import { AmenitiesCarousel } from "./amenities-carousel";
 import Link from "next/link";
 import { ProjectTourButton } from "./project-media";
 import { useParams } from "next/navigation";
@@ -342,12 +343,25 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
           <ArrowUpRight size={21} />
         </Link>
       </div>
-      {project.amenities.length > 0 && <><h3 className="amenities-heading">{t.amenities}</h3>
-      <div className="amenities-list">
-        {project.amenities.map((amenity, index) => (
-          <div key={index}>{amenity[locale]}</div>
-        ))}
-      </div></>}
+      {project.amenities.length > 0 && (
+        <>
+          <h3 className="amenities-heading">{t.amenities}</h3>
+          {project.amenities.some((a: any) => a?.image) ? (
+            <AmenitiesCarousel items={project.amenities.map((a: any, i) => ({
+              id: String(i),
+              name: a?.name?.[locale] || a?.[locale] || a?.name || String(a),
+              image: a?.image
+            }))} />
+          ) : (
+            <div className="amenities-list">
+              {project.amenities.map((amenity: any, index) => {
+                const name = amenity?.name?.[locale] || amenity?.[locale] || String(amenity);
+                return <div key={index}>{name}</div>;
+              })}
+            </div>
+          )}
+        </>
+      )}
       <p className="field-hint">{t.availabilityNote}</p>
       <Gallery
         key={String(gallery) + start}
