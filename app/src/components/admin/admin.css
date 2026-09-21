@@ -1846,3 +1846,91 @@
     border-radius: 20px;
   }
 }
+/* --- Mobile Preview FAB and Modal --- */
+.npf-preview-mobile-header {
+  display: none;
+}
+.npf-mobile-preview-fab {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .npf-split-layout {
+    display: block; /* Remove grid so form takes full width */
+    padding-bottom: 80px; /* Space for FAB */
+  }
+  
+  /* FAB (Floating Action Button) */
+  .npf-mobile-preview-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--color-blue);
+    color: #fff;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(11, 31, 58, 0.3);
+    z-index: 90;
+    cursor: pointer;
+  }
+  
+  /* Modal Overlay */
+  .npf-preview-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100dvh;
+    background: var(--bg);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .npf-preview-container.is-open {
+    transform: translateY(0);
+  }
+  
+  .npf-preview-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  
+  .npf-preview-mobile-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .npf-preview-mobile-header button {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 4px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  
+  .admin-preview-panel {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+  }
+}

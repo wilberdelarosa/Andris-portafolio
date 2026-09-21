@@ -147,7 +147,17 @@ export function AdminStudio() {
   if (session === undefined) {
     return (
       <div className="admin-login-wrapper">
-        <p className="admin-empty">Comprobando la sesión…</p>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "relative", marginBottom: "24px" }}>
+            <div style={{ position: "absolute", inset: -4, background: "linear-gradient(45deg, var(--color-blue), #8b5cf6)", borderRadius: "50%", filter: "blur(12px)", opacity: 0.6 }} />
+            <img src="https://ui-avatars.com/api/?name=Andris+Pe%C3%B1a&background=0D1117&color=fff&size=128" alt="Andris Peña" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.1)", position: "relative", zIndex: 1 }} />
+          </div>
+          <p style={{ color: "var(--muted)", fontSize: "15px", fontWeight: 500, display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ width: "16px", height: "16px", border: "2px solid var(--muted)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+            Comprobando sesión segura...
+          </p>
+          <style>{"@keyframes spin { 100% { transform: rotate(360deg); } }"}</style>
+        </div>
       </div>
     );
   }
@@ -290,69 +300,94 @@ function Dashboard({
   connection: CmsConnection;
   go: (tab: Tab) => void;
 }) {
-  const pendingLeads = leads.filter((lead) => lead.status !== "sent").length;
+  const pendingLeads = leads.filter((lead) => lead.status !== 'sent').length;
+  
   return (
     <>
-      <div className="admin-page-head">
-        <p className="kicker">Panel de control</p>
-        <h1>Todo el contenido, en un solo lugar.</h1>
-        <p>
-          Proyectos, leads y cotizaciones del portafolio. Hoy funcionan sobre el
-          contenido estático verificado; la migración a Supabase está preparada
-          y documentada.
-        </p>
-      </div>
-
-      <div className="admin-grid stats">
-        <div className="admin-card stat-card">
-          <span className="stat-icon"><Buildings size={20} /></span>
-          <strong>{projects.length}</strong>
-          <span>Proyectos publicados</span>
-        </div>
-        <div className="admin-card stat-card">
-          <span className="stat-icon"><FileSql size={20} /></span>
-          <strong>{drafts.length}</strong>
-          <span>Borradores editoriales</span>
-        </div>
-        <div className="admin-card stat-card">
-          <span className="stat-icon"><UsersThree size={20} /></span>
-          <strong>{leads.length}</strong>
-          <span>{pendingLeads ? `${pendingLeads} por gestionar` : "Leads registrados"}</span>
-        </div>
-        <div className="admin-card stat-card">
-          <span className="stat-icon"><Calculator size={20} /></span>
-          <strong>{quotes.length}</strong>
-          <span>Cotizaciones PDF</span>
+      {/* Cabecera Tipo App */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'var(--panel)', borderBottom: '1px solid var(--line)', margin: '-24px -24px 20px -24px' }}>
+        <div>
+          <h1 style={{ fontSize: '18px', margin: 0, fontWeight: 600 }}>Inicio</h1>
+          <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>Resumen de actividad</p>
         </div>
       </div>
 
-      <div className="admin-grid" style={{ marginTop: 16, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
-        <div className="admin-card dark pad-lg">
-          <h2>Conexión del CMS</h2>
-          <p>{connection.detail}</p>
-          <div className="admin-actions">
-            <button className="button button-sand" onClick={() => go("diagnostico")}>
-              <Stethoscope size={17} /> Comprobar estado real
-            </button>
-            <button className="button button-outline" onClick={() => go("esquema")}>
-              <Database size={17} /> Ver esquema SQL
-            </button>
+      {/* Accesos Directos - Horizontal Scrollable en Movil */}
+      <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--muted)', margin: '0 0 12px 0' }}>Accesos rápidos</h2>
+      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', WebkitOverflowScrolling: 'touch' }} className='hide-scroll'>
+        <button onClick={() => go('nuevo')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
+          <div style={{ background: 'var(--text)', color: 'var(--bg)', padding: '10px', borderRadius: '12px' }}><Buildings size={20} weight='fill' /></div>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Nuevo</span>
+        </button>
+        <button onClick={() => go('leads')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
+          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><UsersThree size={20} weight='fill' /></div>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Leads</span>
+        </button>
+        <button onClick={() => go('cotizaciones')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
+          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><Calculator size={20} weight='fill' /></div>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Cotizar</span>
+        </button>
+        <button onClick={() => go('diagnostico')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
+          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><Stethoscope size={20} weight='fill' /></div>
+          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Salud</span>
+        </button>
+      </div>
+
+      <style>{'.hide-scroll::-webkit-scrollbar { display: none; } .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; } .app-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }'}</style>
+
+      {/* Grid de Estadísticas Compacto */}
+      <div className='app-grid-2'>
+        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
+            <Buildings size={18} />
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Publicados</span>
           </div>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{projects.length}</strong>
         </div>
-        <div className="admin-card pad-lg">
-          <h2>API v1 del portafolio</h2>
-          <p style={{ fontSize: 12.5, color: "var(--muted)", lineHeight: 1.7 }}>
-            El API estática se regenera en cada build desde el mismo repositorio
-            de contenido. Contrato documentado en OpenAPI.
+        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
+            <FileSql size={18} />
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Borradores</span>
+          </div>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{drafts.length}</strong>
+        </div>
+        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', position: 'relative', overflow: 'hidden' }}>
+          {pendingLeads > 0 && <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#ef4444' }} />}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
+            <UsersThree size={18} />
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Leads</span>
+          </div>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{leads.length}</strong>
+          {pendingLeads > 0 && <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 500 }}>{pendingLeads} sin leer</span>}
+        </div>
+        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
+            <Calculator size={18} />
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Cotiz.</span>
+          </div>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{quotes.length}</strong>
+        </div>
+      </div>
+
+      {/* Cards de Información de la DB/API */}
+      <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', color: '#fff', padding: '20px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ margin: 0, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}><Database size={18} /> Supabase CMS</h3>
+            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>{connection.detail.includes('Memoria') ? 'OFFLINE' : 'LIVE'}</span>
+          </div>
+          <p style={{ fontSize: '13px', opacity: 0.8, lineHeight: 1.5, margin: '0 0 16px 0' }}>{connection.detail}</p>
+          <button onClick={() => go('esquema')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><Stethoscope size={16} /> Ver Esquemas</button>
+        </div>
+        
+        <div style={{ background: 'var(--panel)', padding: '20px', borderRadius: '20px', border: '1px solid var(--line)' }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>API v1 Estática</h3>
+          <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
+            Endpoints generados en tiempo de build con tipado OpenAPI.
           </p>
-          <div className="admin-actions">
-            <a className="button button-outline" href="/api/v1/projects.json" target="_blank" rel="noopener noreferrer">
-              <ArrowSquareOut size={16} /> projects.json
-            </a>
-            <a className="button button-outline" href="/api/v1/openapi.json" target="_blank" rel="noopener noreferrer">
-              <ArrowSquareOut size={16} /> OpenAPI
-            </a>
-          </div>
+          <a href='/api/v1/projects.json' target='_blank' rel='noopener noreferrer' style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--soft)', color: 'var(--text)', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, border: '1px solid var(--line)' }}>
+            <ArrowSquareOut size={16} /> projects.json
+          </a>
         </div>
       </div>
     </>
@@ -701,7 +736,7 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
         lead.createdAt, lead.name, lead.email, lead.phone, lead.country,
         lead.budget, lead.timeframe, lead.project, lead.interest,
         lead.channel, lead.status,
-        lead.message.replace(/[\n;]/g, " "),
+        lead.message.replace(/[\\n\\r;]/g, " "),
       ]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(";"),

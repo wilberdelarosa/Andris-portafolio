@@ -204,6 +204,7 @@ export function NewProjectForm() {
   const [publish, setPublish] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
 
   const fieldValues: Record<string, FieldValue> = {
     name, location, desc, mapUrl, mapCoords, bedrooms, areaMin,
@@ -700,7 +701,22 @@ export function NewProjectForm() {
       </div>
     </div>
       </div>
-      <LivePreviewPanel activeTab={activeTab} draft={fieldValues as unknown as Parameters<typeof LivePreviewPanel>[0]["draft"]} />
+      <div className={`npf-preview-container ${showMobilePreview ? 'is-open' : ''}`}>
+        <div className="npf-preview-mobile-header">
+          <h3>Vista Previa</h3>
+          <button type="button" onClick={() => setShowMobilePreview(false)} aria-label="Cerrar vista previa">
+            <X size={20} />
+          </button>
+        </div>
+        <LivePreviewPanel activeTab={activeTab} draft={fieldValues as unknown as Parameters<typeof LivePreviewPanel>[0]["draft"]} />
+      </div>
+      <button 
+        type="button" 
+        className="npf-mobile-preview-fab" 
+        onClick={() => setShowMobilePreview(true)}
+      >
+        <Eye size={20} /> Preview
+      </button>
     </div>
   );
 }
