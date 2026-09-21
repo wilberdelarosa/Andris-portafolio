@@ -59,7 +59,7 @@ export function ProjectCatalog() {
   ];
   const amenities = [
     ...new Map(
-      projects.flatMap((p) => p.amenities).map((item) => [item.es, item]),
+      projects.flatMap((p) => p.amenities).map((item) => [(item.name?.es || item.es), item]),
     ).values(),
   ];
   const matches = (
@@ -156,7 +156,7 @@ export function ProjectCatalog() {
       ? [
           {
             label:
-              amenities.find((a) => a.es === filters.amenity)?.[locale] ??
+              amenities.find((a) => (a.name?.es || a.es) === filters.amenity)?.[locale] ??
               filters.amenity,
             clear: () => update({ amenity: null }),
           },
@@ -472,8 +472,8 @@ export function ProjectCatalog() {
               >
                 <option value="">{c.all}</option>
                 {amenities.map((a) => (
-                  <option key={a.es} value={a.es}>
-                    {a[locale]}
+                  <option key={a.name?.es || a.es} value={a.name?.es || a.es}>
+                    {(a.name?.[locale] || a[locale])}
                   </option>
                 ))}
               </select>

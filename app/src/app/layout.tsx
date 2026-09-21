@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { KuulaWarmup } from "@/components/kuula-warmup";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import "./globals.css";
 const indexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 export const metadata: Metadata = {
@@ -65,6 +66,7 @@ export default function RootLayout({
       </head>
       <body>
         <KuulaWarmup />
+        <AnalyticsTracker />
         {children}
       </body>
     </html>

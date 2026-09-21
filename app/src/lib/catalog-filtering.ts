@@ -54,7 +54,7 @@ export function matchesCatalog(
     (filters.productType === null ||
       project.productTypes.some((type) => type.es === filters.productType)) &&
     (filters.amenity === null ||
-      project.amenities.some((amenity) => amenity.es === filters.amenity)) &&
+      project.amenities.some((amenity) => (amenity.name?.es || amenity.es) === filters.amenity)) &&
     matchesDiscovery(project, filters.delivery, filters.features)
   );
 }

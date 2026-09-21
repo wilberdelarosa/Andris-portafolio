@@ -1731,7 +1731,7 @@
   height: 56px;
   font-size: 20px;
   margin-inline: auto;
-  margin-bottom: 24px;
+  margin-bottom: 100px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
@@ -1867,7 +1867,7 @@
     justify-content: center;
     gap: 8px;
     position: fixed;
-    bottom: 24px;
+    bottom: 100px;
     right: 24px;
     background: var(--color-blue);
     color: #fff;
@@ -1933,4 +1933,46 @@
     flex: 1;
     overflow-y: auto;
   }
+}
+
+/* Responsive Text Fixes for Diagnostics */
+.admin-check > div {
+  min-width: 0;
+}
+.admin-check p {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+.admin-check-fix {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+/* --- Mobile "Más" Menu --- */
+.admin-more-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 12px;
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink-soft);
+  border-radius: 16px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 12px 40px rgba(11, 31, 58, 0.4);
+  transform-origin: bottom right;
+  animation: admin-pop-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 140px;
+}
+@keyframes admin-pop-up {
+  0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.admin-more-menu button {
+  flex-direction: row !important;
+  min-height: 44px !important;
+  justify-content: flex-start !important;
+  font-size: 13px !important;
+  padding: 0 16px !important;
 }

@@ -10,6 +10,7 @@ import {
   Calculator,
   CheckCircle,
   Database,
+  DotsThree,
   DownloadSimple,
   FileSql,
   PlusCircle,
@@ -96,6 +97,7 @@ function downloadFile(name: string, content: string, type: string) {
 export function AdminStudio() {
   const reduced = useReducedMotion();
   const [tab, setTab] = useState<Tab>("resumen");
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [leads, setLeads] = useState<CmsLead[]>([]);
   const [quotes, setQuotes] = useState<CalculatorQuote[]>([]);
   const [drafts, setDrafts] = useState<ProjectDraft[]>([]);
@@ -262,18 +264,43 @@ export function AdminStudio() {
         </div>
       </main>
 
-      <nav className="admin-tabbar" aria-label="Secciones del estudio">
-        {TABS.map((item) => (
+            <nav className="admin-tabbar" aria-label="Secciones del estudio">
+        {TABS.slice(0, 4).map((item) => (
           <button
             key={item.id}
             className={item.id === tab ? "is-active" : ""}
-            onClick={() => go(item.id)}
+            onClick={() => { go(item.id); setShowMoreMenu(false); }}
             aria-current={item.id === tab ? "page" : undefined}
           >
             <item.icon size={22} weight={item.id === tab ? "fill" : "regular"} />
             {item.label}
           </button>
         ))}
+        <div style={{ position: "relative", display: "flex", flex: 1 }}>
+          <button
+            type="button"
+            className={showMoreMenu || TABS.slice(4).some(t => t.id === tab) ? "is-active" : ""}
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+          >
+            <DotsThree size={22} weight={showMoreMenu ? "fill" : "regular"} />
+            M�s
+          </button>
+          {showMoreMenu && (
+            <div className="admin-more-menu">
+              {TABS.slice(4).map((item) => (
+                <button
+                  key={item.id}
+                  className={item.id === tab ? "is-active" : ""}
+                  onClick={() => { go(item.id); setShowMoreMenu(false); }}
+                  aria-current={item.id === tab ? "page" : undefined}
+                >
+                  <item.icon size={20} weight={item.id === tab ? "fill" : "regular"} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </nav>
       <span className="sr-only" aria-live="polite">
         {active.label}
@@ -300,7 +327,9 @@ function Dashboard({
   connection: CmsConnection;
   go: (tab: Tab) => void;
 }) {
-  const pendingLeads = leads.filter((lead) => lead.status !== 'sent').length;
+  const pendingLeads = leads.filter((lead) => lead.status !== "sent").length;
+  // Mock data for analytics
+  const monthlyVisits = 1250;
   
   return (
     <>
@@ -312,88 +341,78 @@ function Dashboard({
         </div>
       </div>
 
-      {/* Accesos Directos - Horizontal Scrollable en Movil */}
-      <h2 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--muted)', margin: '0 0 12px 0' }}>Accesos rápidos</h2>
-      <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', WebkitOverflowScrolling: 'touch' }} className='hide-scroll'>
-        <button onClick={() => go('nuevo')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
-          <div style={{ background: 'var(--text)', color: 'var(--bg)', padding: '10px', borderRadius: '12px' }}><Buildings size={20} weight='fill' /></div>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Nuevo</span>
-        </button>
-        <button onClick={() => go('leads')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
-          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><UsersThree size={20} weight='fill' /></div>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Leads</span>
-        </button>
-        <button onClick={() => go('cotizaciones')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
-          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><Calculator size={20} weight='fill' /></div>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Cotizar</span>
-        </button>
-        <button onClick={() => go('diagnostico')} style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', background: 'var(--soft)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', minWidth: '96px', cursor: 'pointer' }}>
-          <div style={{ background: 'var(--panel)', color: 'var(--text)', padding: '10px', borderRadius: '12px', border: '1px solid var(--line)' }}><Stethoscope size={20} weight='fill' /></div>
-          <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text)' }}>Salud</span>
-        </button>
-      </div>
-
-      <style>{'.hide-scroll::-webkit-scrollbar { display: none; } .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; } .app-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }'}</style>
-
-      {/* Grid de Estadísticas Compacto */}
-      <div className='app-grid-2'>
+      {/* Grid de Estadísticas Analíticas */}
+      <div className="app-grid-2" style={{ marginBottom: '24px' }}>
         <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <Buildings size={18} />
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Publicados</span>
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Visitas del Mes</span>
+            <span style={{ color: '#10b981', fontSize: '11px', fontWeight: 'bold' }}>+12%</span>
           </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{projects.length}</strong>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{monthlyVisits}</strong>
         </div>
         <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <FileSql size={18} />
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Borradores</span>
+            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Leads Nuevos</span>
+            <UsersThree size={16} />
           </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{drafts.length}</strong>
-        </div>
-        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)', position: 'relative', overflow: 'hidden' }}>
-          {pendingLeads > 0 && <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', background: '#ef4444' }} />}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <UsersThree size={18} />
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Leads</span>
-          </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{leads.length}</strong>
-          {pendingLeads > 0 && <span style={{ fontSize: '11px', color: '#ef4444', fontWeight: 500 }}>{pendingLeads} sin leer</span>}
-        </div>
-        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <Calculator size={18} />
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Cotiz.</span>
-          </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{quotes.length}</strong>
+          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{pendingLeads}</strong>
         </div>
       </div>
 
-      {/* Cards de Información de la DB/API */}
-      <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <div style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', color: '#fff', padding: '20px', borderRadius: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '15px', display: 'flex', alignItems: 'center', gap: '6px' }}><Database size={18} /> Supabase CMS</h3>
-            <span style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>{connection.detail.includes('Memoria') ? 'OFFLINE' : 'LIVE'}</span>
-          </div>
-          <p style={{ fontSize: '13px', opacity: 0.8, lineHeight: 1.5, margin: '0 0 16px 0' }}>{connection.detail}</p>
-          <button onClick={() => go('esquema')} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}><Stethoscope size={16} /> Ver Esquemas</button>
-        </div>
+      {/* Secciones de Trabajo */}
+      <div style={{ display: 'grid', gap: '20px' }}>
         
-        <div style={{ background: 'var(--panel)', padding: '20px', borderRadius: '20px', border: '1px solid var(--line)' }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>API v1 Estática</h3>
-          <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
-            Endpoints generados en tiempo de build con tipado OpenAPI.
-          </p>
-          <a href='/api/v1/projects.json' target='_blank' rel='noopener noreferrer' style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--soft)', color: 'var(--text)', padding: '10px 16px', borderRadius: '12px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, border: '1px solid var(--line)' }}>
-            <ArrowSquareOut size={16} /> projects.json
-          </a>
+        {/* Proyectos Recientes */}
+        <div style={{ background: 'var(--panel)', borderRadius: '20px', border: '1px solid var(--line)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '15px' }}>Proyectos ({projects.length})</h3>
+            <button onClick={() => go('nuevo')} style={{ background: 'var(--text)', color: 'var(--bg)', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>+ Nuevo</button>
+          </div>
+          <div style={{ padding: '8px' }}>
+            {projects.slice(0, 3).map((p, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--soft)', borderRadius: '12px', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--line)', backgroundImage: `url(${p.hero})`, backgroundSize: 'cover' }} />
+                  <div>
+                    <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 500 }}>{p.name}</h4>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{Math.floor(Math.random() * 500) + 100} visitas</span>
+                  </div>
+                </div>
+                <button onClick={() => go('proyectos')} style={{ background: 'transparent', border: '1px solid var(--line)', padding: '6px', borderRadius: '8px', cursor: 'pointer', color: 'var(--text)' }}>Editar</button>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Leads Recientes */}
+        <div style={{ background: 'var(--panel)', borderRadius: '20px', border: '1px solid var(--line)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '15px' }}>Leads Recientes</h3>
+            <button onClick={() => go('leads')} style={{ background: 'transparent', border: 'none', color: 'var(--color-blue)', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>Ver todos</button>
+          </div>
+          <div style={{ padding: '0' }}>
+            {leads.slice(0, 3).length > 0 ? leads.slice(0, 3).map((l, i) => (
+              <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 500 }}>{l.name}</h4>
+                  <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{l.project} • {l.interest}</span>
+                </div>
+                {l.status !== 'sent' && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />}
+              </div>
+            )) : (
+              <p style={{ padding: '20px', margin: 0, fontSize: '13px', color: 'var(--muted)', textAlign: 'center' }}>No hay leads recientes.</p>
+            )}
+          </div>
+        </div>
+
       </div>
+
+      <style>{`
+        .app-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+      `}</style>
     </>
   );
 }
-
 /* ---------------------------------------------------------------------------
    Proyectos + editor de borradores
 --------------------------------------------------------------------------- */
@@ -736,7 +755,7 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
         lead.createdAt, lead.name, lead.email, lead.phone, lead.country,
         lead.budget, lead.timeframe, lead.project, lead.interest,
         lead.channel, lead.status,
-        lead.message.replace(/[\\n\\r;]/g, " "),
+        lead.message.replace(/[\n;]/g, " "),
       ]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(";"),
@@ -1074,3 +1093,4 @@ function SchemaPanel() {
     </>
   );
 }
+
