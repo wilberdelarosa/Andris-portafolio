@@ -56,7 +56,7 @@ export function AnalyticsTracker() {
           body,
           keepalive: true
         }).catch(() => {});
-      } catch (e) {
+      } catch {
         // Silencio en caso de error
       }
     };
@@ -64,7 +64,7 @@ export function AnalyticsTracker() {
     // Agregar delay para no afectar la carga del LCP
     const timer = setTimeout(() => {
       if ("requestIdleCallback" in window) {
-        (window as any).requestIdleCallback(() => track());
+        (window as Window & { requestIdleCallback: (callback: () => void) => number }).requestIdleCallback(() => track());
       } else {
         track();
       }

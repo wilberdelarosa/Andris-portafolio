@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { ArrowClockwise, ArrowUpRight, Check, Crosshair, Cube, MapPin, Minus, Plus, Stack, Panorama, Images } from "@phosphor-icons/react";
 import type { Map as MapLibreMap, Marker } from "maplibre-gl";
-import { getPublishedProjects } from "@/content/projects";
+import type { PropertyProject } from "@/content/projects";
 import { discoveryCopy, projectTours } from "@/content/project-discovery";
 import { mapExplorerCopy } from "@/content/map-copy";
 import { journeyCopy } from "@/content/journey-copy";
 import { useExperience } from "./experience-provider";
+import { useProjects } from "./projects-provider";
 import { Photo } from "./ui";
 import { ProjectMedia } from "./project-media";
 import "./map-explorer.css";
 
-const projects = getPublishedProjects().filter((project) => project.map.coordinates);
 const MAP_LAYER_STORAGE = "andris-map-layer";
 const MAP_TONE_STORAGE = "andris-map-tone";
 let mapLibreWorkerConfigured = false;
@@ -79,8 +79,9 @@ function applySatellite(instance: MapLibreMap, enabled: boolean, tone: Satellite
   instance.setPaintProperty("ap-satellite-layer", "raster-hue-rotate", values.hueRotate);
 }
 const toLngLat = ([latitude, longitude]: [number, number]) => [longitude, latitude] as [number, number];
-const projectBounds = () => {
-  const coordinates = projects.map((project) => toLngLat(project.map.coordinates!));
+/** Recibe la lista ya filtrada (con coordenadas) en vez de leerla de un módulo estático. */
+const projectBoundsOf = (items: PropertyProject[]) => {
+  const coordinates = items.map((project) => toLngLat(project.map.coordinates!));
   const longitudes = coordinates.map(([longitude]) => longitude);
   const latitudes = coordinates.map(([, latitude]) => latitude);
   return [
@@ -88,8 +89,8 @@ const projectBounds = () => {
     [Math.max(...longitudes), Math.max(...latitudes)],
   ] as [[number, number], [number, number]];
 };
-const puntaCanaBounds = () => {
-  const [[west, south], [east, north]] = projectBounds();
+const puntaCanaBoundsOf = (items: PropertyProject[]) => {
+  const [[west, south], [east, north]] = projectBoundsOf(items);
   return [
     [west - 0.08, south - 0.07],
     [east + 0.08, north + 0.07],
@@ -99,6 +100,11 @@ const puntaCanaBounds = () => {
 /** One geographic view shared by the home preview and the independent map route. */
 export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: boolean; initialSlug?: string }) {
   const { locale, offline } = useExperience();
+  const { projects: allProjects, loading: projectsLoading, error: projectsError } = useProjects();
+  const projects = useMemo(
+    () => allProjects.filter((project) => project.map.coordinates),
+    [allProjects],
+  );
   const c = mapExplorerCopy[locale];
   const d = discoveryCopy[locale];
   const j = journeyCopy[locale];
@@ -108,7 +114,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   const map = useRef<MapLibreMap | null>(null);
   const markers = useRef<Record<string, Marker>>({});
   const layersButton = useRef<HTMLButtonElement>(null);
-  const [selected, setSelected] = useState(projects.find((project) => project.slug === initialSlug)?.slug ?? projects[0]?.slug ?? "");
+  const [selected, setSelected] = useState("");
   const [mapSelectionMode, setMapSelectionMode] = useState<"overview" | "focus">(initialSlug ? "focus" : "overview");
   const selectedRef = useRef(selected);
   const viewMode = useRef<"all" | "selected" | "free">(initialSlug ? "selected" : "all");
@@ -129,6 +135,14 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   /* eslint-enable react-hooks/set-state-in-effect */
   const [layersOpen, setLayersOpen] = useState(false);
   const [retry, setRetry] = useState(0);
+  /* eslint-disable react-hooks/set-state-in-effect -- Elige el proyecto por defecto en cuanto useProjects() resuelve la carga inicial (antes el listado era sincrono al montar, ahora llega por Supabase/fetch). */
+  useEffect(() => {
+    if (!projects.length || selected) return;
+    const initial = projects.find((item) => item.slug === initialSlug)?.slug ?? projects[0].slug;
+    setSelected(initial);
+    selectedRef.current = initial;
+  }, [projects, initialSlug, selected]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   const project = projects.find((item) => item.slug === selected) ?? projects[0];
 
   /* eslint-disable react-hooks/set-state-in-effect -- Hydrate an optional persisted map preference before creating MapLibre. */
@@ -167,8 +181,8 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
     setMapSelectionMode("overview");
     if (!map.current || !projects.length) return;
     viewMode.current = "all";
-    map.current.fitBounds(projectBounds(), { padding: 64, maxZoom: 14.5, duration: shouldReduce ? 0 : 550 });
-  }, [shouldReduce]);
+    map.current.fitBounds(projectBoundsOf(projects), { padding: 64, maxZoom: 14.5, duration: shouldReduce ? 0 : 550 });
+  }, [shouldReduce, projects]);
 
   const focus = useCallback((slug: string) => {
     setMapSelectionMode("focus");
@@ -183,7 +197,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
     const item = projects.find((project) => project.slug === slug);
     if (!item || !map.current) return;
     map.current.easeTo({ center: toLngLat(item.map.coordinates!), zoom: 15.2, duration: shouldReduce ? 0 : 550 });
-  }, [compact, shouldReduce]);
+  }, [compact, shouldReduce, projects]);
 
   const toggleThreeD = useCallback(() => {
     const next = !threeDRef.current;
@@ -205,7 +219,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
     // Client query parameters are unavailable in the static export's initial HTML.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (slug && projects.some((item) => item.slug === slug)) focus(slug);
-  }, [focus]);
+  }, [focus, projects]);
 
   useEffect(() => {
     if (!mapPreferenceReady || offline || !container.current || !projects.length) return;
@@ -229,7 +243,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
         zoom: 14,
         pitch: threeDRef.current ? 62 : 0,
         bearing: threeDRef.current ? -18 : 0,
-        maxBounds: puntaCanaBounds(),
+        maxBounds: puntaCanaBoundsOf(projects),
         minZoom: 11.5,
         maxZoom: 17.5,
         attributionControl: false,
@@ -287,11 +301,11 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
 
       const requested = projects.find((item) => item.slug === selectedRef.current);
       if (viewMode.current === "selected" && requested) instance.jumpTo({ center: toLngLat(requested.map.coordinates!), zoom: 15.2 });
-      else instance.fitBounds(projectBounds(), { padding: 64, maxZoom: 14.5, duration: 0 });
+      else instance.fitBounds(projectBoundsOf(projects), { padding: 64, maxZoom: 14.5, duration: 0 });
 
       observer = new ResizeObserver(() => {
         instance.resize();
-        if (viewMode.current === "all") instance.fitBounds(projectBounds(), { padding: 64, maxZoom: 14.5, duration: 0 });
+        if (viewMode.current === "all") instance.fitBounds(projectBoundsOf(projects), { padding: 64, maxZoom: 14.5, duration: 0 });
         if (viewMode.current === "selected") {
           const active = projects.find((item) => item.slug === selectedRef.current);
           if (active) instance.jumpTo({ center: toLngLat(active.map.coordinates!) });
@@ -308,7 +322,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       map.current = null;
       markers.current = {};
     };
-  }, [c, d, compact, focus, initialSlug, mapPreferenceReady, offline, retry, shouldReduce]);
+  }, [c, d, compact, focus, initialSlug, mapPreferenceReady, offline, projects, retry, shouldReduce]);
 
   useEffect(() => {
     if (!map.current || status !== "ready") return;
@@ -338,6 +352,8 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
     return () => document.removeEventListener("keydown", onKey);
   }, [layersOpen]);
 
+  if (projectsLoading) return <p className="section" role="status">{j.loading}</p>;
+  if (projectsError) return <p className="section" role="alert">{c.error}</p>;
   if (!project) return <p className="section">{j.noMatch}</p>;
   return (
     <div className={`explorer ${compact ? "explorer-compact" : ""}`}>

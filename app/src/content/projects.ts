@@ -1,5 +1,40 @@
 export type Locale = "es" | "en" | "fr";
 export type Localized = Record<Locale, string>;
+
+/** Viñetas de una amenidad, una lista de texto por idioma. */
+export interface AmenityFeatureSet {
+  es?: string[];
+  en?: string[];
+  fr?: string[];
+}
+
+/** Grupo de amenidades (`public.amenity_groups`): playa, bienestar, deportes… */
+export interface AmenityGroupRef {
+  key: string;
+  label: Localized;
+}
+
+/**
+ * Amenidad con imagen y viñetas propias del proyecto (patrón "scrollytelling"
+ * de `/proyectos/[slug]`). `image`/`features`/`group` son opcionales porque el
+ * catálogo compartido (`public.amenities`) no obliga a rellenarlos.
+ */
+export interface RichAmenity {
+  /** Clave estable del catálogo compartido (`amenities.amenity_key`). */
+  key?: string;
+  name: Localized;
+  /** `null`/`undefined` = sin imagen propia ni de catálogo. */
+  image?: string | null;
+  features?: AmenityFeatureSet;
+  group?: AmenityGroupRef | null;
+}
+
+/**
+ * Amenidad "plana" heredada: solo el nombre localizado, sin imagen ni
+ * viñetas. Sigue siendo válida porque varios proyectos reales la usan así.
+ */
+export type AmenityEntry = RichAmenity | Localized;
+
 export interface PropertyProject {
   id: string;
   slug: string;
@@ -24,6 +59,11 @@ export interface PropertyProject {
     currency: "USD";
     note: Localized | null;
   };
+  /**
+   * Categoría cerrada de `public.property_categories` (apartamento, villa,
+   * townhouse, penthouse, mixto, otro). `null` mientras no esté asignada.
+   */
+  propertyCategory: { key: string; label: Localized } | null;
   productTypes: Localized[];
   typologies: Localized[];
   includesAppliances: boolean | null;
@@ -44,7 +84,7 @@ export interface PropertyProject {
   };
   hero: string;
   gallery: { src: string; alt: Localized }[];
-  amenities: any[];
+  amenities: AmenityEntry[];
   map: {
     url: string;
     coordinates: [number, number] | null;
@@ -92,6 +132,7 @@ export const melcon: PropertyProject = {
     currency: "USD",
     note: null,
   },
+  propertyCategory: { key: "apartamento", label: l("Apartamento", "Apartment", "Appartement") },
   productTypes: [
     l("Apartamento", "Apartment", "Appartement"),
   ],
@@ -215,6 +256,7 @@ export const terraSerena: PropertyProject = {
     currency: "USD",
     note: null,
   },
+  propertyCategory: { key: "mixto", label: l("Mixto", "Mixed", "Mixte") },
   productTypes: [
     l("Apartamento", "Apartment", "Appartement"),
     l("Penthouse", "Penthouse", "Penthouse"),
@@ -286,6 +328,7 @@ export const theBeach: PropertyProject = {
     currency: "USD",
     note: l("Incluye gastos legales", "Includes legal expenses", "Inclut les frais juridiques"),
   },
+  propertyCategory: { key: "mixto", label: l("Mixto", "Mixed", "Mixte") },
   productTypes: [
     l("Estudio", "Studio", "Studio"),
     l("Apartamento", "Apartment", "Appartement"),
@@ -369,6 +412,7 @@ export const toPublicProject = (project: PropertyProject) => ({
   paymentReference: project.paymentReference,
   delivery: project.delivery,
   reservation: project.reservation,
+  propertyCategory: project.propertyCategory,
   productTypes: project.productTypes,
   typologies: project.typologies,
   includesAppliances: project.includesAppliances,

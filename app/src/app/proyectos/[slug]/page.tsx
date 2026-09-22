@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getProject } from "@/content/projects";
-import { getPublishedProjects } from "@/content/projects";
+import { getContentRepository } from "@/lib/cms/repository";
+import { fromApiProjectDetail } from "@/lib/cms/mappers";
 import { ExperienceProvider } from "@/components/experience-provider";
 import { Shell } from "@/components/shell";
 import { ProjectDetail } from "@/components/project-section";
@@ -13,13 +13,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = await getContentRepository().getProject(slug);
   return {
     title: project ? `${project.name} · ${project.location}` : "Proyecto no encontrado",
   };
 }
-export function generateStaticParams() {
-  return getPublishedProjects().map(({ slug }) => ({ slug }));
+export async function generateStaticParams() {
+  // Corre en build time contra el proveedor activo (Supabase o estático);
+  // enumera los slugs reales para que la exportación estática genere cada
+  // ficha. Si Supabase no responde, el build debe fallar de forma visible
+  // en vez de publicar un catálogo vacío — no se atrapa el error aquí.
+  const projects = await getContentRepository().listProjects();
+  return projects.map(({ slug }) => ({ slug }));
 }
 export default async function Detail({
   params,
@@ -27,8 +32,9 @@ export default async function Detail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = getProject(slug);
-  if (!project) notFound();
+  const apiProject = await getContentRepository().getProject(slug);
+  if (!apiProject) notFound();
+  const project = fromApiProjectDetail(apiProject);
   return (
     <ExperienceProvider>
       <Shell detail>

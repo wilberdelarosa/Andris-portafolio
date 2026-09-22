@@ -4,31 +4,36 @@ import { ExperienceProvider } from "@/components/experience-provider";
 import { ProjectCatalog } from "@/components/project-catalog";
 import { Shell } from "@/components/shell";
 import { catalogCopy } from "@/content/catalog-copy";
-import { getPublishedProjects } from "@/content/projects";
+import { getContentRepository } from "@/lib/cms/repository";
 import { pageMetadata } from "@/lib/page-metadata";
 import "@/components/project-catalog.css";
 
 export async function generateMetadata() {
   const c = catalogCopy.es;
-  const { getPublishedProjects } = await import('@/content/projects');
-  const total = getPublishedProjects().length;
+  const projects = await getContentRepository().listProjects();
   return {
-    ...pageMetadata("es", c.title(total).join(" ")),
+    ...pageMetadata("es", c.title(projects.length).join(" ")),
     description: c.intro,
   };
 }
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
   const locale = "es";
   const c = catalogCopy.es;
+  // Se corre en build time (exportación estática) contra el proveedor activo
+  // (Supabase si hay credenciales, si no el contenido estático de
+  // src/content/projects.ts). El catálogo interactivo (ProjectCatalog) hace
+  // su propia carga en cliente vía useProjects(); este listado solo alimenta
+  // el JSON-LD para buscadores.
+  const projects = await getContentRepository().listProjects();
 
   // Listado navegable para buscadores: describe el catalogo sin precios ni
   // disponibilidad, que son los datos todavia por confirmar.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: c.title(getPublishedProjects().length).join(" "),
-    itemListElement: getPublishedProjects().map((project, index) => ({
+    name: c.title(projects.length).join(" "),
+    itemListElement: projects.map((project, index) => ({
       "@type": "ListItem",
       position: index + 1,
       url: new URL(`/proyectos/${project.slug}?lang=${locale}`, process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").href,

@@ -11,6 +11,14 @@
   color: var(--text);
 }
 
+:root {
+  /* Altura real de .admin-tabbar en móvil (0 cuando la tabbar no está
+     visible). Se recalcula dentro del media query donde la tabbar se
+     vuelve fija, para que cualquier control flotante (p.ej. el FAB de
+     preview) pueda anclarse por encima sin repetir el número a mano. */
+  --admin-tabbar-height: 0px;
+}
+
 /* --- Barra lateral (escritorio) ---------------------------------------- */
 .admin-side {
   width: 264px;
@@ -650,11 +658,28 @@
     width: 100%;
     justify-content: center;
   }
+  :root {
+    /* 56px es solo el alto MÍNIMO de cada botón: con etiquetas largas
+       ("Añadir proyecto") el texto envuelve a dos líneas y el botón crece
+       de verdad a ~74px. Medido en dispositivo: contenedor (8px arriba +
+       10px abajo) + botón real (~74px) ≈ 92px. Se deja margen a 94px para
+       cubrir variaciones de fuente, más el inset seguro real del
+       dispositivo. Si cambia el padding o las etiquetas de la tabbar, solo
+       hay que tocar este valor y el FAB que lo usa se mantiene
+       sincronizado automáticamente. */
+    --admin-tabbar-height: calc(94px + env(safe-area-inset-bottom));
+  }
   .admin-tabbar {
     display: flex;
     position: fixed;
     inset: auto 0 0 0;
-    z-index: 50;
+    /* Por encima del FAB de preview (z-index: 90, definido más abajo):
+       .admin-tabbar es un contenedor con posición fija, así que crea su
+       propio contexto de apilamiento y todo lo que va dentro (incluido
+       .admin-more-menu) queda confinado a este nivel sin importar el
+       z-index que se le ponga al hijo. Si esto baja de 90, el menú "Más"
+       vuelve a quedar tapado por el FAB en la pestaña "Añadir proyecto". */
+    z-index: 95;
     background: var(--color-ink);
     padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
     gap: 4px;
@@ -1677,10 +1702,11 @@
 }
 
 @media (max-width: 960px) {
-  .npf-split-layout {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
+  /* El colapso de .npf-split-layout a una sola columna (con el FAB y el
+     modal de preview) vive en un único breakpoint: @media (max-width: 900px)
+     más abajo. Aquí solo quedan ajustes menores del panel de preview que
+     aplican en la franja 900-960px, donde .npf-split-layout todavía usa
+     su grid de dos columnas por defecto. */
   .admin-preview-panel {
     position: static;
     min-height: 360px;
@@ -1855,6 +1881,8 @@
 }
 
 @media (max-width: 900px) {
+  /* Único breakpoint donde .npf-split-layout colapsa al patrón móvil
+     (formulario a ancho completo + FAB que abre el preview en modal). */
   .npf-split-layout {
     display: block; /* Remove grid so form takes full width */
     padding-bottom: 80px; /* Space for FAB */
@@ -1867,7 +1895,7 @@
     justify-content: center;
     gap: 8px;
     position: fixed;
-    bottom: 100px;
+    bottom: calc(var(--admin-tabbar-height) + 16px);
     right: 24px;
     background: var(--color-blue);
     color: #fff;
@@ -1948,11 +1976,16 @@
   word-break: break-all;
 }
 
-/* --- Mobile "M�s" Menu --- */
+/* --- Mobile "M�s" Menu --- */
 .admin-more-menu {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 12px;
+  /* Por encima del FAB de preview móvil (z-index: 90): en la pestaña
+     "Añadir proyecto" ambos pueden estar visibles a la vez y este menú,
+     al ser una superposición transitoria que el usuario acaba de abrir,
+     debe quedar legible y clicable por delante del FAB. */
+  z-index: 95;
   background: var(--color-ink);
   border: 1px solid var(--color-ink-soft);
   border-radius: 16px;

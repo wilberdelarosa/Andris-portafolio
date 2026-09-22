@@ -12,7 +12,7 @@ import { useExperience } from "./experience-provider";
 import { Modal, Reveal, downloadText } from "./ui";
 import { designCopy } from "@/content/design-copy";
 import { advisor } from "@/content/advisor";
-import { getPublishedProjects } from "@/content/projects";
+import { useProjects } from "./projects-provider";
 import { journeyCopy } from "@/content/journey-copy";
 import { EditorialTitle, DecorativeLayer } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
@@ -36,7 +36,7 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
   const { t, locale } = useExperience();
   const j = journeyCopy[locale];
   const c = contactCopy[locale];
-  const projects = getPublishedProjects();
+  const { projects, loading: projectsLoading } = useProjects();
   const [selectedProject, setSelectedProject] = useState(projectSlug);
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);
@@ -203,12 +203,21 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
             <select
               name="project"
               value={projects.find((p) => p.slug === selectedProject)?.name ?? ""}
+              disabled={projectsLoading}
               onChange={(event) => {
                 const project = projects.find((item) => item.name === event.target.value);
                 setSelectedProject(project?.slug ?? "");
               }}
             >
-              <option value="">{j.general}</option>
+              <option value="">
+                {projectsLoading
+                  ? locale === "es"
+                    ? "Cargando proyectos…"
+                    : locale === "fr"
+                      ? "Chargement des projets…"
+                      : "Loading projects…"
+                  : j.general}
+              </option>
               {projects.map((project) => <option key={project.slug} value={project.name}>{project.name}</option>)}
             </select>
           </label>

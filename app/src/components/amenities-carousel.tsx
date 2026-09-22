@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "motion/react";
+import { motion, type PanInfo } from "motion/react";
+import type { ResolvedAmenity } from "@/lib/amenities";
 
-export interface AmenityItem {
-  id: string;
-  image?: string;
-  name: string;
-}
+/** @deprecated usa `ResolvedAmenity` de `@/lib/amenities`; se conserva por compatibilidad de tipos. */
+export type AmenityItem = ResolvedAmenity;
 
 export interface AmenitiesCarouselProps {
-  items: AmenityItem[];
+  items: ResolvedAmenity[];
 }
 
 export function AmenitiesCarousel({ items }: AmenitiesCarouselProps) {
@@ -32,7 +30,7 @@ export function AmenitiesCarousel({ items }: AmenitiesCarouselProps) {
     setCurrentIndex(index);
   };
 
-  const onDragEnd = (event: any, info: any) => {
+  const onDragEnd = (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (info.offset.x < -50) {
       handleNext();
     } else if (info.offset.x > 50) {
@@ -101,7 +99,14 @@ export function AmenitiesCarousel({ items }: AmenitiesCarouselProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                   >
-                    {item.name}
+                    <strong>{item.name}</strong>
+                    {item.features.length > 0 && (
+                      <ul className="amenities-carousel-features">
+                        {item.features.slice(0, 3).map((feature, featureIndex) => (
+                          <li key={featureIndex}>{feature}</li>
+                        ))}
+                      </ul>
+                    )}
                   </motion.div>
                 )}
               </div>

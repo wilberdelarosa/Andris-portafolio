@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { getPublishedProjects } from "@/content/projects";
+import { useProjects } from "./projects-provider";
 import { journeyCopy } from "@/content/journey-copy";
 import {
   House,
@@ -48,6 +48,7 @@ export function Shell({
 }) {
   const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline, hideProjectNames, setHideProjectNames } =
     useExperience();
+  const { projects, loading: projectsLoading } = useProjects();
   const pathname = usePathname();
   const j = journeyCopy[locale];
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -59,7 +60,7 @@ export function Shell({
     { path: "/calculadora", label: t.nav[3], icon: Calculator },
     { path: "/contacto", label: t.talk, icon: WhatsappLogo },
   ];
-  const savedProjects = getPublishedProjects().filter((p) => savedSlugs.includes(p.slug));
+  const savedProjects = projects.filter((p) => savedSlugs.includes(p.slug));
   const isActive = (path: string) => path === "/" ? pathname === "/" : pathname.startsWith(path);
   const [settings, setSettings] = useState(false);
   const [favorites, setFavorites] = useState(false);
@@ -342,7 +343,11 @@ export function Shell({
         </button>
       </Modal>
       <Modal open={favorites} onOpenChange={setFavorites} title={t.favorites}>
-        {savedProjects.length ? savedProjects.map((project) => (
+        {projectsLoading ? (
+          <p className="field-hint" role="status">
+            {locale === "es" ? "Cargando proyectos guardados…" : locale === "fr" ? "Chargement des projets enregistrés…" : "Loading saved projects…"}
+          </p>
+        ) : savedProjects.length ? savedProjects.map((project) => (
           <Link key={project.slug} className="saved-project" onClick={() => setFavorites(false)} href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>
             <Image src={project.hero} alt="" width={90} height={76}/>
             <span><strong>{project.name}</strong><small>{project.location}</small></span><ArrowUpRight size={20}/>

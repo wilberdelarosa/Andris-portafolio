@@ -1,6 +1,7 @@
 import type { PropertyProject } from "../content/projects";
 import type { DiscoveryFeature } from "../content/project-discovery";
 import { matchesDiscovery } from "../content/project-discovery.ts";
+import { amenityLabel } from "./amenities.ts";
 
 export interface CatalogFilters {
   query: string;
@@ -8,6 +9,7 @@ export interface CatalogFilters {
   bedroom: number | null;
   price: "under150" | "under200" | "confirmed" | "pending" | null;
   delivery: string | null;
+  /** `key` de `property_categories` (p. ej. "apartamento"), no texto libre. */
   productType: string | null;
   amenity: string | null;
   features: DiscoveryFeature[];
@@ -52,9 +54,9 @@ export function matchesCatalog(
       project.location.split("·")[0].trim() === filters.zone) &&
     (filters.bedroom === null || project.bedrooms.includes(filters.bedroom)) &&
     (filters.productType === null ||
-      project.productTypes.some((type) => type.es === filters.productType)) &&
+      project.propertyCategory?.key === filters.productType) &&
     (filters.amenity === null ||
-      project.amenities.some((amenity) => (amenity.name?.es || amenity.es) === filters.amenity)) &&
+      project.amenities.some((amenity) => amenityLabel(amenity, "es") === filters.amenity)) &&
     matchesDiscovery(project, filters.delivery, filters.features)
   );
 }

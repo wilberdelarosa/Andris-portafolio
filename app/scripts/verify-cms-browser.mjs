@@ -28,6 +28,16 @@ function fakeSession() {
   };
 }
 
+async function mockNotifications(page) {
+  await page.route("**/rest/v1/notifications**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "[]",
+    });
+  });
+}
+
 async function navigate(page, pathname) {
   const response = await page.goto(new URL(pathname, baseURL).href, {
     waitUntil: "domcontentloaded",
@@ -79,6 +89,7 @@ try {
 
     await check(`CMS autenticado: proyectos y vista previa @ ${width}px`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await mockNotifications(page);
       await page.addInitScript((session) => {
         localStorage.setItem("ap-cms-session", JSON.stringify(session));
       }, fakeSession());
@@ -86,6 +97,7 @@ try {
       await navigate(page, "/admin/#proyectos");
       await page.locator(".admin-shell").waitFor();
       await page.getByRole("heading", { name: "Proyectos", exact: true }).waitFor();
+      await page.locator(".admin-project-item").first().waitFor({ state: "attached" });
       assert.ok(await page.locator(".admin-project-item").count() > 0);
       assert.equal(await page.locator(".admin-preview-panel").count(), 1);
       assert.equal(await page.locator(".pcard").count(), 1);
@@ -96,6 +108,7 @@ try {
 
     await check(`CMS autenticado: alta de proyecto y vista previa @ ${width}px`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await mockNotifications(page);
       await page.addInitScript((session) => {
         localStorage.setItem("ap-cms-session", JSON.stringify(session));
       }, fakeSession());

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { KuulaWarmup } from "@/components/kuula-warmup";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { ProjectsProvider } from "@/components/projects-provider";
 import "./globals.css";
 const indexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 export const metadata: Metadata = {
@@ -67,7 +68,12 @@ export default function RootLayout({
       <body>
         <KuulaWarmup />
         <AnalyticsTracker />
-        {children}
+        {/*
+          Una sola carga de proyectos para toda la sesión: el layout raíz no
+          se desmonta al navegar entre rutas del App Router, así que esta
+          petición no se repite en cada página. Ver projects-provider.tsx.
+        */}
+        <ProjectsProvider>{children}</ProjectsProvider>
       </body>
     </html>
   );

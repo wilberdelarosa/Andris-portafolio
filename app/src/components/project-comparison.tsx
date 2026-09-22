@@ -26,13 +26,14 @@ import {
 } from "@phosphor-icons/react";
 import { catalogCopy } from "@/content/catalog-copy";
 import { advisor } from "@/content/advisor";
-import { getPublishedProjects, type PropertyProject } from "@/content/projects";
+import type { PropertyProject } from "@/content/projects";
 import {
   getProjectInformation,
   projectInformationFields,
   type ProjectInformationFieldId,
 } from "@/content/project-information";
 import { useExperience } from "./experience-provider";
+import { useProjects } from "./projects-provider";
 import "./project-comparison.css";
 
 interface ComparisonProps {
@@ -193,11 +194,11 @@ export function ProjectComparisonDock({
   const reduced = useReducedMotion();
   const c = catalogCopy[locale];
   const [isTrayOpen, setIsTrayOpen] = useState(false);
-  const allProjects = useMemo(() => getPublishedProjects(), []);
-  const selectedProjects = useMemo(
-    () => allProjects.filter((p) => selectedSlugs.includes(p.slug)),
-    [allProjects, selectedSlugs],
-  );
+  const { projects: allProjects } = useProjects();
+  // Sin useMemo manual: el compilador de React (activo en este proyecto)
+  // memoiza automaticamente y rechaza la compilacion cuando no puede
+  // preservar una memoizacion escrita a mano sobre un valor de contexto.
+  const selectedProjects = allProjects.filter((p) => selectedSlugs.includes(p.slug));
   const mobileTrayId = "compare-mobile-action-tray";
 
   return (
@@ -326,11 +327,8 @@ export function ProjectComparisonModal({
     }
   };
 
-  const allProjects = useMemo(() => getPublishedProjects(), []);
-  const activeProjects = useMemo(
-    () => allProjects.filter((p) => selectedSlugs.includes(p.slug)),
-    [allProjects, selectedSlugs],
-  );
+  const { projects: allProjects } = useProjects();
+  const activeProjects = allProjects.filter((p) => selectedSlugs.includes(p.slug));
 
   const whatsappPhone =
     process.env.NEXT_PUBLIC_WHATSAPP?.replace(/\D/g, "") || advisor.whatsapp;

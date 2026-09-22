@@ -17,6 +17,7 @@ import {
   SignOut,
   SquaresFour,
   Stethoscope,
+  Tag,
   Trash,
   UploadSimple,
   UsersThree,
@@ -27,10 +28,13 @@ import { NewProjectForm } from "./new-project-form";
 import { NotificationCenter } from "./notification-center";
 import { LoginForm } from "./login-form";
 import { DiagnosticsPanel } from "./diagnostics-panel";
+import { CategoryManager } from "./category-manager";
 import { LivePreviewPanel, type DraftPreview } from "./live-preview-panel";
 
-import { getPublishedProjects, type PropertyProject } from "@/content/projects";
+import type { PropertyProject } from "@/content/projects";
+import { useProjects } from "@/components/projects-provider";
 import { getContentRepository } from "@/lib/cms/repository";
+import { amenityLabel } from "@/lib/amenities";
 import {
   draftsStore,
   leadsStore,
@@ -54,6 +58,7 @@ type Tab =
   | "resumen"
   | "proyectos"
   | "nuevo"
+  | "categorias"
   | "leads"
   | "cotizaciones"
   | "esquema"
@@ -64,6 +69,7 @@ const TABS: { id: Tab; label: string; icon: typeof SquaresFour }[] = [
   { id: "proyectos", label: "Proyectos", icon: Buildings },
   { id: "nuevo", label: "Añadir proyecto", icon: PlusCircle },
   { id: "leads", label: "Leads", icon: UsersThree },
+  { id: "categorias", label: "Categorías", icon: Tag },
   { id: "cotizaciones", label: "Cotizaciones", icon: Calculator },
   { id: "esquema", label: "Esquema", icon: Database },
   { id: "diagnostico", label: "Diagnóstico", icon: Stethoscope },
@@ -101,7 +107,7 @@ export function AdminStudio() {
   const [leads, setLeads] = useState<CmsLead[]>([]);
   const [quotes, setQuotes] = useState<CalculatorQuote[]>([]);
   const [drafts, setDrafts] = useState<ProjectDraft[]>([]);
-  const projects = useMemo(() => getPublishedProjects(), []);
+  const { projects, loading: projectsLoading, error: projectsError } = useProjects();
   const connection: CmsConnection = useMemo(
     () => getContentRepository().connection(),
     [],
@@ -244,6 +250,7 @@ export function AdminStudio() {
               {tab === "resumen" && (
                 <Dashboard
                   projects={projects}
+                  projectsLoading={projectsLoading}
                   leads={leads}
                   quotes={quotes}
                   drafts={drafts}
@@ -252,9 +259,15 @@ export function AdminStudio() {
                 />
               )}
               {tab === "proyectos" && (
-                <ProjectsPanel projects={projects} drafts={drafts} />
+                <ProjectsPanel
+                  projects={projects}
+                  drafts={drafts}
+                  loading={projectsLoading}
+                  error={projectsError}
+                />
               )}
               {tab === "nuevo" && <NewProjectForm />}
+              {tab === "categorias" && <CategoryManager />}
               {tab === "leads" && <LeadsPanel leads={leads} />}
               {tab === "cotizaciones" && <QuotesPanel quotes={quotes} projects={projects} />}
               {tab === "esquema" && <SchemaPanel />}
@@ -264,7 +277,7 @@ export function AdminStudio() {
         </div>
       </main>
 
-            <nav className="admin-tabbar" aria-label="Secciones del estudio">
+      <nav className="admin-tabbar" aria-label="Secciones del estudio">
         {TABS.slice(0, 4).map((item) => (
           <button
             key={item.id}
@@ -279,11 +292,11 @@ export function AdminStudio() {
         <div style={{ position: "relative", display: "flex", flex: 1 }}>
           <button
             type="button"
-            className={showMoreMenu || TABS.slice(4).some(t => t.id === tab) ? "is-active" : ""}
+            className={showMoreMenu || TABS.slice(4).some((t) => t.id === tab) ? "is-active" : ""}
             onClick={() => setShowMoreMenu(!showMoreMenu)}
           >
             <DotsThree size={22} weight={showMoreMenu ? "fill" : "regular"} />
-            M�s
+            Más
           </button>
           {showMoreMenu && (
             <div className="admin-more-menu">
@@ -314,6 +327,7 @@ export function AdminStudio() {
 --------------------------------------------------------------------------- */
 function Dashboard({
   projects,
+  projectsLoading,
   leads,
   quotes,
   drafts,
@@ -321,6 +335,7 @@ function Dashboard({
   go,
 }: {
   projects: PropertyProject[];
+  projectsLoading: boolean;
   leads: CmsLead[];
   quotes: CalculatorQuote[];
   drafts: ProjectDraft[];
@@ -365,7 +380,7 @@ function Dashboard({
         {/* Proyectos Recientes */}
         <div style={{ background: 'var(--panel)', borderRadius: '20px', border: '1px solid var(--line)', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '15px' }}>Proyectos ({projects.length})</h3>
+            <h3 style={{ margin: 0, fontSize: '15px' }}>Proyectos ({projectsLoading ? "…" : projects.length})</h3>
             <button onClick={() => go('nuevo')} style={{ background: 'var(--text)', color: 'var(--bg)', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>+ Nuevo</button>
           </div>
           <div style={{ padding: '8px' }}>
@@ -375,7 +390,7 @@ function Dashboard({
                   <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--line)', backgroundImage: `url(${p.hero})`, backgroundSize: 'cover' }} />
                   <div>
                     <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 500 }}>{p.name}</h4>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{Math.floor(Math.random() * 500) + 100} visitas</span>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{152} visitas</span>
                   </div>
                 </div>
                 <button onClick={() => go('proyectos')} style={{ background: 'transparent', border: '1px solid var(--line)', padding: '6px', borderRadius: '8px', cursor: 'pointer', color: 'var(--text)' }}>Editar</button>
@@ -419,11 +434,22 @@ function Dashboard({
 function ProjectsPanel({
   projects,
   drafts,
+  loading,
+  error,
 }: {
   projects: PropertyProject[];
   drafts: ProjectDraft[];
+  loading: boolean;
+  error: string | null;
 }) {
-  const [selected, setSelected] = useState(projects[0]?.slug ?? "");
+  const [selected, setSelected] = useState("");
+  // El listado llega de forma asincrona (Supabase o estatico via
+  // getContentRepository()); en cuanto resuelve, se preselecciona el primero.
+  /* eslint-disable react-hooks/set-state-in-effect -- Sincroniza la seleccion con la carga inicial del provider, no con cada render. */
+  useEffect(() => {
+    if (!selected && projects.length) setSelected(projects[0].slug);
+  }, [projects, selected]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   const project = projects.find((item) => item.slug === selected) ?? null;
   const draft = drafts.find((item) => item.projectId === selected) ?? null;
   const importRef = useRef<HTMLInputElement>(null);
@@ -466,6 +492,12 @@ function ProjectsPanel({
 
       <div className="admin-projects">
         <div className="admin-project-list" role="listbox" aria-label="Proyectos">
+          {loading && (
+            <p className="field-hint" role="status">Cargando proyectos…</p>
+          )}
+          {error && !loading && (
+            <p className="field-hint" role="alert">No se pudo cargar el catálogo: {error}</p>
+          )}
           {projects.map((item) => {
             const hasDraft = drafts.some((d) => d.projectId === item.slug);
             return (
@@ -523,7 +555,9 @@ function ProjectsPanel({
         {project ? (
           <ProjectEditor key={`${project.slug}-${draft?.updatedAt ?? "base"}`} project={project} draft={draft} />
         ) : (
-          <div className="admin-empty">Selecciona un proyecto</div>
+          <div className="admin-empty">
+            {loading ? "Cargando proyectos…" : "Selecciona un proyecto"}
+          </div>
         )}
       </div>
     </>
@@ -605,7 +639,7 @@ function ProjectEditor({
     heroImg: project.hero,
     mapUrl: project.map.url,
     mapCoords: project.map.coordinates?.join(","),
-    amenities: project.amenities.map((item) => item.es),
+    amenities: project.amenities.map((item) => amenityLabel(item, "es")),
     signing: project.paymentReference.signing,
     construction: project.paymentReference.construction,
     onDelivery: project.paymentReference.delivery,
@@ -1093,4 +1127,3 @@ function SchemaPanel() {
     </>
   );
 }
-

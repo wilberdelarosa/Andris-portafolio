@@ -3065,14 +3065,20 @@ em {
 .process-navigation button { color: var(--text); border-color: var(--line); width: 44px; height: 44px; }
 
 /* --- Amenities Carousel --- */
+/* Variante móvil del patrón "scrollytelling": por encima de 760px se usa
+   `.amenities-showcase` (imagen fija + lista con scroll) en su lugar. */
 .amenities-carousel-wrapper { position: relative; width: 100%; max-width: 1000px; margin: 40px auto; overflow: hidden; padding-bottom: 30px; }
+@media (min-width: 761px) { .amenities-carousel-wrapper { display: none; } }
 .amenities-carousel-container { display: flex; align-items: center; justify-content: center; height: 350px; position: relative; perspective: 1000px; }
 .amenities-carousel-item { position: absolute; width: 60%; max-width: 400px; height: 280px; will-change: transform, opacity; cursor: grab; }
 .amenities-carousel-item:active { cursor: grabbing; }
 .amenities-carousel-card { position: relative; width: 100%; height: 100%; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); background: var(--panel); }
 .amenities-carousel-image { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .amenities-carousel-fallback { width: 100%; height: 100%; background: var(--soft); }
-.amenities-carousel-label { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: #fff; font-weight: 500; font-size: 18px; pointer-events: none; }
+.amenities-carousel-label { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.85), transparent); color: #fff; font-weight: 500; font-size: 18px; pointer-events: none; }
+.amenities-carousel-label strong { display: block; }
+.amenities-carousel-features { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 400; opacity: 0.85; }
+.amenities-carousel-features li::before { content: "· "; }
 .amenities-carousel-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
 .amenities-carousel-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); border: none; padding: 0; cursor: pointer; transition: all 0.2s ease; }
 .amenities-carousel-dot.active { background: var(--text); transform: scale(1.2); }

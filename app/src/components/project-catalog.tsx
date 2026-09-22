@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import {
@@ -20,13 +20,14 @@ import {
   discoveryFeatures,
   type DiscoveryFeature,
 } from "@/content/project-discovery";
-import { getPublishedProjects } from "@/content/projects";
 import {
   emptyCatalogFilters,
   matchesCatalog,
   type CatalogFilters,
 } from "@/lib/catalog-filtering";
+import { resolveAmenity } from "@/lib/amenities";
 import { useExperience } from "./experience-provider";
+import { useProjects } from "./projects-provider";
 import { PropertyCard } from "./property-card";
 import { ProjectTourButton } from "./project-media";
 import { Modal } from "./ui";
@@ -38,6 +39,7 @@ import {
 
 export function ProjectCatalog() {
   const { locale, isSaved, savedSlugs } = useExperience();
+  const { projects, loading: projectsLoading, error: projectsError } = useProjects();
   const j = journeyCopy[locale],
     c = catalogCopy[locale],
     d = discoveryCopy[locale];
@@ -47,19 +49,34 @@ export function ProjectCatalog() {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [comparisonSlugs, setComparisonSlugs] = useState<string[]>([]);
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
-  const projects = useMemo(() => getPublishedProjects(), []);
   const zones = [
     ...new Set(projects.map((p) => p.location.split("·")[0].trim())),
   ];
   const bedrooms = [...new Set(projects.flatMap((p) => p.bedrooms))].sort();
+  /** Categorías reales (`property_categories`) presentes en el catálogo, no texto libre. */
   const types = [
     ...new Map(
-      projects.flatMap((p) => p.productTypes).map((type) => [type.es, type]),
+      projects
+        .map((p) => p.propertyCategory)
+        .filter((category): category is NonNullable<typeof category> => category !== null)
+        .map((category) => [category.key, category]),
     ).values(),
   ];
+  /**
+   * `value` es siempre el nombre en español: es el idioma contra el que
+   * `matchesCatalog` compara `filters.amenity` (ver `catalog-filtering.ts`).
+   * `label` respeta el idioma activo para mostrarlo en el combo box.
+   */
   const amenities = [
     ...new Map(
-      projects.flatMap((p) => p.amenities).map((item) => [(item.name?.es || item.es), item]),
+      projects
+        .flatMap((p) => p.amenities)
+        .map((item, index) => ({
+          value: resolveAmenity(item, "es", index).name,
+          label: resolveAmenity(item, locale, index).name,
+        }))
+        .filter((item) => item.value)
+        .map((item) => [item.value, item]),
     ).values(),
   ];
   const matches = (
@@ -146,7 +163,7 @@ export function ProjectCatalog() {
       ? [
           {
             label:
-              types.find((type) => type.es === filters.productType)?.[locale] ??
+              types.find((type) => type.key === filters.productType)?.label[locale] ??
               filters.productType,
             clear: () => update({ productType: null }),
           },
@@ -156,8 +173,7 @@ export function ProjectCatalog() {
       ? [
           {
             label:
-              amenities.find((a) => (a.name?.es || a.es) === filters.amenity)?.[locale] ??
-              filters.amenity,
+              amenities.find((a) => a.value === filters.amenity)?.label ?? filters.amenity,
             clear: () => update({ amenity: null }),
           },
         ]
@@ -179,12 +195,18 @@ export function ProjectCatalog() {
     <div className="catalog">
       <DecorativeLayer variant="plan" />
       <header className="catalog-head">
-        <EditorialTitle
-          as="h1"
-          className="catalog-title"
-          text={c.title(projects.length).join(" ")}
-          accent={c.title(projects.length)[1]}
-        />
+        {projectsLoading ? (
+          <h1 className="catalog-title">
+            {locale === "es" ? "Cargando el catálogo…" : locale === "fr" ? "Chargement du catalogue…" : "Loading the catalog…"}
+          </h1>
+        ) : (
+          <EditorialTitle
+            as="h1"
+            className="catalog-title"
+            text={c.title(projects.length).join(" ")}
+            accent={c.title(projects.length)[1]}
+          />
+        )}
         <p className="catalog-intro">{c.intro}</p>
       </header>
       <div className="catalog-view-controls">
@@ -458,8 +480,8 @@ export function ProjectCatalog() {
               >
                 <option value="">{c.all}</option>
                 {types.map((type) => (
-                  <option key={type.es} value={type.es}>
-                    {type[locale]}
+                  <option key={type.key} value={type.key}>
+                    {type.label[locale]}
                   </option>
                 ))}
               </select>
@@ -472,8 +494,8 @@ export function ProjectCatalog() {
               >
                 <option value="">{c.all}</option>
                 {amenities.map((a) => (
-                  <option key={a.name?.es || a.es} value={a.name?.es || a.es}>
-                    {(a.name?.[locale] || a[locale])}
+                  <option key={a.value} value={a.value}>
+                    {a.label}
                   </option>
                 ))}
               </select>
@@ -500,7 +522,28 @@ export function ProjectCatalog() {
           </button>
         </div>
       </Modal>
-      {visible.length === 0 ? (
+      {projectsLoading ? (
+        <div className="catalog-empty" role="status" aria-live="polite">
+          <p>
+            {locale === "es"
+              ? "Cargando el catálogo de proyectos…"
+              : locale === "fr"
+                ? "Chargement du catalogue de projets…"
+                : "Loading the project catalog…"}
+          </p>
+        </div>
+      ) : projectsError ? (
+        <div className="catalog-empty" role="alert">
+          <p>
+            {locale === "es"
+              ? "No se pudo cargar el catálogo de proyectos."
+              : locale === "fr"
+                ? "Impossible de charger le catalogue de projets."
+                : "The project catalog could not be loaded."}
+          </p>
+          <p className="field-hint">{projectsError}</p>
+        </div>
+      ) : visible.length === 0 ? (
         <div className="catalog-empty">
           <p>{onlySaved && !savedSlugs.length ? j.noSaved : c.empty}</p>
           <p className="field-hint">{d.note}</p>

@@ -31,19 +31,42 @@ import {
   Eye,
   X,
 } from "@phosphor-icons/react";
-import type { Localized, PropertyProject } from "@/content/projects";
+import type { AmenityEntry, Localized, PropertyProject } from "@/content/projects";
 import { draftsStore } from "@/lib/cms/local-store";
 import { describeError, isSupabaseConfigured } from "@/lib/cms/session";
-import { createProject, WriteDeniedError } from "@/lib/cms/project-writer";
+import { createProject, WriteDeniedError, type AmenityInput } from "@/lib/cms/project-writer";
 import { CurrencyInput } from "./currency-input";
 import { ImageInput } from "./image-input";
 import { NumberPicker } from "./number-picker";
 import { LocationInput } from "./rd-location-selector";
+import { PropertyCategorySelect } from "./property-category-select";
+import { AmenityGroupSelect } from "./amenity-group-select";
 import { TagInput } from "./tag-input";
 import { LivePreviewPanel } from "./live-preview-panel";
 
 function loc(text: string): Localized {
   return { es: text, en: text, fr: text };
+}
+
+/**
+ * `AmenityInput` (lo que arma `RichAmenityBuilder`, con `features` como
+ * lista de viñetas ya localizadas) al `AmenityEntry` que espera
+ * `PropertyProject` para la vista previa y el JSON descargable (`features`
+ * como conjunto `{es,en,fr}` de textos sueltos).
+ */
+function toAmenityEntry(amenity: AmenityInput): AmenityEntry {
+  return {
+    name: amenity.name,
+    image: amenity.image || null,
+    features:
+      amenity.features && amenity.features.length > 0
+        ? {
+            es: amenity.features.map((f) => f.es).filter(Boolean),
+            en: amenity.features.map((f) => f.en).filter(Boolean),
+            fr: amenity.features.map((f) => f.fr).filter(Boolean),
+          }
+        : undefined,
+  };
 }
 
 /** Slug ASCII: la version anterior dejaba acentos y signos en la URL. */
@@ -57,7 +80,7 @@ function slugify(value: string): string {
 }
 
 type TabId = "basico" | "mapa" | "espacios" | "precios" | "especificaciones" | "media";
-type FieldValue = string | number | string[];
+type FieldValue = string | number | string[] | AmenityInput[];
 
 const TABS: { id: TabId; label: string; icon: typeof FileText }[] = [
   { id: "basico", label: "General", icon: FileText },
@@ -87,17 +110,24 @@ function isFilled(value: FieldValue | undefined): boolean {
 type Feedback = { tone: "ok" | "error" | "info"; message: string };
 
 
-function RichAmenityBuilder({ amenities, setAmenities }: { amenities: any[]; setAmenities: (v: any[]) => void }) {
+function RichAmenityBuilder({
+  amenities,
+  setAmenities,
+}: {
+  amenities: AmenityInput[];
+  setAmenities: (v: AmenityInput[]) => void;
+}) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [feature, setFeature] = useState("");
-  const [features, setFeatures] = useState<string[]>([]);
+  const [features, setFeatures] = useState<Localized[]>([]);
+  const [groupId, setGroupId] = useState("");
 
   const addFeature = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       if (feature.trim()) {
-        setFeatures([...features, feature.trim()]);
+        setFeatures([...features, loc(feature.trim())]);
         setFeature("");
       }
     }
@@ -105,14 +135,19 @@ function RichAmenityBuilder({ amenities, setAmenities }: { amenities: any[]; set
 
   const addAmenity = () => {
     if (name.trim()) {
-      setAmenities([...amenities, {
-        name: { es: name, en: name, fr: name },
-        image: image || undefined,
-        features: features.map(f => ({ es: f, en: f, fr: f }))
-      }]);
+      setAmenities([
+        ...amenities,
+        {
+          name: loc(name.trim()),
+          image: image || undefined,
+          features,
+          groupId: groupId || undefined,
+        },
+      ]);
       setName("");
       setImage("");
       setFeatures([]);
+      setGroupId("");
     }
   };
 
@@ -123,24 +158,25 @@ function RichAmenityBuilder({ amenities, setAmenities }: { amenities: any[]; set
         <input type="text" placeholder="Nombre (ej. Piscina)" value={name} onChange={e => setName(e.target.value)} />
       </label>
       <ImageInput label="Imagen de Amenidad" value={image} onChange={setImage} />
+      <AmenityGroupSelect value={groupId} onChange={setGroupId} />
       <label style={{ marginTop: '10px' }}>
         Añadir viñeta (Enter para confirmar)
         <input type="text" placeholder="ej. Climatizada" value={feature} onChange={e => setFeature(e.target.value)} onKeyDown={addFeature} />
       </label>
       {features.length > 0 && (
         <ul style={{ paddingLeft: '20px', marginBottom: '10px' }}>
-          {features.map((f, i) => <li key={i}>{f}</li>)}
+          {features.map((f, i) => <li key={i}>{f.es}</li>)}
         </ul>
       )}
       <button type="button" className="button button-outline" onClick={addAmenity}>Agregar Amenidad</button>
-      
+
       {amenities.length > 0 && (
         <div style={{ marginTop: '16px' }}>
           <strong>Amenidades agregadas:</strong>
           <ul>
             {amenities.map((a, idx) => (
               <li key={idx}>
-                {a.name?.es || a} 
+                {a.name.es}
                 <button type="button" style={{ marginLeft: '10px', color: 'red' }} onClick={() => setAmenities(amenities.filter((_, i) => i !== idx))}>Quitar</button>
               </li>
             ))}
@@ -163,9 +199,9 @@ export function NewProjectForm() {
   const [city, setCity] = useState("");
   const [desc, setDesc] = useState("");
 
-  const [bedrooms, setBedrooms] = useState(1);
-  const [bathrooms, setBathrooms] = useState(1);
-  const [parking, setParking] = useState(1);
+  const [bedrooms, setBedrooms] = useState(0);
+  const [bathrooms, setBathrooms] = useState(0);
+  const [parking, setParking] = useState(0);
   const [areaMin, setAreaMin] = useState(0);
   const [areaMax, setAreaMax] = useState(0);
   const [greenArea, setGreenArea] = useState(0);
@@ -182,12 +218,22 @@ export function NewProjectForm() {
    */
   const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
   const [priceConfirmed, setPriceConfirmed] = useState(false);
-  const [signing, setSigning] = useState(10);
-  const [construction, setConstruction] = useState(30);
-  const [onDelivery, setOnDelivery] = useState(60);
+  const [signing, setSigning] = useState(0);
+  const [construction, setConstruction] = useState(0);
+  const [onDelivery, setOnDelivery] = useState(0);
 
-  const [amenities, setAmenities] = useState<any[]>([]);
-  const [productTypes, setProductTypes] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<AmenityInput[]>([]);
+  /** `property_category_id` elegido en el combo box; `""` mientras no se elija. */
+  const [propertyCategoryId, setPropertyCategoryId] = useState("");
+  const [propertyCategoryKey, setPropertyCategoryKey] = useState("");
+  const [propertyCategoryLabel, setPropertyCategoryLabel] = useState("");
+  /**
+   * Ya no hay un campo de texto libre para el tipo de producto: la categoría
+   * real se elige en `PropertyCategorySelect`. Este arreglo se deriva de esa
+   * elección para no dejar vacío el spec legado `product_types` que algunos
+   * lectores antiguos todavía consultan.
+   */
+  const productTypes = propertyCategoryLabel ? [propertyCategoryLabel] : [];
   const [typologies, setTypologies] = useState<string[]>([]);
   const [nearby, setNearby] = useState<string[]>([]);
   const [investmentBenefits, setInvestmentBenefits] = useState<string[]>([]);
@@ -259,6 +305,9 @@ export function NewProjectForm() {
       status: deliveryConfirmed ? "confirmed" : "pending",
     },
     reservation: { amount: reservation || null, currency: "USD", note: null },
+    propertyCategory: propertyCategoryKey
+      ? { key: propertyCategoryKey, label: loc(propertyCategoryLabel) }
+      : null,
     productTypes: productTypes.map(loc),
     typologies: typologies.map(loc),
     includesAppliances,
@@ -269,7 +318,7 @@ export function NewProjectForm() {
       ...(heroImg ? [{ src: heroImg, alt: loc(`Vista principal de ${name}`) }] : []),
       ...galleryUrls.map((src, index) => ({ src, alt: loc(`${name}, imagen ${index + 1}`) })),
     ],
-    amenities: amenities.map(loc),
+    amenities: amenities.map(toAmenityEntry),
     map: {
       url: mapUrl,
       coordinates: validCoords,
@@ -324,6 +373,7 @@ export function NewProjectForm() {
   if (!desc.trim()) missing.push("descripción");
   if (!location.trim()) missing.push("ubicación");
   if (!heroImg.trim()) missing.push("imagen principal");
+  if (!propertyCategoryId) missing.push("categoría de propiedad");
 
   const handleSave = async () => {
     if (missing.length > 0 || isSaving) return;
@@ -358,6 +408,8 @@ export function NewProjectForm() {
         deliveryYear: deliveryYear || null,
         deliveryConfirmed,
         priceConfirmed,
+        propertyCategoryId,
+        propertyCategoryKey,
         bedrooms,
         bathrooms,
         parking,
@@ -614,7 +666,14 @@ export function NewProjectForm() {
         {activeTab === "especificaciones" && (
           <fieldset className="npf-fieldset">
             <legend>Especificaciones</legend>
-            <TagInput label="Tipos de producto" values={productTypes} onChange={setProductTypes} categoryType="product_type" placeholder="Apartamento, villa…" />
+            <PropertyCategorySelect
+              value={propertyCategoryId}
+              onChange={(categoryId, categoryKey, categoryLabel) => {
+                setPropertyCategoryId(categoryId);
+                setPropertyCategoryKey(categoryKey);
+                setPropertyCategoryLabel(categoryLabel);
+              }}
+            />
             <TagInput label="Tipologías" values={typologies} onChange={setTypologies} categoryType="typology" placeholder="A (1 hab), PH…" />
             <RichAmenityBuilder amenities={amenities} setAmenities={setAmenities} />
             <TagInput label="Beneficios de inversión" values={investmentBenefits} onChange={setInvestmentBenefits} categoryType="investment_benefit" placeholder="Ley CONFOTUR…" />

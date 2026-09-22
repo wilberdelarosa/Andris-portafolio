@@ -9,9 +9,9 @@
  *
  * No usar alias `@/` aquí: el generador del API se ejecuta con Node puro.
  */
-import type { Locale, Localized } from "../../content/projects.ts";
+import type { AmenityEntry, Locale, Localized } from "../../content/projects.ts";
 
-export type { Locale, Localized };
+export type { AmenityEntry, Locale, Localized };
 
 export const API_VERSION = "v1";
 export const CMS_SCHEMA_VERSION = "1.0.0";
@@ -64,6 +64,8 @@ export interface ApiProjectSummary {
     coordinates: [number, number] | null;
     precision: "exact" | "area" | "unverified";
   };
+  /** Categoría cerrada de `public.property_categories`. `null` sin asignar. */
+  propertyCategory: { key: string; label: Localized } | null;
   links: {
     web: string;
     api: string;
@@ -86,7 +88,7 @@ export interface ApiProjectDetail extends Omit<ApiProjectSummary, "links"> {
   investmentBenefits: Localized[];
   nearby: Localized[];
   gallery: { src: string; alt: Localized }[];
-  amenities: any[];
+  amenities: AmenityEntry[];
   mapUrl: string;
   paymentReference: {
     signing: number;

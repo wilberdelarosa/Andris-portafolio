@@ -279,6 +279,10 @@ async function checkContactPreview() {
     "El formulario vacío debe ser inválido",
   );
   assert.equal(await page.getByRole("dialog").count(), 0);
+  await form.locator('select[name="project"] option[value="Terra Serena"]').waitFor({ state: "attached" });
+  await page.waitForFunction(
+    () => document.querySelector('select[name="project"]')?.value === "Terra Serena",
+  );
   assert.equal(await form.locator('select[name="project"]').inputValue(), "Terra Serena");
   await form.locator('input[name="name"]').fill("Prueba navegador");
   await form.locator('input[name="email"]').fill("qa@example.com");

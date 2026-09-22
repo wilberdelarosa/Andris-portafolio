@@ -1,5 +1,7 @@
 "use client";
 import { AmenitiesCarousel } from "./amenities-carousel";
+import { AmenitiesShowcase } from "./amenities-showcase";
+import { resolveAmenity } from "@/lib/amenities";
 import Link from "next/link";
 import { ProjectTourButton } from "./project-media";
 import { useParams } from "next/navigation";
@@ -32,13 +34,9 @@ import {
   MetricTicker,
 } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
-import {
-  getProject,
-  getPublishedProjects,
-  melcon,
-  type PropertyProject,
-} from "@/content/projects";
+import { melcon, type PropertyProject } from "@/content/projects";
 import { useExperience } from "./experience-provider";
+import { useProjects } from "./projects-provider";
 import { Photo, Modal } from "./ui";
 import { PropertyCard } from "./property-card";
 
@@ -170,7 +168,7 @@ export function SaveButton({ project = melcon }: { project?: PropertyProject }) 
 export function ProjectSection() {
   const { locale, t } = useExperience();
   const j = journeyCopy[locale];
-  const projects = getPublishedProjects();
+  const { projects, loading, error } = useProjects();
   const [selected, setSelected] = useState(0);
   const reduced = useReducedMotion();
   const project = projects[selected];
@@ -185,6 +183,20 @@ export function ProjectSection() {
         </div>
         <Link className="text-link" href={`/proyectos?lang=${locale}`} prefetch={false}>{j.all}<ArrowUpRight size={20} /></Link>
       </div>
+      {loading ? (
+        <p className="field-hint" role="status">
+          {locale === "es" ? "Cargando proyectos…" : locale === "fr" ? "Chargement des projets…" : "Loading projects…"}
+        </p>
+      ) : error ? (
+        <p className="field-hint" role="alert">
+          {locale === "es"
+            ? "No se pudieron cargar los proyectos."
+            : locale === "fr"
+              ? "Impossible de charger les projets."
+              : "Projects could not be loaded."}
+        </p>
+      ) : !project ? null : (
+      <>
       <div className="showcase-layout">
         <DepthPanel className="showcase-stage">
           <ArchitecturalCrosshair position="top-right" />
@@ -249,13 +261,18 @@ export function ProjectSection() {
         </div>
       </div>
       <p className="render-caption">{t.renders}</p>
+      </>
+      )}
     </section>
   );
 }
 export function ProjectDetail({ project: initialProject }: { project?: PropertyProject }) {
   const { t, locale } = useExperience();
   const params = useParams<{ slug?: string }>();
-  const project = initialProject ?? (params.slug ? getProject(params.slug) : undefined);
+  const { projects } = useProjects();
+  const project =
+    initialProject ??
+    (params.slug ? projects.find((item) => item.slug === params.slug) : undefined);
   const [gallery, setGallery] = useState(false);
   const [shared, setShared] = useState(false);
   const [start, setStart] = useState(0);
@@ -346,18 +363,20 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
       {project.amenities.length > 0 && (
         <>
           <h3 className="amenities-heading">{t.amenities}</h3>
-          {project.amenities.some((a: any) => a?.image) ? (
-            <AmenitiesCarousel items={project.amenities.map((a: any, i) => ({
-              id: String(i),
-              name: a?.name?.[locale] || a?.[locale] || a?.name || String(a),
-              image: a?.image
-            }))} />
+          {project.amenities.some((a) => resolveAmenity(a, locale, 0).image) ? (
+            <>
+              {/* Escritorio (>760px): imagen fija + lista con scroll, patrón vistacana. */}
+              <AmenitiesShowcase entries={project.amenities} locale={locale} />
+              {/* Móvil (≤760px): carrusel deslizable con puntos, CSS decide cuál se ve. */}
+              <AmenitiesCarousel
+                items={project.amenities.map((amenity, index) => resolveAmenity(amenity, locale, index))}
+              />
+            </>
           ) : (
             <div className="amenities-list">
-              {project.amenities.map((amenity: any, index) => {
-                const name = amenity?.name?.[locale] || amenity?.[locale] || String(amenity);
-                return <div key={index}>{name}</div>;
-              })}
+              {project.amenities.map((amenity, index) => (
+                <div key={index}>{resolveAmenity(amenity, locale, index).name}</div>
+              ))}
             </div>
           )}
         </>

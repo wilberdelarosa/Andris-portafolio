@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   ArrowCounterClockwise,
   Buildings,
@@ -12,9 +12,10 @@ import { EditorialTitle } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
 import { calculatePayment } from "@/lib/payment";
 import { downloadPaymentPdf } from "@/lib/payment-pdf";
-import { getPublishedProjects, type PropertyProject } from "@/content/projects";
+import type { PropertyProject } from "@/content/projects";
 import { localeTags } from "@/content/copy";
 import { useExperience } from "./experience-provider";
+import { useProjects } from "./projects-provider";
 import { Reveal } from "./ui";
 import { quotesStore } from "@/lib/cms/local-store";
 
@@ -22,7 +23,7 @@ const DEFAULTS = { price: "150000", months: "24", signing: "10", construction: "
 
 export function PaymentCalculator() {
   const { t, locale } = useExperience();
-  const projects = useMemo(() => getPublishedProjects(), []);
+  const { projects, loading: projectsLoading } = useProjects();
   const [projectSlug, setProjectSlug] = useState("");
   const [planIndex, setPlanIndex] = useState(0);
   const [price, setPrice] = useState(DEFAULTS.price);
@@ -146,9 +147,18 @@ export function PaymentCalculator() {
             <select
               id="calc-project"
               value={projectSlug}
+              disabled={projectsLoading}
               onChange={(event) => selectProject(event.target.value)}
             >
-              <option value="">{t.calcProjectNone}</option>
+              <option value="">
+                {projectsLoading
+                  ? locale === "es"
+                    ? "Cargando proyectos…"
+                    : locale === "fr"
+                      ? "Chargement des projets…"
+                      : "Loading projects…"
+                  : t.calcProjectNone}
+              </option>
               {projects.map((item) => (
                 <option key={item.slug} value={item.slug}>
                   {item.name}

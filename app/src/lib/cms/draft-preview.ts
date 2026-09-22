@@ -74,6 +74,9 @@ export function draftToProject(draft: DraftPreview): PropertyProject {
       status: "pending",
     },
     reservation: { amount: draft.reservation || null, currency: "USD", note: null },
+    // La vista previa local todavía no conoce la categoría real elegida en
+    // el combo box del formulario: se declara sin asignar, no inventada.
+    propertyCategory: null,
     productTypes: draft.productTypes?.map((item) => ({ es: item, en: item, fr: item })) || [],
     typologies: draft.typologies?.map((item) => ({ es: item, en: item, fr: item })) || [],
     includesAppliances: draft.includesAppliances || false,
