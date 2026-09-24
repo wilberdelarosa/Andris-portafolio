@@ -285,6 +285,7 @@ async function checkContactPreview() {
   );
   assert.equal(await form.locator('select[name="project"]').inputValue(), "Terra Serena");
   await form.locator('input[name="name"]').fill("Prueba navegador");
+  await form.locator("details.contact-more summary").click();
   await form.locator('input[name="email"]').fill("qa@example.com");
   await form.locator('input[name="phone"]').fill("+1 809 000 0000");
   await form.locator('input[name="country"]').fill("República Dominicana");
@@ -294,12 +295,22 @@ async function checkContactPreview() {
     .locator('textarea[name="message"]')
     .fill("Consulta automatizada local. No enviar.");
   await form.locator('input[type="checkbox"]').check();
-  const mutationRequests = [];
-  const track = (request) => {
-    if (!["GET", "HEAD", "OPTIONS"].includes(request.method()))
-      mutationRequests.push(`${request.method()} ${request.url()}`);
+  const interceptedLeadWrites = [];
+  const blockExternalMutations = async (route) => {
+    const request = route.request();
+    if (["GET", "HEAD", "OPTIONS"].includes(request.method())) {
+      await route.continue();
+      return;
+    }
+    const url = new URL(request.url());
+    if (request.method() === "POST" && url.pathname.endsWith("/rest/v1/leads")) {
+      interceptedLeadWrites.push(JSON.parse(request.postData() || "{}"));
+      await route.fulfill({ status: 201, body: "" });
+      return;
+    }
+    await route.abort("blockedbyclient");
   };
-  page.on("request", track);
+  await page.route("**/*", blockExternalMutations);
   try {
     await form.locator('button[type="submit"]').click();
     const dialog = page.getByRole("dialog", {
@@ -326,10 +337,11 @@ async function checkContactPreview() {
     );
     assert.ok(email.includes("body=") && email.includes("subject="));
     await capture("contact-preview-375");
-    assert.deepEqual(
-      mutationRequests,
-      [],
-      "Preparar la consulta no debe enviar datos",
+    assert.equal(interceptedLeadWrites.length, 1, "El lead debe guardarse en el CMS");
+    assert.equal(interceptedLeadWrites[0].email, "qa@example.com");
+    assert.match(
+      interceptedLeadWrites[0].project_id,
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     );
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
@@ -337,10 +349,11 @@ async function checkContactPreview() {
       nativeValidation: true,
       preview: true,
       externalChannelsNotOpened: true,
-      mutationRequests,
+      leadStoredByLocalStub: true,
+      externalMutationsBlocked: true,
     };
   } finally {
-    page.off("request", track);
+    await page.unroute("**/*", blockExternalMutations);
   }
 }
 
@@ -351,8 +364,13 @@ async function checkLanguages() {
     fr: "Conseiller immobilier",
     es: "Asesor inmobiliario",
   };
+  const languageNames = { en: "English", fr: "Français", es: "Español" };
   for (const [locale, role] of Object.entries(roles)) {
-    await page.locator(".language-control select").selectOption(locale);
+    await page.locator(".language-switch-trigger").click();
+    await page
+      .locator(".language-switch-flyout")
+      .getByRole("button", { name: new RegExp(languageNames[locale]) })
+      .click();
     await page.waitForFunction(
       (lang) => document.documentElement.lang === lang,
       locale,

@@ -127,6 +127,15 @@ export function AdminStudio() {
     () => getContentRepository().connection(),
     [],
   );
+  /**
+   * La sesion se lee del almacen externo antes de activar las consultas del
+   * panel, para que leads y cotizaciones no intenten cargar antes del login.
+   */
+  const session = useSyncExternalStore(
+    onSessionChange,
+    getSessionSnapshot,
+    getSessionServerSnapshot,
+  );
 
   /**
    * Leads, cotizaciones y cifras salen de Supabase, no de `localStorage`.
@@ -136,7 +145,7 @@ export function AdminStudio() {
    */
   useEffect(() => {
     let cancelled = false;
-    if (connection.provider !== "supabase") return;
+    if (connection.provider !== "supabase" || !session) return;
 
     void listLeads()
       .then((rows) => {
@@ -171,7 +180,7 @@ export function AdminStudio() {
     return () => {
       cancelled = true;
     };
-  }, [connection.provider, revision]);
+  }, [connection.provider, revision, session]);
 
   useEffect(() => {
     const syncTab = () => {
@@ -184,18 +193,6 @@ export function AdminStudio() {
   }, []);
 
   const refresh = () => setRevision((value) => value + 1);
-
-  /**
-   * La sesion se lee del almacen externo en vez de copiarse a estado: asi
-   * cualquier parte del panel que detecte un token caducado devuelve a todos
-   * al acceso, sin renders en cascada dentro de un efecto.
-   * `undefined` significa que aun no se hidrato el cliente.
-   */
-  const session = useSyncExternalStore(
-    onSessionChange,
-    getSessionSnapshot,
-    getSessionServerSnapshot,
-  );
 
   const go = (next: Tab) => {
     setTab(next);

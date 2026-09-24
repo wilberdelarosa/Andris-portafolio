@@ -1,0 +1,222 @@
+[
+  {
+    "name": "public-home-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-proyectos-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-mapa-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-sobre-mi-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-calculadora-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-contacto-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-ficha-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-home-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-proyectos-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-mapa-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-sobre-mi-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-calculadora-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-contacto-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-ficha-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-home-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-proyectos-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-mapa-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-sobre-mi-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-calculadora-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-contacto-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-ficha-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-home-small",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-proyectos-small",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "public-ficha-small",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-resumen-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-proyectos-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-categorias-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-leads-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-cotizaciones-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-esquema-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-diagnostico-desktop",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-resumen-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-proyectos-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-categorias-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-leads-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-cotizaciones-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-esquema-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-diagnostico-tablet",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-FAILED-mobile",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-small",
+    "over": 0,
+    "offenders": []
+  },
+  {
+    "name": "admin-login-FAILED-small",
+    "over": 0,
+    "offenders": []
+  }
+]

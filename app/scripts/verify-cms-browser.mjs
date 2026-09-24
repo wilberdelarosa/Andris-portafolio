@@ -28,12 +28,37 @@ function fakeSession() {
   };
 }
 
-async function mockNotifications(page) {
-  await page.route("**/rest/v1/notifications**", async (route) => {
+async function mockCmsReadEndpoints(page) {
+  await page.route("**/rest/v1/**", async (route) => {
+    const request = route.request();
+    if (!["GET", "HEAD"].includes(request.method())) {
+      await route.abort("blockedbyclient");
+      return;
+    }
+    const pathname = new URL(request.url()).pathname;
+    const projects = pathname.endsWith("/projects");
+    const rows = projects
+      ? [
+          {
+            id: "00000000-0000-4000-8000-000000000001",
+            slug: "qa-project",
+            name: "Proyecto de prueba local",
+            public_status: "published",
+            sector: "Punta Cana",
+            city: "Punta Cana",
+            updated_at: "2026-09-24T12:00:00.000Z",
+            property_category_id: null,
+            property_categories: null,
+            project_media: [],
+            project_price_snapshots: [],
+          },
+        ]
+      : [];
     await route.fulfill({
       status: 200,
-      contentType: "application/json",
-      body: "[]",
+      contentType: "application/json; charset=utf-8",
+      headers: { "content-range": projects ? "0-0/1" : "*/0" },
+      body: JSON.stringify(rows),
     });
   });
 }
@@ -87,9 +112,9 @@ try {
       return { login: true };
     });
 
-    await check(`CMS autenticado: proyectos y vista previa @ ${width}px`, async () => {
+    await check(`CMS autenticado: lista de proyectos @ ${width}px`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
-      await mockNotifications(page);
+      await mockCmsReadEndpoints(page);
       await page.addInitScript((session) => {
         localStorage.setItem("ap-cms-session", JSON.stringify(session));
       }, fakeSession());
@@ -97,24 +122,25 @@ try {
       await navigate(page, "/admin/#proyectos");
       await page.locator(".admin-shell").waitFor();
       await page.getByRole("heading", { name: "Proyectos", exact: true }).waitFor();
-      await page.locator(".admin-project-item").first().waitFor({ state: "attached" });
-      assert.ok(await page.locator(".admin-project-item").count() > 0);
-      assert.equal(await page.locator(".admin-preview-panel").count(), 1);
-      assert.equal(await page.locator(".pcard").count(), 1);
-      await capture(page, `projects-preview-${width}`);
+      await page.locator(".admin-project-row").first().waitFor({ state: "attached" });
+      assert.equal(await page.locator(".admin-project-row").count(), 1);
+      assert.equal(await page.getByText("Proyecto de prueba local", { exact: true }).count(), 1);
+      await capture(page, `projects-list-${width}`);
       await page.close();
-      return { projectEditor: true, livePreview: true };
+      return { projectEditor: true, mockedProject: true };
     });
 
     await check(`CMS autenticado: alta de proyecto y vista previa @ ${width}px`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
-      await mockNotifications(page);
+      await mockCmsReadEndpoints(page);
       await page.addInitScript((session) => {
         localStorage.setItem("ap-cms-session", JSON.stringify(session));
       }, fakeSession());
       page.on("pageerror", (error) => report.errors.push(`[nuevo ${width}] ${error.message}`));
-      await navigate(page, "/admin/#nuevo");
+      await navigate(page, "/admin/#proyectos");
       await page.locator(".admin-shell").waitFor();
+      await page.getByRole("heading", { name: "Proyectos", exact: true }).waitFor();
+      await page.getByRole("button", { name: "Añadir proyecto", exact: true }).click();
       await page.getByRole("heading", { name: "Añadir proyecto", exact: true }).waitFor();
       assert.equal(await page.locator(".admin-preview-panel").count(), 1);
       assert.equal(await page.locator(".pcard").count(), 1);
