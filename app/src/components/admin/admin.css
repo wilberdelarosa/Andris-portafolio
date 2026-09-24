@@ -159,7 +159,124 @@
 .admin-main-inner {
   max-width: 900px;
   margin-inline: auto;
+  /**
+   * En móvil `.admin-main` es un contenedor flex en columna y esto es un
+   * item suyo: con `min-width: auto` (el valor por defecto) el ancho mínimo
+   * del contenido de cualquier descendiente lo estira. Medido a 360px, la
+   * tira de pestañas del asistente lo llevaba a 705px y el
+   * `overflow-x: hidden` de `.admin-main` recortaba el resto del formulario
+   * en silencio: los campos existían pero quedaban fuera de la pantalla, sin
+   * barra de desplazamiento que avisara. Con `min-width: 0` el contenedor se
+   * queda en el ancho de la ventana y quien desborda (la tira de pestañas)
+   * se desplaza dentro de sí mismo.
+   *
+   * `min-width: 0` por sí solo no basta: como item de un flex en columna su
+   * ancho se resuelve por el contenido, no por el contenedor. `width: 100%`
+   * lo fija al ancho disponible y es lo que de verdad corta la cadena
+   * (medido a 360px: 705px → 328px, con la tira desplazándose por dentro).
+   */
+  min-width: 0;
+  width: 100%;
 }
+/* --------------------------------------------------------------------------
+   Resumen estilo app (rediseño del dueño, commit 0a79532).
+   Se recupera como clases en lugar de estilos en línea para que respete los
+   tokens del tema y las reglas de contraste/táctil del resto del panel.
+   -------------------------------------------------------------------------- */
+.admin-app-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.admin-app-head h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.admin-app-head p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.admin-app-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.admin-app-stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+}
+.admin-app-stat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+.admin-app-stat-head span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.admin-app-stat strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--text);
+}
+.admin-app-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.admin-app-card + .admin-app-card {
+  margin-top: 20px;
+}
+.admin-app-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.admin-app-card-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+.admin-app-card > .admin-project-list,
+.admin-app-card > .admin-card-list,
+.admin-app-card > .admin-empty {
+  padding: 12px;
+}
+@media (max-width: 760px) {
+  /* En móvil sí va a sangre, como el diseño original tipo app. El sangrado
+     usa el padding real de `.admin-main` en este breakpoint (22px / 16px);
+     en escritorio no se sangra porque `.admin-main-inner` va centrado con
+     un máximo de 900px y el resultado sería una cabecera más ancha que las
+     tarjetas pero sin llegar al borde. */
+  .admin-app-head {
+    margin: -22px -16px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+}
+
 .admin-page-head {
   margin-bottom: 30px;
 }
@@ -183,6 +300,12 @@
   max-width: 60ch;
   line-height: 1.7;
 }
+.admin-page-head-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
 
 /* --- Tarjetas y rejillas --------------------------------------------------- */
 .admin-grid {
@@ -190,7 +313,11 @@
   gap: 16px;
 }
 .admin-grid.stats {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  /* 150px y no 180px: a 360px de ancho el contenido real son 328px, y con
+     180 solo entraba una columna, así que cuatro cifras ocupaban toda la
+     pantalla. Con 150 entran dos (150·2 + 16 de hueco = 316 ≤ 328) y el
+     resumen se lee de un vistazo. */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 .admin-card {
   background: var(--panel);
@@ -271,14 +398,17 @@
   border-radius: 50%;
   background: currentColor;
 }
+/* Texto de 11px en negrita: AA pide 4.5:1. Los valores anteriores medían
+   4.42:1 (ok) y 3.62:1 (pending) sobre su propio fondo translúcido; estos
+   suben a 5.26:1 y 5.30:1 conservando el tono. */
 .chip.ok {
   background: #2f7d4f1a;
-  color: #2f7d4f;
+  color: #2a7047;
   border-color: #2f7d4f33;
 }
 .chip.pending {
   background: #b0722a14;
-  color: #b0722a;
+  color: #8d5a20;
   border-color: #b072a230;
 }
 .chip.info {
@@ -296,6 +426,12 @@
 }
 [data-theme="dark"] .chip.pending {
   color: #e0a45e;
+}
+/* Faltaba el tercero de la serie: en oscuro `.chip.info` se quedaba con
+   `--color-blue` (#316692) sobre panel oscuro, medido en 2.14:1. Con este
+   azul sube a 5.95:1 y queda al mismo nivel tonal que los otros dos. */
+[data-theme="dark"] .chip.info {
+  color: #8ab4d8;
 }
 
 /* --- Lista de proyectos ------------------------------------------------------ */
@@ -397,7 +533,24 @@
 }
 .admin-field-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /*
+   * `minmax(0, 1fr)` y no `1fr`: igual que `.npf-split-layout` (ver su
+   * comentario más abajo), una pista `1fr` a secas no puede bajar de su
+   * min-content. Medido a 1125px de viewport con `.npf-split-layout` ya
+   * colapsado a dos columnas: la fila triple de Ubicación (Sector/Ciudad/
+   * Provincia, dentro de `.admin-location-fieldset`) pedía 604px de
+   * min-content —el `<select>` de provincia solo, por "María Trinidad
+   * Sánchez", ya pide ~200px— contra 367px reales de `.npf-form-area`. El
+   * resultado no crecía `document.scrollWidth` (todos los ancestros son
+   * `overflow: visible`, así que nadie reserva scroll), sino que la fila se
+   * pintaba 237px fuera de su propia pista, por encima de la columna de
+   * vista previa: exactamente el «Provincia... queda tapado» reportado,
+   * porque el DOM pinta el preview después y con z-index >0 encima del
+   * formulario desbordado. Con `minmax(0, 1fr)` la pista sí se encoge y son
+   * los propios `<input>`/`<select>` quienes recortan su texto, en vez de
+   * desbordar el layout.
+   */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
 }
 .admin-editor-note {
@@ -471,6 +624,9 @@
   place-items: center;
   width: 40px;
   height: 40px;
+  /* En la tarjeta de lead comparte fila con un correo largo; sin esto el flex
+     lo comprimía hasta 24px de ancho a 360px. */
+  flex-shrink: 0;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--panel);
@@ -490,8 +646,125 @@
 }
 
 /* --- Lista tipo app (móvil) ----------------------------------------------------- */
+/**
+ * `.admin-list-cards` es el gemelo móvil de `.admin-table`: se enciende en el
+ * media query de 760px cuando la tabla se apaga. `.admin-card-list` es el
+ * mismo apilado pero visible en todos los anchos, para listas cortas que
+ * nunca fueron tabla (los "leads recientes" del Resumen).
+ */
 .admin-list-cards {
   display: none;
+}
+.admin-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+/**
+ * El cambio de tabla a tarjetas se decide por el espacio que queda para el
+ * contenido, no por el ancho del dispositivo.
+ *
+ * Antes estaba en `max-width: 760px`, que es donde desaparece la barra
+ * lateral. Pero de 761px en adelante la barra vuelve y se lleva 264px: en una
+ * tableta de 768px el contenido se queda en 413px mientras la tabla de leads
+ * necesita 761px. Como `.admin-table-wrap` no tenía scroll propio, las dos
+ * últimas columnas —«Estado» y «Acciones», con el único botón de borrar— se
+ * perdían sin ninguna señal.
+ *
+ * 1100px es el ancho a partir del cual (1100 − 264 de barra − 80 de padding)
+ * quedan ~756px reales, que es lo que la tabla pide.
+ */
+@media (max-width: 1100px) {
+  .admin-table-wrap {
+    display: none;
+  }
+  .admin-list-cards {
+    display: grid;
+    gap: 12px;
+  }
+}
+
+/**
+ * Red de seguridad: si alguna tabla futura vuelve a pedir más ancho del que
+ * hay, que se pueda desplazar en vez de recortarse en silencio.
+ */
+.admin-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* El mínimo táctil depende del puntero, no del ancho: una tableta de 768px
+   sigue siendo un dedo. */
+@media (pointer: coarse) {
+  .icon-action {
+    width: 44px;
+    height: 44px;
+  }
+}
+/* Respaldo por ancho, por si el navegador no declara el puntero. */
+@media (max-width: 834px) {
+  .icon-action {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/**
+ * La tarjeta en sí vive fuera del media query para que cualquier panel pueda
+ * reutilizarla; lo que depende del ancho es solo su contenedor.
+ */
+.admin-lead-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+.admin-lead-card .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  /* Sin esto el texto largo (un correo completo) empuja al botón de borrar
+     hasta dejarlo en 24px de ancho en pantallas de 360px. */
+  min-width: 0;
+}
+.admin-lead-card .row > :first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-lead-card .row small {
+  color: var(--muted);
+}
+.admin-lead-card strong {
+  font-size: 14px;
+}
+
+/* --- Cabecera de sección dentro de una tarjeta ----------------------------------- */
+.admin-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.admin-section-head h2 {
+  margin-bottom: 0;
+}
+/* Separación propia, no dependiente del hermano anterior: medido a 390px, la
+   rejilla de cifras y la primera tarjeta de sección quedaban pegadas (0px). */
+.admin-section {
+  margin-top: 16px;
+}
+/* El botón de la cabecera es secundario: no necesita los 52px de `.button`. */
+.admin-section-head .button {
+  min-height: 44px;
+  padding: 10px 16px;
+  gap: 8px;
+  font-size: 12.5px;
 }
 
 /* --- Esquema --------------------------------------------------------------------- */
@@ -577,6 +850,33 @@
 .admin-banner a {
   color: var(--color-sand);
 }
+/* Mismo aspecto que el enlace del banner, pero para acciones que cambian de
+   pestaña dentro del panel en vez de navegar. */
+.admin-banner-link {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--color-sand);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+@media (max-width: 560px) {
+  .admin-banner {
+    flex-wrap: wrap;
+  }
+  .admin-banner-link {
+    margin-left: 0;
+  }
+}
 
 /* --- Animación de entrada de pestañas ------------------------------------------------ */
 .admin-tab-panel {
@@ -585,8 +885,18 @@
 
 /* --- Responsive: estética de app móvil -------------------------------------------------- */
 @media (max-width: 960px) {
-  .admin-grid {
+  /**
+   * Las rejillas de contenido (tarjetas con texto) pasan a una columna, pero
+   * `.admin-grid.stats` no: son cifras cortas que caben de dos en dos hasta
+   * en 360px, y forzarlas a una columna dejaba el Resumen en cuatro tarjetas
+   * altísimas. El `!important` se mantiene porque `SchemaPanel` fija
+   * `grid-template-columns` en línea.
+   */
+  .admin-grid:not(.stats) {
     grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+  .admin-grid.stats {
     gap: 16px;
   }
   .admin-projects {
@@ -635,7 +945,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 40px;
+    min-height: 44px;
+    padding-inline: 4px;
   }
   .admin-main {
     padding: 22px 16px 110px;
@@ -710,35 +1021,6 @@
     background: var(--color-ink-soft);
     color: var(--color-sand);
   }
-  /* Las tablas se convierten en tarjetas apiladas. */
-  .admin-table-wrap {
-    display: none;
-  }
-  .admin-list-cards {
-    display: grid;
-    gap: 12px;
-  }
-  .admin-lead-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card);
-    padding: 16px;
-    display: grid;
-    gap: 10px;
-  }
-  .admin-lead-card .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    align-items: center;
-    font-size: 13px;
-  }
-  .admin-lead-card .row small {
-    color: var(--muted);
-  }
-  .admin-lead-card strong {
-    font-size: 14px;
-  }
   .admin-field-row {
     grid-template-columns: 1fr;
   }
@@ -751,6 +1033,17 @@
   }
   .admin-project-item:hover {
     transform: none;
+  }
+  /* Faltaban estas tres: la entrada del panel del asistente, el menú "Más"
+     y el deslizamiento de la vista previa a pantalla completa. El spinner
+     conserva su giro (solo se ralentiza más abajo) porque sin movimiento
+     dejaría de comunicar que algo está en curso. */
+  .npf-panel,
+  .admin-more-menu {
+    animation: none;
+  }
+  .npf-preview-container {
+    transition: none;
   }
 }
 
@@ -835,13 +1128,30 @@
   border-bottom: 1px solid var(--line);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /**
+   * Sin esto la tira no se desliza: como sus pestañas son `nowrap`, el
+   * ancho mínimo del contenido (411px con las seis del asistente) empuja a
+   * `.admin-main-inner` por encima del ancho de la ventana, y el
+   * `overflow-x: hidden` de `.admin-main` lo recorta en silencio en vez de
+   * dejar scroll. Con estas dos líneas el desbordamiento se queda dentro de
+   * la tira, que es quien sabe desplazarse.
+   */
+  min-width: 0;
+  max-width: 100%;
 }
 .npf-tabs::-webkit-scrollbar { display: none; }
+
+/* Variante para cambiar de sección dentro de una pestaña del panel (no son
+   pasos de un asistente, así que solo cambia la separación inferior). */
+.npf-tabs--section {
+  margin-bottom: 20px;
+}
 
 .npf-tab {
   display: flex;
   align-items: center;
   gap: 7px;
+  min-height: 44px;
   padding: 10px 14px;
   border: 1px solid transparent;
   border-radius: 10px 10px 0 0;
@@ -927,9 +1237,13 @@
   line-height: 1.5;
 }
 
-/* Triple-column grid variant */
+/* Triple-column grid variant. `minmax(0, 1fr)` por la misma razón que
+   `.admin-field-row` más arriba: sin él, cada pista no baja de su
+   min-content y la fila (p.ej. Sector/Ciudad/Provincia o los tres
+   NumberPicker de Dimensiones) se pinta fuera de `.npf-form-area` en vez de
+   encogerse. */
 .admin-field-row--triple {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 }
 
 /* ── Checkbox ── */
@@ -1085,13 +1399,25 @@
   .npf-progress-pill {
     align-self: flex-start;
   }
-  .npf-tab-label {
-    display: none;
-  }
+  /**
+   * Antes aquí se ocultaba `.npf-tab-label` y se repartían las pestañas con
+   * `flex: 1` para que las seis del asistente cupieran en una fila. Dos
+   * problemas medidos a 360px:
+   *   1. El asistente quedaba en seis iconos sin nombre accesible (la
+   *      etiqueta oculta con `display:none` también sale del árbol de
+   *      accesibilidad), y
+   *   2. «Categorías» reutiliza estas clases pero sus pestañas no llevan
+   *      icono: se quedaban en dos rectángulos vacíos de 161x21px, sin
+   *      ninguna pista de qué sección era cuál.
+   * `.npf-tabs` ya tiene `overflow-x: auto`, así que la tira se desliza y
+   * cada pestaña conserva su texto. El contenedor no desborda la página
+   * porque recorta en su propio eje.
+   */
   .npf-tab {
-    padding: 10px 12px;
+    padding: 10px 14px;
     justify-content: center;
-    flex: 1;
+    flex: 0 0 auto;
+    min-height: 44px;
   }
   .npf-fieldset {
     padding: 18px 14px;
@@ -1164,15 +1490,11 @@
   background: var(--soft);
   color: var(--text);
 }
-/* Login */
-.admin-login-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--soft);
-  padding: 24px;
-}
+/* Login
+   Nota: `.admin-login-wrapper` y `.admin-login-submit` tenían aquí una
+   primera definición que quedaba pisada por completo por la del bloque
+   "premium" del final del archivo. Se dejó solo la que gana en la cascada
+   para que no haya dos fuentes de verdad del mismo componente. */
 .admin-login-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1213,13 +1535,6 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-.admin-login-submit {
-  width: 100%;
-  justify-content: center;
-  margin-top: 8px;
-  padding: 12px;
-  font-size: 15px;
 }
 /* Image Input */
 .admin-image-input {
@@ -1461,8 +1776,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  /* 44px es el mínimo táctil real; con 34px el botón de salir quedaba por
+     debajo y pegado al enlace "Sitio". */
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--panel);
@@ -1629,9 +1946,26 @@
 /* --- Live Preview Panel --- */
 .npf-split-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  /*
+   * `minmax(0, 1fr)` y no `1fr`: con `1fr` la pista no puede bajar del
+   * min-content de su contenido, así que el formulario empujaba la columna
+   * de la vista previa fuera del contenedor. Medido en la pestaña Proyectos
+   * con el contenedor a 900px (el max-width real de `.admin-main-inner`):
+   * las columnas resolvían 647+380 = 1027px y la vista previa terminaba en
+   * x=1059, o sea 159px fuera — invisible en escritorio, mientras que en
+   * móvil (donde el grid se desactiva) sí aparecía, apilada debajo.
+   */
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 32px;
   align-items: start;
+}
+/*
+ * Ambas columnas deben poder encogerse. `.npf-form-area` ya lo hacía, pero
+ * el editor de Proyectos envuelve su formulario en `.admin-card`, que no,
+ * y por eso el fallo solo se veía en esa pestaña.
+ */
+.npf-split-layout > * {
+  min-width: 0;
 }
 .npf-form-area {
   min-width: 0;
@@ -1703,10 +2037,11 @@
 
 @media (max-width: 960px) {
   /* El colapso de .npf-split-layout a una sola columna (con el FAB y el
-     modal de preview) vive en un único breakpoint: @media (max-width: 900px)
-     más abajo. Aquí solo quedan ajustes menores del panel de preview que
-     aplican en la franja 900-960px, donde .npf-split-layout todavía usa
-     su grid de dos columnas por defecto. */
+     modal de preview) vive en un único breakpoint: @media (max-width: 1360px)
+     más abajo. 960px queda por debajo de ese breakpoint, así que estas dos
+     reglas ya no coexisten con el grid de dos columnas (eso solo pasa por
+     encima de 1360px): aquí solo ponen un alto mínimo razonable al panel de
+     vista previa cuando vive dentro del modal a pantalla completa del FAB. */
   .admin-preview-panel {
     position: static;
     min-height: 360px;
@@ -1717,7 +2052,9 @@
 }
 /* --- Premium Login UI --- */
 .admin-login-wrapper {
-  min-height: 100vh;
+  /* dvh y no vh: con la barra del navegador móvil, 100vh deja la tarjeta
+     recortada por abajo en pantallas cortas. */
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1725,6 +2062,33 @@
   position: relative;
   overflow: hidden;
   background: var(--color-ink); /* Dark, premium background */
+}
+
+/* Estado "comprobando sesión": misma marca y mismo spinner que el resto del
+   panel, sin avatar externo ni keyframes inyectados en el render. */
+.admin-login-loading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+.admin-login-loading .admin-brand-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+.admin-login-loading p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--on-ink-muted);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .admin-login-backdrop {
@@ -1753,11 +2117,14 @@
 .admin-login-card.premium-glass .admin-brand-mark {
   background: var(--color-sand);
   color: var(--color-ink);
-  width: 56px;
-  height: 56px;
-  font-size: 20px;
+  width: 48px;
+  height: 48px;
+  font-size: 17px;
   margin-inline: auto;
-  margin-bottom: 100px;
+  /* Antes 100px: dejaba un hueco enorme y vacío antes del título, la mala
+     distribución que reportó el cliente. 16px es el mismo espaciado que usa
+     el resto del panel entre bloques relacionados. */
+  margin-bottom: 16px;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
@@ -1880,9 +2247,29 @@
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1360px) {
   /* Único breakpoint donde .npf-split-layout colapsa al patrón móvil
-     (formulario a ancho completo + FAB que abre el preview en modal). */
+     (formulario a ancho completo + FAB que abre el preview en modal).
+     1120px y no 900px: este media query mide el VIEWPORT, pero el ancho
+     realmente disponible descuenta la barra lateral (264px) y el padding.
+     A 901px de viewport la columna del formulario quedaba en 193px, y no
+     recuperaba un ancho usable (>420px) hasta ~1120px de viewport. Entre
+     medias el editor se veía apretado y la vista previa se salía.
+     *
+     * Subido de 1120 a 1360px (medido, no a ciegas): con `.npf-split-layout`
+     * ya sin desbordar gracias a `minmax(0, 1fr)` en las dos pistas, quedaba
+     * un tramo (1121–1360px de viewport) donde el grid de dos columnas
+     * seguía activo pero la columna del formulario no llegaba a los ~604px
+     * que pide, sin encogerse más, la fila triple de Ubicación dentro de
+     * `.admin-location-fieldset` (el `<select>` de provincia por sí solo
+     * mide ~200px por "María Trinidad Sánchez"). El resultado ya no
+     * desbordaba el documento, pero los campos quedaban en ~87px cada uno y
+     * los `.admin-number-picker` (142px de min-content: dos botones +
+     * input de 60px, con `width: fit-content` y sin poder encogerse) se
+     * solapaban entre sí en la pestaña Dimensiones. 1360px es el viewport
+     * donde `.npf-form-area` recupera esos ~604px (1360 − 264 de barra −
+     * 80 de padding máximo − 380 de preview − 32 de gap = 604).
+     */
   .npf-split-layout {
     display: block; /* Remove grid so form takes full width */
     padding-bottom: 80px; /* Space for FAB */
@@ -1947,7 +2334,12 @@
     background: transparent;
     border: none;
     color: var(--text);
-    padding: 4px;
+    /* Cerrar la vista previa es la única salida de un panel a pantalla
+       completa: medía 28x28px. */
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    margin-right: -10px;
     display: grid;
     place-items: center;
     cursor: pointer;
@@ -2008,4 +2400,311 @@
   justify-content: flex-start !important;
   font-size: 13px !important;
   padding: 0 16px !important;
+}
+
+/* ===========================================================================
+   Proyectos: barra de búsqueda y filtros, filas de la lista, paginación.
+
+   Selectores por clase, nunca por posición: la fila de un proyecto cambia de
+   contenido según su estado (el aviso de borrado aparece y desaparece), así
+   que cualquier `:nth-child` se rompería al primer cambio.
+   =========================================================================== */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.admin-search {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--muted);
+}
+.admin-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-ink);
+  outline: none;
+}
+.admin-search input::placeholder {
+  color: var(--muted);
+}
+.admin-toolbar-field {
+  flex: 0 1 180px;
+  min-width: 150px;
+}
+.admin-toolbar-field .admin-field,
+.admin-toolbar-field .admin-field select {
+  margin: 0;
+}
+.admin-toolbar-cta {
+  flex: 0 0 auto;
+  height: 44px;
+  white-space: nowrap;
+}
+
+.admin-project-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 14px;
+}
+.admin-project-row .meta {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.admin-project-row .meta strong {
+  display: block;
+  font-size: 14px;
+}
+.admin-project-row .meta small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.admin-project-row .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.admin-project-thumb--empty {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+.admin-project-row .admin-row-actions {
+  flex-wrap: wrap;
+  align-items: center;
+}
+/* El aviso de borrado ocupa la fila completa bajo los tres bloques. */
+.admin-row-warning {
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fdecec;
+  border: 1px solid #f3c2c2;
+  color: #8f2323;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.admin-danger-btn {
+  color: #b42318;
+  border-color: #e4a8a2;
+}
+.admin-danger-btn:hover:not(:disabled) {
+  background: #fdecec;
+}
+
+/* --- Categorías: lista de tarjetas (reemplaza la tabla ancha) ------------
+   Antes esta lista solo existía como `<table className="admin-table">`
+   dentro de `.admin-table-wrap`, y esa envoltura se oculta por completo
+   bajo 1100px (ver la regla junto a `.admin-table-wrap` más arriba, pensada
+   para leads/cotizaciones que sí tienen su propio `.admin-list-cards` de
+   respaldo). Categorías nunca tuvo ese respaldo, así que en móvil no había
+   ningún rastro de la lista — «no veo las categorías» era literal. Una
+   única lista de tarjetas que se reordena con CSS Grid evita tener que
+   mantener dos marcados en paralelo. */
+.admin-category-search {
+  margin-bottom: 14px;
+}
+.admin-category-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.admin-category-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+}
+.admin-category-card .meta {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.admin-category-card .row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-category-card .row strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.admin-category-key {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  background: var(--soft);
+  color: var(--muted);
+  padding: 2px 8px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+.admin-category-order {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+@media (max-width: 560px) {
+  /* Mismo patrón que `.admin-project-row`: la tarjeta pasa a dos líneas
+     (datos arriba, botón «Editar» a ancho completo abajo) para que el botón
+     siga midiendo un área táctil cómoda en vez de encogerse junto al texto. */
+  .admin-category-card {
+    grid-template-columns: 1fr;
+  }
+  .admin-category-card .admin-row-actions {
+    justify-content: stretch;
+  }
+  .admin-category-card .admin-row-actions .button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+/* Cuerpo del modal de edición: mismas clases `.npf-fieldset` /
+   `.admin-field-row` que el formulario de alta, así que hereda gratis el
+   arreglo de `minmax(0, 1fr)` de más arriba y nunca desborda el modal
+   (`.dialog-content` mide `min(560px, calc(100vw - 40px))`, más angosto que
+   cualquier columna del editor de proyectos). */
+.admin-edit-modal .npf-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.admin-edit-modal .npf-fieldset + .npf-fieldset {
+  margin-top: 16px;
+}
+
+.admin-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+}
+.admin-pagination-label {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+/* Cifras del resumen: etiqueta y valor, sin inventar un cero cuando el dato
+   todavía no se ha podido leer (ahí va «—»). */
+.admin-summary-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.admin-summary-list div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+.admin-summary-list dt {
+  color: var(--muted);
+  font-size: 11.5px;
+  margin-bottom: 4px;
+}
+.admin-summary-list dd {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* Galería de longitud libre del formulario de proyecto. */
+.npf-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+}
+.npf-gallery-slot {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.npf-gallery-remove {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font: inherit;
+  font-size: 12px;
+  color: #b42318;
+  cursor: pointer;
+}
+.npf-gallery-remove:hover {
+  text-decoration: underline;
+}
+.npf-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.npf-back-btn:hover {
+  color: var(--color-ink);
+}
+
+@media (max-width: 760px) {
+  .admin-toolbar-cta {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  /* La fila pasa a dos líneas: miniatura + datos arriba, acciones abajo a
+     ancho completo, para que los botones sigan siendo pulsables con el dedo. */
+  .admin-project-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .admin-project-row .admin-row-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+  .admin-project-row .admin-row-actions .button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .admin-pagination {
+    justify-content: center;
+  }
+  .admin-pagination-label {
+    order: -1;
+    width: 100%;
+    text-align: center;
+  }
 }

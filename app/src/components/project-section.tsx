@@ -1,6 +1,5 @@
 "use client";
 import { AmenitiesCarousel } from "./amenities-carousel";
-import { AmenitiesShowcase } from "./amenities-showcase";
 import { resolveAmenity } from "@/lib/amenities";
 import Link from "next/link";
 import { ProjectTourButton } from "./project-media";
@@ -364,14 +363,13 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
         <>
           <h3 className="amenities-heading">{t.amenities}</h3>
           {project.amenities.some((a) => resolveAmenity(a, locale, 0).image) ? (
-            <>
-              {/* Escritorio (>760px): imagen fija + lista con scroll, patrón vistacana. */}
-              <AmenitiesShowcase entries={project.amenities} locale={locale} />
-              {/* Móvil (≤760px): carrusel deslizable con puntos, CSS decide cuál se ve. */}
-              <AmenitiesCarousel
-                items={project.amenities.map((amenity, index) => resolveAmenity(amenity, locale, index))}
-              />
-            </>
+            // Carrusel de fotos tipo "coverflow" (patrón vistacana): único
+            // componente en todos los tamaños de pantalla, arrastrable con
+            // el mouse/touch y con autoplay pausable.
+            <AmenitiesCarousel
+              items={project.amenities.map((amenity, index) => resolveAmenity(amenity, locale, index))}
+              locale={locale}
+            />
           ) : (
             <div className="amenities-list">
               {project.amenities.map((amenity, index) => (

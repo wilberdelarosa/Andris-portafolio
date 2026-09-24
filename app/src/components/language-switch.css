@@ -1,0 +1,206 @@
+/*
+ * Selector de idioma. Toma el lenguaje visual del boton de ajustes que vive
+ * a su lado (.icon-button): redondo, sin relleno en reposo, y solo gana
+ * fondo/contorno semitransparente con el puntero encima, al pulsarlo o
+ * mientras esta abierto — igual que .icon-button. En reposo es solo el
+ * icono, sin contorno ni desenfoque.
+ */
+
+.language-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.language-switch-trigger {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: 50%;
+  color: var(--text);
+  /* En reposo, sin relleno ni contorno: solo el icono, como .icon-button.
+     El fondo semitransparente con desenfoque solo aparece al interactuar
+     (hover, pulsado o abierto), en las reglas de abajo. */
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 0.35s var(--ease),
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    backdrop-filter 0.3s ease;
+}
+
+.language-switch-trigger > svg {
+  opacity: 0.62;
+}
+
+.language-switch-code {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pulsado: el control cede y gana el mismo relleno translucido que el hover. */
+.language-switch-trigger:active {
+  transform: scale(0.94);
+  background: color-mix(in srgb, var(--text) 16%, transparent);
+  border-color: color-mix(in srgb, var(--text) 26%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Abierto: relleno solido, para que se vea que ese control manda ahora. */
+.language-switch-trigger[aria-expanded="true"] {
+  background: var(--nav-active);
+  border-color: color-mix(in srgb, var(--text) 30%, transparent);
+}
+
+.language-switch-trigger[aria-expanded="true"] > svg {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .language-switch-trigger:hover {
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+    border-color: color-mix(in srgb, var(--text) 15%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform: translateY(-2px);
+  }
+  .language-switch-trigger[aria-expanded="true"]:hover {
+    background: var(--nav-active);
+    border-color: color-mix(in srgb, var(--text) 26%, transparent);
+    transform: none;
+  }
+  .language-switch-flyout button:hover {
+    background: var(--nav-active);
+  }
+}
+
+/* ------------------------------------------------------------- desplegable */
+
+.language-switch-flyout {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: max-content;
+  min-width: 208px;
+  max-width: calc(100vw - 2 * var(--page-gutter));
+  padding: 6px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--glass-paper);
+  backdrop-filter: blur(26px);
+  -webkit-backdrop-filter: blur(26px);
+  box-shadow: var(--shadow-overlay);
+  animation: language-switch-in 0.22s var(--ease) both;
+}
+
+.language-switch-flyout[hidden] {
+  display: none;
+}
+
+@keyframes language-switch-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.language-switch-title {
+  margin: 0;
+  padding: 7px 12px 5px;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.language-switch-flyout button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 44px;
+  padding: 5px 14px 5px 5px;
+  border-radius: 99px;
+  text-align: left;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.language-switch-chip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+
+.language-switch-name {
+  margin-right: auto;
+}
+
+.language-switch-flyout button[aria-pressed="true"] {
+  background: var(--nav-active);
+  font-weight: 650;
+}
+
+.language-switch-flyout button[aria-pressed="true"] .language-switch-chip {
+  background: var(--text);
+  color: var(--paper);
+  border-color: transparent;
+}
+
+.language-switch :focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+@media (max-width: 400px) {
+  .language-switch-flyout {
+    min-width: 0;
+    width: calc(100vw - 2 * var(--page-gutter));
+    max-width: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .language-switch-trigger,
+  .language-switch-flyout button {
+    transition: none;
+  }
+  .language-switch-trigger:active,
+  .language-switch-trigger:hover {
+    transform: none;
+  }
+  .language-switch-flyout {
+    animation: none;
+  }
+}

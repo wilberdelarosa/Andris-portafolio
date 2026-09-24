@@ -17,7 +17,8 @@ import { localeTags } from "@/content/copy";
 import { useExperience } from "./experience-provider";
 import { useProjects } from "./projects-provider";
 import { Reveal } from "./ui";
-import { quotesStore } from "@/lib/cms/local-store";
+import { createQuote } from "@/lib/cms/quote-writer";
+import { isSupabaseConfigured } from "@/lib/cms/session";
 
 const DEFAULTS = { price: "150000", months: "24", signing: "10", construction: "40" };
 
@@ -113,16 +114,27 @@ export function PaymentCalculator() {
             }`
           : null,
     });
-    quotesStore.add({
+    /*
+     * El registro de la cotización va a Supabase, no a `localStorage`: antes
+     * se guardaba en el navegador del visitante, así que el panel del dueño
+     * solo veía las descargas hechas desde su propia máquina.
+     *
+     * El PDF ya se descargó arriba, que es lo que el visitante pidió; si el
+     * registro falla no se le interrumpe con un error que no puede resolver.
+     * Queda anotado en consola para que el fallo no sea invisible.
+     */
+    if (!isSupabaseConfigured()) return;
+    void createQuote({
       locale,
-      projectSlug: project?.slug ?? null,
+      projectId: project?.id ?? null,
       price: plan.total,
       signingPercent: Number(signing),
       constructionPercent: Number(construction),
       months: Number(months),
       monthly: plan.monthly,
       deliveryPercent: plan.deliveryPercent,
-      format: "pdf",
+    }).catch((error: unknown) => {
+      console.warn("[cms] No se pudo registrar la cotización en Supabase.", error);
     });
   };
 

@@ -40,7 +40,7 @@ Cuando exista una app, no entregues un cambio sin ejecutar sus scripts de `lint`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **AndrisPortafolio** (2304 symbols, 3556 relationships, 119 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **AndrisPortafolio** (2408 symbols, 3833 relationships, 145 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

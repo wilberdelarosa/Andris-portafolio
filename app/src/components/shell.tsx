@@ -16,7 +16,6 @@ import {
   Moon,
   SlidersHorizontal,
   Heart,
-  GlobeHemisphereWest,
   WhatsappLogo,
   EnvelopeSimple,
   ArrowUp,
@@ -35,6 +34,7 @@ import { SmoothScroll } from "./smooth-scroll";
 import type { Locale } from "@/content/projects";
 import { contactCopy } from "@/content/contact-copy";
 import { PrivacyNotice } from "./privacy-notice";
+import { LanguageSwitch } from "./language-switch";
 
 
 export function Shell({
@@ -144,18 +144,7 @@ export function Shell({
           ))}
         </nav>
         <div className="header-actions">
-          <label className="language-control">
-            <GlobeHemisphereWest size={17} aria-hidden="true" />
-            <span className="sr-only">{t.language}</span>
-            <select
-              value={locale}
-              onChange={(event) => setLocale(event.target.value as Locale)}
-            >
-              <option value="es">ES</option>
-              <option value="en">EN</option>
-              <option value="fr">FR</option>
-            </select>
-          </label>
+          <LanguageSwitch />
           <button
             className="icon-button desktop-theme"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

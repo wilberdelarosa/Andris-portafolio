@@ -23,7 +23,8 @@ import {
   getSafeLeadWebhookUrl,
   type ContactLeadInput,
 } from "@/lib/lead-payload";
-import { leadsStore } from "@/lib/cms/local-store";
+import { formatPhone, formatPhoneWithCaret } from "@/lib/phone-format";
+import { createLead } from "@/lib/cms/lead-writer";
 
 type LeadDelivery =
   | { state: "idle" }
@@ -42,7 +43,18 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
   const [copied, setCopied] = useState(false);
   const [privacy, setPrivacy] = useState(false);
   const [consent, setConsent] = useState(false);
+  /*
+   * Mascara de telefono. Es un campo controlado solo para poder reagrupar lo
+   * tecleado; no valida ni bloquea nada, asi que pegar un numero completo,
+   * escribir un prefijo europeo o dejarlo a medias sigue funcionando igual.
+   */
+  const [phone, setPhone] = useState("");
   const [delivery, setDelivery] = useState<LeadDelivery>({ state: "idle" });
+  /**
+   * `null` mientras no se ha intentado guardar. `false` avisa al visitante de
+   * que su consulta no quedó registrada y conviene enviarla por WhatsApp.
+   */
+  const [leadStored, setLeadStored] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const email = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || advisor.email;
   const whatsapp =
@@ -78,9 +90,16 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
     setSummary(
       `Andris Peña | ${t.portfolio}\n\n${t.name}: ${lead.name}\n${t.email}: ${lead.email}\n${c.phone}: ${lead.phone}\n${c.country}: ${lead.country}\n${c.budget}: ${lead.budget}\n${c.timeframe}: ${lead.timeframe}\n${j.projectField}: ${lead.project || j.general}\n${t.interest}: ${lead.interest}\n${t.message}: ${lead.message || "—"}\n\n${c.consentRecord}`,
     );
-    // El lead queda registrado en el estudio CMS local sea cual sea el canal.
-    const recordLead = (status: "prepared" | "sent" | "failed") =>
-      leadsStore.add({
+    // El lead se registra unicamente en Supabase: es la bandeja que ve el
+    // panel. Ya no hay copia en `localStorage`, que solo quedaba en el
+    // navegador del visitante y por tanto nunca llegaba a nadie.
+    //
+    // Si la escritura falla no se silencia: se avisa en el resumen para que
+    // la persona lo mande por WhatsApp, que es el canal que de verdad llega.
+    const recordLead = (status: "prepared" | "sent" | "failed") => {
+      // Sin `await`: el visitante no debe esperar a la red para ver su
+      // resumen y poder seguir por WhatsApp.
+      void createLead({
         name: lead.name,
         email: lead.email,
         phone: lead.phone,
@@ -92,9 +111,13 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
         message: lead.message,
         locale,
         pageUrl: lead.pageUrl,
-        channel: "summary",
+        channel: "summary" as const,
         status,
-      });
+        projectId: projects.find((item) => item.slug === selectedProject)?.id,
+      })
+        .then(() => setLeadStored(true))
+        .catch(() => setLeadStored(false));
+    };
     if (!leadWebhookUrl) {
       recordLead("prepared");
       setDelivery({ state: "skipped" });
@@ -179,24 +202,38 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
               />
             </label>
             <label>
-              {t.email}
+              {c.phone}
               <input
-                name="email"
-                type="email"
+                name="phone"
+                type="tel"
+                inputMode="tel"
                 required
-                maxLength={254}
-                autoComplete="email"
-                placeholder={t.emailPlaceholder}
+                minLength={7}
+                maxLength={32}
+                autoComplete="tel"
+                placeholder="+1 809 000 0000"
+                value={phone}
+                onChange={(event) => {
+                  const input = event.currentTarget;
+                  const next = formatPhoneWithCaret(
+                    input.value,
+                    input.selectionStart ?? input.value.length,
+                  );
+                  // Se escribe primero en el DOM para poder recolocar el
+                  // cursor en el mismo evento; React recibe el mismo valor,
+                  // asi que no hay salto ni parpadeo.
+                  input.value = next.value;
+                  input.setSelectionRange(next.caret, next.caret);
+                  setPhone(next.value);
+                }}
+                onBlur={(event) => {
+                  const cleaned = formatPhone(event.currentTarget.value);
+                  // Un "+" o un prefijo suelto no es un telefono: se limpia
+                  // para que `required` siga avisando.
+                  setPhone(/\d/.test(cleaned.replace(/^\+\d{1,3}$/, "")) ? cleaned : "");
+                }}
               />
             </label>
-          </div>
-          <div className="form-row">
-            <label>{c.phone}<input name="phone" type="tel" required minLength={7} maxLength={32} autoComplete="tel" placeholder="+1 809 000 0000" /></label>
-            <label>{c.country}<input name="country" required minLength={2} maxLength={80} autoComplete="country-name" placeholder={c.countryPlaceholder} /></label>
-          </div>
-          <div className="form-row">
-            <label>{c.budget}<select name="budget" required defaultValue=""><option value="" disabled>{c.choose}</option>{c.budgets.map((value) => <option key={value}>{value}</option>)}</select></label>
-            <label>{c.timeframe}<select name="timeframe" required defaultValue=""><option value="" disabled>{c.choose}</option>{c.timeframes.map((value) => <option key={value}>{value}</option>)}</select></label>
           </div>
           <label>
             {j.projectField}
@@ -229,15 +266,44 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
               ))}
             </select>
           </label>
-          <label>
-            {t.message}
-            <textarea
-              name="message"
-              rows={3}
-              maxLength={2000}
-              placeholder={t.messagePlaceholder}
-            />
-          </label>
+          {/*
+            El cliente pidió que el formulario capture "lo preciso" y no dé
+            lucha: solo nombre y teléfono son obligatorios, porque el canal
+            real de respuesta es WhatsApp. Todo lo demás ayuda a preparar la
+            conversación, pero no debe frenar el envío, así que vive aquí
+            plegado y opcional.
+          */}
+          <details className="contact-more">
+            <summary>{c.moreDetails}</summary>
+            <div className="contact-more-body">
+              <div className="form-row">
+                <label>
+                  {t.email}
+                  <input
+                    name="email"
+                    type="email"
+                    maxLength={254}
+                    autoComplete="email"
+                    placeholder={t.emailPlaceholder}
+                  />
+                </label>
+                <label>{c.country}<input name="country" maxLength={80} autoComplete="country-name" placeholder={c.countryPlaceholder} /></label>
+              </div>
+              <div className="form-row">
+                <label>{c.budget}<select name="budget" defaultValue=""><option value="">{c.choose}</option>{c.budgets.map((value) => <option key={value}>{value}</option>)}</select></label>
+                <label>{c.timeframe}<select name="timeframe" defaultValue=""><option value="">{c.choose}</option>{c.timeframes.map((value) => <option key={value}>{value}</option>)}</select></label>
+              </div>
+              <label>
+                {t.message}
+                <textarea
+                  name="message"
+                  rows={3}
+                  maxLength={2000}
+                  placeholder={t.messagePlaceholder}
+                />
+              </label>
+            </div>
+          </details>
           <label className="checkbox-label">
             <input type="checkbox" name="consent" value="accepted" required checked={consent} onChange={(event) => setConsent(event.target.checked)} />
             <span>
@@ -272,6 +338,11 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
             role={delivery.state === "failed" ? "alert" : "status"}
           >
             {deliveryMessage}
+          </p>
+        )}
+        {leadStored === false && (
+          <p className="lead-delivery-status lead-delivery-status-failed" role="alert">
+            {c.storeFailed}
           </p>
         )}
         <div className="consultation-summary">

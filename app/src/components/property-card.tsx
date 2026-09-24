@@ -11,7 +11,20 @@ import { journeyCopy } from "@/content/journey-copy";
 import type { PropertyProject } from "@/content/projects";
 import "./property-card.css";
 
-/** Gestures change images; the explicit CTA opens the profile. */
+/**
+ * Los gestos cambian la imagen; el titulo es el enlace real al proyecto.
+ *
+ * El cliente pidio que la ficha entera lleve al proyecto, "no solamente en
+ * 'ver proyecto'". Se resuelve con el patron de enlace de area extendida: un
+ * unico `<a>` (el del titulo) se estira con un pseudo-elemento
+ * (`.pcard-cover-link::after`, en property-card.css) hasta cubrir la tarjeta.
+ * Asi no hay `<a>` dentro de `<a>`, el orden de tabulacion no cambia y el
+ * menu contextual sigue ofreciendo "abrir en pestaña nueva".
+ *
+ * Los controles que hacen otra cosa -corazon, comparar, flechas de galeria,
+ * "abrir ubicacion" y el propio CTA- se elevan por encima de esa capa con
+ * `z-index`, de modo que siguen recibiendo sus clics.
+ */
 export function PropertyCard({
   project,
   featured = false,
@@ -103,7 +116,7 @@ export function PropertyCard({
       <div className="pcard-glass">
         <div className="pcard-info">
           <p className="pcard-location"><MapPin size={15} aria-hidden="true" />{project.location}</p>
-          <h3 className="pcard-name"><Link href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{displayName}</Link></h3>
+          <h3 className="pcard-name"><Link className="pcard-cover-link" href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{displayName}</Link></h3>
           {(project.bedrooms?.length || 0) > 0 ? <ul className="pcard-specs">
             <li><Bed size={18} /><span>{(project.bedrooms || []).join(", ")} {c.bedroomsShort}</span></li>
             <li><Ruler size={18} /><span>{project.area?.min || 0}–{project.area.max} {project.area.unit}</span></li>

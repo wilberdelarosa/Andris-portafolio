@@ -1,25 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowSquareOut,
   Buildings,
+  CaretLeft,
+  CaretRight,
   Calculator,
-  CheckCircle,
+  CircleNotch,
   Database,
   DotsThree,
   DownloadSimple,
   FileSql,
+  MagnifyingGlass,
+  PencilSimple,
   PlusCircle,
   SignOut,
   SquaresFour,
   Stethoscope,
   Tag,
   Trash,
-  UploadSimple,
   UsersThree,
   X,
 } from "@phosphor-icons/react";
@@ -29,45 +32,54 @@ import { NotificationCenter } from "./notification-center";
 import { LoginForm } from "./login-form";
 import { DiagnosticsPanel } from "./diagnostics-panel";
 import { CategoryManager } from "./category-manager";
-import { LivePreviewPanel, type DraftPreview } from "./live-preview-panel";
 
-import type { PropertyProject } from "@/content/projects";
-import { useProjects } from "@/components/projects-provider";
 import { getContentRepository } from "@/lib/cms/repository";
-import { amenityLabel } from "@/lib/amenities";
+import { deleteAllLeads, deleteLead, listLeads } from "@/lib/cms/lead-writer";
 import {
-  draftsStore,
-  leadsStore,
-  onCmsChange,
-  quotesStore,
-} from "@/lib/cms/local-store";
+  clearQuotes,
+  deleteQuote,
+  listQuotes,
+  type EditorQuote,
+} from "@/lib/cms/quote-writer";
 import {
+  deleteProject,
+  getProjectStats,
+  listEditorProjects,
+  loadProjectForEdit,
+  type EditorProjectRow,
+  type ProjectFormValues,
+  type ProjectPublicStatus,
+  type ProjectStats,
+} from "@/lib/cms/project-writer";
+import { PropertyCategorySelect } from "./property-category-select";
+import {
+  describeError,
   getSessionServerSnapshot,
   getSessionSnapshot,
   onSessionChange,
   signOut,
 } from "@/lib/cms/session";
-import type {
-  CalculatorQuote,
-  CmsLead,
-  CmsConnection,
-  ProjectDraft,
-} from "@/lib/cms/types";
+import type { CmsLead, CmsConnection } from "@/lib/cms/types";
 
 type Tab =
   | "resumen"
   | "proyectos"
-  | "nuevo"
   | "categorias"
   | "leads"
   | "cotizaciones"
   | "esquema"
   | "diagnostico";
 
+/**
+ * «Añadir proyecto» ya no es una pestaña: es un botón dentro de Proyectos, y
+ * el mismo formulario sirve para editar. Con una pestaña menos, las cuatro
+ * primeras —que son las que caben en la barra inferior del móvil— quedan
+ * siendo justo el trabajo diario (resumen, catálogo, leads, categorías) y el
+ * menú «Más» se lleva lo ocasional.
+ */
 const TABS: { id: Tab; label: string; icon: typeof SquaresFour }[] = [
   { id: "resumen", label: "Resumen", icon: SquaresFour },
   { id: "proyectos", label: "Proyectos", icon: Buildings },
-  { id: "nuevo", label: "Añadir proyecto", icon: PlusCircle },
   { id: "leads", label: "Leads", icon: UsersThree },
   { id: "categorias", label: "Categorías", icon: Tag },
   { id: "cotizaciones", label: "Cotizaciones", icon: Calculator },
@@ -105,33 +117,73 @@ export function AdminStudio() {
   const [tab, setTab] = useState<Tab>("resumen");
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [leads, setLeads] = useState<CmsLead[]>([]);
-  const [quotes, setQuotes] = useState<CalculatorQuote[]>([]);
-  const [drafts, setDrafts] = useState<ProjectDraft[]>([]);
-  const { projects, loading: projectsLoading, error: projectsError } = useProjects();
+  const [leadsError, setLeadsError] = useState<string | null>(null);
+  const [quotes, setQuotes] = useState<EditorQuote[]>([]);
+  const [quotesError, setQuotesError] = useState<string | null>(null);
+  const [stats, setStats] = useState<ProjectStats | null>(null);
+  /** Cambia en cada alta, edición o borrado para reconsultar lo dependiente. */
+  const [revision, setRevision] = useState(0);
   const connection: CmsConnection = useMemo(
     () => getContentRepository().connection(),
     [],
   );
 
+  /**
+   * Leads, cotizaciones y cifras salen de Supabase, no de `localStorage`.
+   * El estado se fija dentro del callback de cada promesa —nunca de forma
+   * síncrona en el cuerpo del efecto—, que es lo que exige el linter y lo que
+   * evita renders encadenados.
+   */
   useEffect(() => {
-    const load = () => {
-      setLeads(leadsStore.list());
-      setQuotes(quotesStore.list());
-      setDrafts(draftsStore.list());
+    let cancelled = false;
+    if (connection.provider !== "supabase") return;
+
+    void listLeads()
+      .then((rows) => {
+        if (cancelled) return;
+        setLeads(rows);
+        setLeadsError(null);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setLeadsError(describeError(error));
+      });
+
+    void listQuotes()
+      .then((rows) => {
+        if (cancelled) return;
+        setQuotes(rows);
+        setQuotesError(null);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setQuotesError(describeError(error));
+      });
+
+    void getProjectStats()
+      .then((next) => {
+        if (!cancelled) setStats(next);
+      })
+      .catch(() => {
+        // El resumen muestra «—» en vez de un cero inventado: la pestaña
+        // Proyectos, que es donde se trabaja, informa del error con detalle.
+        if (!cancelled) setStats(null);
+      });
+
+    return () => {
+      cancelled = true;
     };
+  }, [connection.provider, revision]);
+
+  useEffect(() => {
     const syncTab = () => {
       const hash = location.hash.replace("#", "") as Tab;
       if (TABS.some((item) => item.id === hash)) setTab(hash);
     };
-    load();
     syncTab();
-    const unsubscribe = onCmsChange(load);
     window.addEventListener("hashchange", syncTab);
-    return () => {
-      unsubscribe();
-      window.removeEventListener("hashchange", syncTab);
-    };
+    return () => window.removeEventListener("hashchange", syncTab);
   }, []);
+
+  const refresh = () => setRevision((value) => value + 1);
 
   /**
    * La sesion se lee del almacen externo en vez de copiarse a estado: asi
@@ -155,16 +207,12 @@ export function AdminStudio() {
   if (session === undefined) {
     return (
       <div className="admin-login-wrapper">
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ position: "relative", marginBottom: "24px" }}>
-            <div style={{ position: "absolute", inset: -4, background: "linear-gradient(45deg, var(--color-blue), #8b5cf6)", borderRadius: "50%", filter: "blur(12px)", opacity: 0.6 }} />
-            <img src="https://ui-avatars.com/api/?name=Andris+Pe%C3%B1a&background=0D1117&color=fff&size=128" alt="Andris Peña" style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.1)", position: "relative", zIndex: 1 }} />
-          </div>
-          <p style={{ color: "var(--muted)", fontSize: "15px", fontWeight: 500, display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ width: "16px", height: "16px", border: "2px solid var(--muted)", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-            Comprobando sesión segura...
+        <div className="admin-login-loading" role="status">
+          <span className="admin-brand-mark">AP</span>
+          <p>
+            <CircleNotch size={16} className="spin" aria-hidden />
+            Comprobando sesión segura…
           </p>
-          <style>{"@keyframes spin { 100% { transform: rotate(360deg); } }"}</style>
         </div>
       </div>
     );
@@ -249,27 +297,23 @@ export function AdminStudio() {
             >
               {tab === "resumen" && (
                 <Dashboard
-                  projects={projects}
-                  projectsLoading={projectsLoading}
+                  stats={stats}
                   leads={leads}
                   quotes={quotes}
-                  drafts={drafts}
                   connection={connection}
                   go={go}
                 />
               )}
               {tab === "proyectos" && (
-                <ProjectsPanel
-                  projects={projects}
-                  drafts={drafts}
-                  loading={projectsLoading}
-                  error={projectsError}
-                />
+                <ProjectsPanel revision={revision} onChanged={refresh} />
               )}
-              {tab === "nuevo" && <NewProjectForm />}
               {tab === "categorias" && <CategoryManager />}
-              {tab === "leads" && <LeadsPanel leads={leads} />}
-              {tab === "cotizaciones" && <QuotesPanel quotes={quotes} projects={projects} />}
+              {tab === "leads" && (
+                <LeadsPanel leads={leads} error={leadsError} onChanged={refresh} />
+              )}
+              {tab === "cotizaciones" && (
+                <QuotesPanel quotes={quotes} error={quotesError} onChanged={refresh} />
+              )}
               {tab === "esquema" && <SchemaPanel />}
               {tab === "diagnostico" && <DiagnosticsPanel />}
             </motion.div>
@@ -326,158 +370,340 @@ export function AdminStudio() {
    Resumen
 --------------------------------------------------------------------------- */
 function Dashboard({
-  projects,
-  projectsLoading,
+  stats,
   leads,
   quotes,
-  drafts,
   connection,
   go,
 }: {
-  projects: PropertyProject[];
-  projectsLoading: boolean;
+  /** `null` mientras carga o si Supabase no respondió: se pinta «—», no un 0. */
+  stats: ProjectStats | null;
   leads: CmsLead[];
-  quotes: CalculatorQuote[];
-  drafts: ProjectDraft[];
+  quotes: EditorQuote[];
   connection: CmsConnection;
   go: (tab: Tab) => void;
 }) {
   const pendingLeads = leads.filter((lead) => lead.status !== "sent").length;
-  // Mock data for analytics
-  const monthlyVisits = 1250;
-  
+  const pendingPrices = stats?.pendingPrice ?? 0;
+  const count = (value: number | undefined) =>
+    value === undefined ? "—" : String(value);
+
   return (
     <>
-      {/* Cabecera Tipo App */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'var(--panel)', borderBottom: '1px solid var(--line)', margin: '-24px -24px 20px -24px' }}>
+      {/*
+        Cabecera tipo app: va a sangre contra los bordes del área de contenido,
+        como el rediseño de CMS que ya existía. El chip de conexión vive aquí
+        porque la barra lateral (donde también se lee) no existe bajo 760px.
+      */}
+      <div className="admin-app-head">
         <div>
-          <h1 style={{ fontSize: '18px', margin: 0, fontWeight: 600 }}>Inicio</h1>
-          <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>Resumen de actividad</p>
+          <h1>Inicio</h1>
+          <p>Resumen de actividad</p>
         </div>
+        <span className={connection.provider === "supabase" ? "chip ok" : "chip neutral"}>
+          <i />
+          {connection.provider === "supabase" ? "Supabase" : "Local"}
+        </span>
       </div>
 
-      {/* Grid de Estadísticas Analíticas */}
-      <div className="app-grid-2" style={{ marginBottom: '24px' }}>
-        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Visitas del Mes</span>
-            <span style={{ color: '#10b981', fontSize: '11px', fontWeight: 'bold' }}>+12%</span>
+      {/*
+        Cifras reales del catálogo y de la bandeja. No hay métricas de tráfico
+        aquí a propósito: el tracker las registra pero `analytics_events` aún
+        no deja leerlas al editor, y poner un número inventado sería peor que
+        no poner ninguno.
+      */}
+      <div className="admin-app-stats">
+        <div className="admin-app-stat">
+          <div className="admin-app-stat-head">
+            <span>Proyectos</span>
+            <Buildings size={16} />
           </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{monthlyVisits}</strong>
+          <strong>{count(stats?.total)}</strong>
         </div>
-        <div style={{ background: 'var(--panel)', padding: '16px', borderRadius: '16px', border: '1px solid var(--line)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--muted)' }}>
-            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>Leads Nuevos</span>
+        <div className="admin-app-stat">
+          <div className="admin-app-stat-head">
+            <span>Leads nuevos</span>
             <UsersThree size={16} />
           </div>
-          <strong style={{ fontSize: '28px', display: 'block', color: 'var(--text)' }}>{pendingLeads}</strong>
+          <strong>{pendingLeads}</strong>
+        </div>
+        <div className="admin-app-stat">
+          <div className="admin-app-stat-head">
+            <span>Cotizaciones</span>
+            <Calculator size={16} />
+          </div>
+          <strong>{quotes.length}</strong>
+        </div>
+        <div className="admin-app-stat">
+          <div className="admin-app-stat-head">
+            <span>Borradores</span>
+            <PencilSimple size={16} />
+          </div>
+          <strong>{count(stats?.drafts)}</strong>
         </div>
       </div>
 
-      {/* Secciones de Trabajo */}
-      <div style={{ display: 'grid', gap: '20px' }}>
-        
-        {/* Proyectos Recientes */}
-        <div style={{ background: 'var(--panel)', borderRadius: '20px', border: '1px solid var(--line)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '15px' }}>Proyectos ({projectsLoading ? "…" : projects.length})</h3>
-            <button onClick={() => go('nuevo')} style={{ background: 'var(--text)', color: 'var(--bg)', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>+ Nuevo</button>
+      {pendingPrices > 0 && (
+        <p className="admin-banner" role="status">
+          <Tag size={18} />
+          {pendingPrices === 1
+            ? "1 proyecto tiene el precio por confirmar."
+            : `${pendingPrices} proyectos tienen el precio por confirmar.`}
+          <button type="button" className="admin-banner-link" onClick={() => go("proyectos")}>
+            Revisar en Proyectos
+          </button>
+        </p>
+      )}
+
+      <div className="admin-app-card">
+        <div className="admin-app-card-head">
+          <h2>Catálogo</h2>
+          <button className="button button-outline" onClick={() => go("proyectos")}>
+            <Buildings size={16} /> Gestionar
+          </button>
+        </div>
+        <dl className="admin-summary-list">
+          <div>
+            <dt>Publicados</dt>
+            <dd>{count(stats?.published)}</dd>
           </div>
-          <div style={{ padding: '8px' }}>
-            {projects.slice(0, 3).map((p, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'var(--soft)', borderRadius: '12px', marginBottom: '8px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--line)', backgroundImage: `url(${p.hero})`, backgroundSize: 'cover' }} />
-                  <div>
-                    <h4 style={{ margin: '0 0 2px 0', fontSize: '14px', fontWeight: 500 }}>{p.name}</h4>
-                    <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{152} visitas</span>
-                  </div>
+          <div>
+            <dt>Borradores</dt>
+            <dd>{count(stats?.drafts)}</dd>
+          </div>
+          <div>
+            <dt>Precio por confirmar</dt>
+            <dd>{count(stats?.pendingPrice)}</dd>
+          </div>
+        </dl>
+        {stats === null && (
+          <p className="field-hint" role="status">
+            Aún no se pudieron leer las cifras del catálogo. Abre Proyectos
+            para ver el detalle del error.
+          </p>
+        )}
+      </div>
+
+      <div className="admin-app-card">
+        <div className="admin-app-card-head">
+          <h2>Leads recientes</h2>
+          <button className="button button-outline" onClick={() => go("leads")}>
+            <UsersThree size={16} /> Ver todos
+          </button>
+        </div>
+        {leads.length === 0 ? (
+          <div className="admin-empty">
+            <UsersThree size={30} />
+            Aún no hay leads. Aparecen cuando alguien prepara una consulta en
+            /contacto.
+          </div>
+        ) : (
+          <div className="admin-card-list">
+            {leads.slice(0, 3).map((lead) => (
+              <article key={lead.id} className="admin-lead-card">
+                <div className="row">
+                  <strong>{lead.name}</strong>
+                  <LeadStatusChip status={lead.status} />
                 </div>
-                <button onClick={() => go('proyectos')} style={{ background: 'transparent', border: '1px solid var(--line)', padding: '6px', borderRadius: '8px', cursor: 'pointer', color: 'var(--text)' }}>Editar</button>
-              </div>
+                <div className="row">
+                  <span>{lead.project}</span>
+                  <small>{dateTime.format(new Date(lead.createdAt))}</small>
+                </div>
+              </article>
             ))}
           </div>
-        </div>
-
-        {/* Leads Recientes */}
-        <div style={{ background: 'var(--panel)', borderRadius: '20px', border: '1px solid var(--line)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '15px' }}>Leads Recientes</h3>
-            <button onClick={() => go('leads')} style={{ background: 'transparent', border: 'none', color: 'var(--color-blue)', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>Ver todos</button>
-          </div>
-          <div style={{ padding: '0' }}>
-            {leads.slice(0, 3).length > 0 ? leads.slice(0, 3).map((l, i) => (
-              <div key={i} style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 500 }}>{l.name}</h4>
-                  <span style={{ fontSize: '12px', color: 'var(--muted)' }}>{l.project} • {l.interest}</span>
-                </div>
-                {l.status !== 'sent' && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />}
-              </div>
-            )) : (
-              <p style={{ padding: '20px', margin: 0, fontSize: '13px', color: 'var(--muted)', textAlign: 'center' }}>No hay leads recientes.</p>
-            )}
-          </div>
-        </div>
-
+        )}
       </div>
-
-      <style>{`
-        .app-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-      `}</style>
     </>
   );
 }
 /* ---------------------------------------------------------------------------
-   Proyectos + editor de borradores
+   Proyectos: listado, alta y edición en un solo flujo
+
+   Antes eran dos pestañas («Proyectos» y «Añadir proyecto») que no se
+   hablaban: el listado solo dejaba tocar cuatro campos comerciales y los
+   guardaba en `localStorage`, así que «editar» no cambiaba nada en la base, y
+   el alta vivía aparte. Ahora hay una sola pantalla con tres modos —lista,
+   alta y edición— y los tres escriben en Supabase.
 --------------------------------------------------------------------------- */
+
+const PAGE_SIZE = 12;
+
+const STATUS_CHIP: Record<
+  ProjectPublicStatus,
+  { label: string; className: string }
+> = {
+  published: { label: "Publicado", className: "ok" },
+  draft: { label: "Borrador", className: "info" },
+  review: { label: "En revisión", className: "pending" },
+  archived: { label: "Archivado", className: "neutral" },
+};
+
+type PanelMode =
+  | { kind: "list" }
+  | { kind: "create" }
+  | { kind: "edit"; project: ProjectFormValues };
+
 function ProjectsPanel({
-  projects,
-  drafts,
-  loading,
-  error,
+  revision,
+  onChanged,
 }: {
-  projects: PropertyProject[];
-  drafts: ProjectDraft[];
-  loading: boolean;
-  error: string | null;
+  /** Cambia cuando otra parte del panel toca proyectos; fuerza recarga. */
+  revision: number;
+  onChanged: () => void;
 }) {
-  const [selected, setSelected] = useState("");
-  // El listado llega de forma asincrona (Supabase o estatico via
-  // getContentRepository()); en cuanto resuelve, se preselecciona el primero.
-  /* eslint-disable react-hooks/set-state-in-effect -- Sincroniza la seleccion con la carga inicial del provider, no con cada render. */
+  const [mode, setMode] = useState<PanelMode>({ kind: "list" });
+
+  const [search, setSearch] = useState("");
+  /** Término ya «asentado»: solo con este se consulta, no con cada tecla. */
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [status, setStatus] = useState<ProjectPublicStatus | "">("");
+  const [categoryId, setCategoryId] = useState("");
+  const [page, setPage] = useState(0);
+
+  const [localRevision, setLocalRevision] = useState(0);
+
+  /**
+   * Resultado de la última consulta, etiquetado con la consulta que lo
+   * produjo. Guardar la etiqueta permite deducir `loading` comparándola con
+   * la consulta actual, en vez de un `setLoading(true)` dentro del efecto
+   * —que encadena renders y el linter rechaza con razón—. De paso, la tabla
+   * anterior sigue en pantalla mientras llega la nueva página en lugar de
+   * parpadear a vacío.
+   */
+  const queryKey = JSON.stringify([
+    appliedSearch,
+    status,
+    categoryId,
+    page,
+    revision,
+    localRevision,
+  ]);
+  const [result, setResult] = useState<{
+    key: string;
+    rows: EditorProjectRow[];
+    total: number;
+    error: string | null;
+  } | null>(null);
+
+  const rows = result?.rows ?? [];
+  const total = result?.total ?? 0;
+  const error = result?.error ?? null;
+  const loading = result?.key !== queryKey;
+
+  /** Id en espera de confirmación de borrado; `null` si no hay ninguno. */
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ tone: "ok" | "error"; text: string } | null>(
+    null,
+  );
+
+  /**
+   * Búsqueda con retardo: se espera a que el editor deje de teclear antes de
+   * consultar. Sin esto cada letra dispararía una petición a PostgREST.
+   */
   useEffect(() => {
-    if (!selected && projects.length) setSelected(projects[0].slug);
-  }, [projects, selected]);
-  /* eslint-enable react-hooks/set-state-in-effect */
-  const project = projects.find((item) => item.slug === selected) ?? null;
-  const draft = drafts.find((item) => item.projectId === selected) ?? null;
-  const importRef = useRef<HTMLInputElement>(null);
+    const timer = setTimeout(() => {
+      setAppliedSearch(search);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const exportDrafts = () =>
-    downloadFile(
-      "andris-cms-borradores.json",
-      JSON.stringify(drafts, null, 2),
-      "application/json",
-    );
-
-  const importDrafts = async (file: File) => {
-    try {
-      const parsed: unknown = JSON.parse(await file.text());
-      if (!Array.isArray(parsed)) throw new Error("formato");
-      for (const item of parsed as ProjectDraft[]) {
-        if (item && typeof item.projectId === "string" && item.fields) {
-          draftsStore.save({
-            projectId: item.projectId,
-            fields: item.fields,
-            notes: typeof item.notes === "string" ? item.notes : "",
-          });
+  useEffect(() => {
+    let cancelled = false;
+    listEditorProjects({
+      search: appliedSearch,
+      status,
+      categoryId,
+      limit: PAGE_SIZE,
+      offset: page * PAGE_SIZE,
+    })
+      .then((page) => {
+        if (!cancelled) {
+          setResult({ key: queryKey, rows: page.rows, total: page.total, error: null });
         }
-      }
-    } catch {
-      window.alert("El archivo no es un JSON de borradores válido.");
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) {
+          setResult({ key: queryKey, rows: [], total: 0, error: describeError(cause) });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [queryKey, appliedSearch, status, categoryId, page]);
+
+  const reload = () => setLocalRevision((value) => value + 1);
+
+  const openEditor = async (row: EditorProjectRow) => {
+    setBusyId(row.id);
+    setNotice(null);
+    try {
+      const project = await loadProjectForEdit(row.id);
+      setMode({ kind: "edit", project });
+    } catch (cause) {
+      setNotice({
+        tone: "error",
+        text: `No se pudo abrir «${row.name}» para editar: ${describeError(cause)}`,
+      });
+    } finally {
+      setBusyId(null);
     }
   };
+
+  const removeProject = async (row: EditorProjectRow) => {
+    setBusyId(row.id);
+    setNotice(null);
+    try {
+      await deleteProject(row.id);
+      setConfirmDelete(null);
+      setNotice({
+        tone: "ok",
+        text: `«${row.name}» se eliminó de Supabase junto con su ficha completa.`,
+      });
+      // Si la página se queda vacía al borrar el último elemento, se retrocede.
+      if (rows.length === 1 && page > 0) setPage(page - 1);
+      else reload();
+      onChanged();
+    } catch (cause) {
+      setNotice({
+        tone: "error",
+        text: `No se pudo eliminar «${row.name}»: ${describeError(cause)}`,
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const afterSave = () => {
+    setMode({ kind: "list" });
+    reload();
+    onChanged();
+  };
+
+  if (mode.kind === "create") {
+    return (
+      <NewProjectForm onSaved={afterSave} onCancel={() => setMode({ kind: "list" })} />
+    );
+  }
+
+  if (mode.kind === "edit") {
+    return (
+      <NewProjectForm
+        // Remontar por proyecto: el formulario inicializa su estado desde
+        // `initial` en el primer render, así que cambiar de proyecto sin
+        // remontar dejaría los campos del anterior.
+        key={mode.project.id}
+        initial={mode.project}
+        onSaved={afterSave}
+        onCancel={() => setMode({ kind: "list" })}
+      />
+    );
+  }
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const filtering = Boolean(appliedSearch.trim() || status || categoryId);
 
   return (
     <>
@@ -485,302 +711,244 @@ function ProjectsPanel({
         <p className="kicker">Contenido</p>
         <h1>Proyectos</h1>
         <p>
-          Edita los datos comerciales como borrador local. Nada se publica sin
-          evidencia: los campos pendientes se mantienen “por confirmar”.
+          Todo el catálogo vive en Supabase. Aquí se añaden, se editan y se
+          retiran proyectos; los campos sin evidencia se publican como «por
+          confirmar», nunca como un cero.
         </p>
       </div>
 
-      <div className="admin-projects">
-        <div className="admin-project-list" role="listbox" aria-label="Proyectos">
-          {loading && (
-            <p className="field-hint" role="status">Cargando proyectos…</p>
-          )}
-          {error && !loading && (
-            <p className="field-hint" role="alert">No se pudo cargar el catálogo: {error}</p>
-          )}
-          {projects.map((item) => {
-            const hasDraft = drafts.some((d) => d.projectId === item.slug);
-            return (
-              <button
-                key={item.slug}
-                role="option"
-                aria-selected={item.slug === selected}
-                className={`admin-project-item${item.slug === selected ? " is-active" : ""}`}
-                onClick={() => setSelected(item.slug)}
-              >
-                <Image
-                  src={item.hero}
-                  alt=""
-                  width={74}
-                  height={56}
-                  className="admin-project-thumb"
-                />
-                <span className="meta">
-                  <strong>{item.name}</strong>
-                  <small>{item.location}</small>
-                  <span className="chips">
-                    <span className="chip ok"><i />Publicado</span>
-                    {item.price.status === "pending" && (
-                      <span className="chip pending"><i />Precio pendiente</span>
-                    )}
-                    {hasDraft && (
-                      <span className="chip info"><i />Borrador</span>
-                    )}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-          <div className="admin-actions">
-            <button className="button button-outline" onClick={exportDrafts}>
-              <DownloadSimple size={16} /> Exportar borradores
-            </button>
-            <button className="button button-outline" onClick={() => importRef.current?.click()}>
-              <UploadSimple size={16} /> Importar
-            </button>
+      <div className="admin-card">
+        <div className="admin-toolbar">
+          <div className="admin-search">
+            <MagnifyingGlass size={17} aria-hidden />
             <input
-              ref={importRef}
-              type="file"
-              accept="application/json"
-              hidden
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar por nombre o slug…"
+              aria-label="Buscar proyectos"
+            />
+          </div>
+          <label className="admin-field admin-toolbar-field">
+            Estado
+            <select
+              value={status}
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) void importDrafts(file);
-                event.target.value = "";
+                setStatus(event.target.value as ProjectPublicStatus | "");
+                setPage(0);
+              }}
+            >
+              <option value="">Todos</option>
+              <option value="published">Publicados</option>
+              <option value="draft">Borradores</option>
+              <option value="review">En revisión</option>
+              <option value="archived">Archivados</option>
+            </select>
+          </label>
+          <div className="admin-toolbar-field">
+            <PropertyCategorySelect
+              label="Categoría"
+              value={categoryId}
+              onChange={(nextId) => {
+                setCategoryId(nextId);
+                setPage(0);
               }}
             />
           </div>
+          <button
+            className="button button-primary admin-toolbar-cta"
+            onClick={() => setMode({ kind: "create" })}
+          >
+            <PlusCircle size={17} /> Añadir proyecto
+          </button>
         </div>
 
-        {project ? (
-          <ProjectEditor key={`${project.slug}-${draft?.updatedAt ?? "base"}`} project={project} draft={draft} />
-        ) : (
-          <div className="admin-empty">
-            {loading ? "Cargando proyectos…" : "Selecciona un proyecto"}
+        {notice && (
+          <div
+            className={`admin-notification is-${notice.tone === "ok" ? "success" : "error"}`}
+            role="status"
+          >
+            <span>{notice.text}</span>
           </div>
+        )}
+
+        {error && (
+          <p className="admin-error-text" role="alert">
+            No se pudo leer el catálogo desde Supabase: {error}
+          </p>
+        )}
+
+        {loading && rows.length === 0 && (
+          <div className="admin-empty" role="status">
+            <CircleNotch size={26} className="spin" />
+            Cargando proyectos…
+          </div>
+        )}
+
+        {!loading && !error && rows.length === 0 && (
+          <div className="admin-empty">
+            <Buildings size={30} />
+            {filtering
+              ? "Ningún proyecto coincide con la búsqueda o los filtros."
+              : "Todavía no hay proyectos. Empieza por «Añadir proyecto»."}
+          </div>
+        )}
+
+        {rows.length > 0 && (
+          <div className="admin-project-list">
+            {rows.map((row) => {
+              const chip = STATUS_CHIP[row.status];
+              const pendingDelete = confirmDelete === row.id;
+              return (
+                <article key={row.id} className="admin-project-row">
+                  {row.hero ? (
+                    <Image
+                      src={row.hero}
+                      alt=""
+                      width={74}
+                      height={56}
+                      className="admin-project-thumb"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="admin-project-thumb admin-project-thumb--empty">
+                      <Buildings size={20} />
+                    </span>
+                  )}
+                  <div className="meta">
+                    <strong>{row.name}</strong>
+                    <small>{row.location || "Ubicación por confirmar"}</small>
+                    <span className="chips">
+                      <span className={`chip ${chip.className}`}>
+                        <i />
+                        {chip.label}
+                      </span>
+                      {row.categoryLabel && (
+                        <span className="chip neutral">
+                          <i />
+                          {row.categoryLabel}
+                        </span>
+                      )}
+                      <span className={`chip ${row.priceStatus === "confirmed" ? "ok" : "pending"}`}>
+                        <i />
+                        {row.priceStatus === "confirmed" && row.priceFrom !== null
+                          ? `Desde ${money.format(row.priceFrom)}`
+                          : "Precio por confirmar"}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="admin-row-actions">
+                    {pendingDelete ? (
+                      <>
+                        <button
+                          className="button button-outline admin-danger-btn"
+                          disabled={busyId === row.id}
+                          onClick={() => void removeProject(row)}
+                        >
+                          <Trash size={15} />
+                          {busyId === row.id ? "Eliminando…" : "Confirmar borrado"}
+                        </button>
+                        <button
+                          className="button button-outline"
+                          onClick={() => setConfirmDelete(null)}
+                        >
+                          <X size={15} /> Cancelar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="button button-outline"
+                          disabled={busyId === row.id}
+                          onClick={() => void openEditor(row)}
+                        >
+                          <PencilSimple size={15} />
+                          {busyId === row.id ? "Abriendo…" : "Editar"}
+                        </button>
+                        <button
+                          className="icon-action danger"
+                          aria-label={`Eliminar ${row.name}`}
+                          onClick={() => setConfirmDelete(row.id)}
+                        >
+                          <Trash size={17} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {pendingDelete && (
+                    <p className="admin-row-warning" role="alert">
+                      Se borrará «{row.name}» y toda su ficha (traducciones,
+                      galería, amenidades, precios y plan de pago). Los leads y
+                      las cotizaciones que lo citaban se conservan, pero se
+                      quedan sin proyecto asociado. No se puede deshacer.
+                    </p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {total > PAGE_SIZE && (
+          <nav className="admin-pagination" aria-label="Páginas de proyectos">
+            <button
+              className="button button-outline"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 0 || loading}
+            >
+              <CaretLeft size={15} /> Anterior
+            </button>
+            <span className="admin-pagination-label">
+              Página {page + 1} de {pageCount} · {total} proyectos
+            </span>
+            <button
+              className="button button-outline"
+              onClick={() => setPage(page + 1)}
+              disabled={page + 1 >= pageCount || loading}
+            >
+              Siguiente <CaretRight size={15} />
+            </button>
+          </nav>
         )}
       </div>
     </>
   );
 }
 
-function ProjectEditor({
-  project,
-  draft,
-}: {
-  project: PropertyProject;
-  draft: ProjectDraft | null;
-}) {
-  const f = draft?.fields ?? {};
-  const [priceFrom, setPriceFrom] = useState(
-    String(f.priceFrom ?? project.price.from ?? ""),
-  );
-  const [priceTo, setPriceTo] = useState(
-    String(f.priceTo ?? project.price.to ?? ""),
-  );
-  const [priceStatus, setPriceStatus] = useState<"confirmed" | "pending">(
-    f.priceStatus ?? project.price.status,
-  );
-  const [reservation, setReservation] = useState(
-    String(f.reservationAmount ?? project.reservation.amount ?? ""),
-  );
-  const [deliveryLabel, setDeliveryLabel] = useState(
-    f.deliveryLabelEs ?? project.delivery.label.es,
-  );
-  const [deliveryYear, setDeliveryYear] = useState(
-    String(f.deliveryYear ?? project.delivery.year ?? ""),
-  );
-  const [notes, setNotes] = useState(draft?.notes ?? "");
-  const [saved, setSaved] = useState(false);
-
-  const toNumber = (value: string): number | null => {
-    const parsed = Number(value);
-    return value.trim() !== "" && Number.isFinite(parsed) ? parsed : null;
-  };
-
-  const save = () => {
-    draftsStore.save({
-      projectId: project.slug,
-      notes,
-      fields: {
-        priceFrom: toNumber(priceFrom),
-        priceTo: toNumber(priceTo),
-        priceStatus,
-        reservationAmount: toNumber(reservation),
-        deliveryLabelEs: deliveryLabel,
-        deliveryYear: toNumber(deliveryYear),
-        status: project.status,
-      },
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2400);
-  };
-
-  const previewDraft: DraftPreview = {
-    name: project.name,
-    location: project.location,
-    desc: project.description.es,
-    bedrooms: project.bedrooms.at(-1),
-    bathrooms: project.bathrooms.at(-1),
-    parking: project.parking ?? undefined,
-    areaMin: project.area.min,
-    areaMax: project.area.max,
-    greenArea: project.greenArea,
-    deliveryLabel,
-    deliveryYear: toNumber(deliveryYear) ?? undefined,
-    reservation: toNumber(reservation) ?? undefined,
-    productTypes: project.productTypes.map((item) => item.es),
-    typologies: project.typologies.map((item) => item.es),
-    includesAppliances: project.includesAppliances ?? false,
-    investmentBenefits: project.investmentBenefits.map((item) => item.es),
-    nearby: project.nearby.map((item) => item.es),
-    priceFrom: toNumber(priceFrom) ?? undefined,
-    priceTo: toNumber(priceTo) ?? undefined,
-    heroImg: project.hero,
-    mapUrl: project.map.url,
-    mapCoords: project.map.coordinates?.join(","),
-    amenities: project.amenities.map((item) => amenityLabel(item, "es")),
-    signing: project.paymentReference.signing,
-    construction: project.paymentReference.construction,
-    onDelivery: project.paymentReference.delivery,
-  };
-
-  return (
-    <div className="npf-split-layout admin-editor-split">
-      <div className="admin-card pad-lg admin-editor">
-        <div className="admin-editor-head">
-          <h2>{project.name}</h2>
-          {draft && (
-            <span className="chip info">
-              <i />
-              {dateTime.format(new Date(draft.updatedAt))}
-            </span>
-          )}
-        </div>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            save();
-          }}
-        >
-        <div className="admin-field-row">
-          <label className="admin-field">
-            Precio desde (USD)
-            <input
-              type="number"
-              min="0"
-              value={priceFrom}
-              onChange={(e) => setPriceFrom(e.target.value)}
-              placeholder="Por confirmar"
-            />
-          </label>
-          <label className="admin-field">
-            Precio hasta (USD)
-            <input
-              type="number"
-              min="0"
-              value={priceTo}
-              onChange={(e) => setPriceTo(e.target.value)}
-              placeholder="Por confirmar"
-            />
-          </label>
-        </div>
-        <div className="admin-field-row">
-          <label className="admin-field">
-            Estado del precio
-            <select
-              value={priceStatus}
-              onChange={(e) => setPriceStatus(e.target.value as "confirmed" | "pending")}
-            >
-              <option value="pending">Pendiente de confirmar</option>
-              <option value="confirmed">Confirmado</option>
-            </select>
-          </label>
-          <label className="admin-field">
-            Reserva (USD)
-            <input
-              type="number"
-              min="0"
-              value={reservation}
-              onChange={(e) => setReservation(e.target.value)}
-              placeholder="Por confirmar"
-            />
-          </label>
-        </div>
-        <div className="admin-field-row">
-          <label className="admin-field">
-            Entrega (texto público, ES)
-            <input
-              value={deliveryLabel}
-              onChange={(e) => setDeliveryLabel(e.target.value)}
-            />
-          </label>
-          <label className="admin-field">
-            Año de entrega
-            <input
-              type="number"
-              min="2025"
-              max="2035"
-              value={deliveryYear}
-              onChange={(e) => setDeliveryYear(e.target.value)}
-              placeholder="Según fase"
-            />
-          </label>
-        </div>
-        <label className="admin-field">
-          Notas editoriales (no públicas)
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Fuente de la cifra, fecha de la llamada, pendientes…"
-          />
-        </label>
-        <p className="admin-editor-note">
-          El borrador se guarda en este dispositivo y viaja a Supabase al
-          migrar. Para publicarlo hoy, traslada los valores verificados a{" "}
-          <code className="code-line">src/content/projects.ts</code> con su
-          fuente.
-        </p>
-        <div className="admin-actions">
-          <button className="button button-primary" type="submit">
-            {saved ? <CheckCircle size={18} weight="fill" /> : null}
-            {saved ? "Borrador guardado" : "Guardar borrador"}
-          </button>
-          {draft && (
-            <button
-              type="button"
-              className="button button-outline"
-              onClick={() => draftsStore.remove(project.slug)}
-            >
-              <Trash size={16} /> Descartar borrador
-            </button>
-          )}
-          <button
-            type="button"
-            className="button button-outline"
-            style={{ color: "var(--color-red, #ef4444)", borderColor: "var(--color-red, #ef4444)" }}
-            onClick={() => {
-              if (confirm("¿Estás seguro de limpiar el borrador local de este proyecto?")) {
-                draftsStore.remove(project.slug);
-                window.location.reload();
-              }
-            }}
-          >
-            <Trash size={16} /> Limpiar borrador local
-          </button>
-        </div>
-        </form>
-      </div>
-      <LivePreviewPanel activeTab="proyecto" draft={previewDraft} />
-    </div>
-  );
-}
 
 /* ---------------------------------------------------------------------------
    Leads
 --------------------------------------------------------------------------- */
-function LeadsPanel({ leads }: { leads: CmsLead[] }) {
+function LeadsPanel({
+  leads,
+  error,
+  onChanged,
+}: {
+  leads: CmsLead[];
+  error: string | null;
+  onChanged: () => void;
+}) {
   const [confirmClear, setConfirmClear] = useState(false);
+  const [busy, setBusy] = useState(false);
+  /**
+   * El error del borrado se muestra aquí mismo. Antes el panel borraba contra
+   * `localStorage`, que nunca falla, así que no había nada que informar; ahora
+   * la operación va a la red y puede rechazarse.
+   */
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const run = async (task: () => Promise<void>) => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      await task();
+      onChanged();
+    } catch (cause) {
+      setActionError(describeError(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const exportCsv = () => {
     const header = "fecha;nombre;email;telefono;pais;presupuesto;plazo;proyecto;interes;canal;estado;mensaje";
@@ -807,8 +975,8 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
         <p className="kicker">Conversaciones</p>
         <h1>Leads</h1>
         <p>
-          Cada consulta preparada en el formulario de contacto queda registrada
-          aquí, con su canal y estado de entrega.
+          Cada consulta enviada desde el formulario de contacto queda
+          registrada en Supabase, con su canal y estado de entrega.
         </p>
       </div>
 
@@ -821,13 +989,17 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
             (confirmClear ? (
               <>
                 <button
-                  className="button button-outline"
-                  onClick={() => {
-                    leadsStore.clear();
-                    setConfirmClear(false);
-                  }}
+                  className="button button-outline admin-danger-btn"
+                  disabled={busy}
+                  onClick={() =>
+                    void run(async () => {
+                      await deleteAllLeads();
+                      setConfirmClear(false);
+                    })
+                  }
                 >
-                  <Trash size={16} /> Confirmar vaciado
+                  <Trash size={16} />
+                  {busy ? "Vaciando…" : "Confirmar vaciado"}
                 </button>
                 <button className="button button-outline" onClick={() => setConfirmClear(false)}>
                   <X size={16} /> Cancelar
@@ -839,6 +1011,24 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
               </button>
             ))}
         </div>
+
+        {confirmClear && (
+          <p className="admin-row-warning" role="alert">
+            Se borrarán los {leads.length} leads de la base de datos, no solo
+            de esta pantalla. Exporta el CSV antes si necesitas conservarlos.
+          </p>
+        )}
+
+        {error && (
+          <p className="admin-error-text" role="alert">
+            No se pudo leer la bandeja desde Supabase: {error}
+          </p>
+        )}
+        {actionError && (
+          <p className="admin-error-text" role="alert">
+            No se pudo completar el borrado: {actionError}
+          </p>
+        )}
 
         {leads.length === 0 ? (
           <div className="admin-empty">
@@ -879,7 +1069,8 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
                           <button
                             className="icon-action danger"
                             aria-label={`Eliminar lead de ${lead.name}`}
-                            onClick={() => leadsStore.remove(lead.id)}
+                            disabled={busy}
+                            onClick={() => void run(() => deleteLead(lead.id))}
                           >
                             <Trash size={17} />
                           </button>
@@ -906,7 +1097,8 @@ function LeadsPanel({ leads }: { leads: CmsLead[] }) {
                     <button
                       className="icon-action danger"
                       aria-label={`Eliminar lead de ${lead.name}`}
-                      onClick={() => leadsStore.remove(lead.id)}
+                      disabled={busy}
+                      onClick={() => void run(() => deleteLead(lead.id))}
                     >
                       <Trash size={16} />
                     </button>
@@ -941,14 +1133,33 @@ function LeadStatusChip({ status }: { status: CmsLead["status"] }) {
 --------------------------------------------------------------------------- */
 function QuotesPanel({
   quotes,
-  projects,
+  error,
+  onChanged,
 }: {
-  quotes: CalculatorQuote[];
-  projects: PropertyProject[];
+  quotes: EditorQuote[];
+  error: string | null;
+  onChanged: () => void;
 }) {
   const [confirmClear, setConfirmClear] = useState(false);
-  const nameOf = (slug: string | null) =>
-    projects.find((item) => item.slug === slug)?.name ?? "Escenario libre";
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  // El nombre viene resuelto por la propia consulta: sin proyecto asociado,
+  // la cotización es de verdad un escenario libre.
+  const nameOf = (quote: EditorQuote) => quote.projectName ?? "Escenario libre";
+
+  const run = async (task: () => Promise<void>) => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      await task();
+      onChanged();
+    } catch (cause) {
+      setActionError(describeError(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <>
@@ -956,8 +1167,9 @@ function QuotesPanel({
         <p className="kicker">Simulador</p>
         <h1>Cotizaciones PDF</h1>
         <p>
-          Registro de escenarios descargados desde la calculadora: valor, plan
-          y cuota estimada en el momento de la descarga.
+          Registro en Supabase de los escenarios descargados desde la
+          calculadora: valor, plan y cuota estimada en el momento de la
+          descarga.
         </p>
       </div>
 
@@ -967,13 +1179,17 @@ function QuotesPanel({
             {confirmClear ? (
               <>
                 <button
-                  className="button button-outline"
-                  onClick={() => {
-                    quotesStore.clear();
-                    setConfirmClear(false);
-                  }}
+                  className="button button-outline admin-danger-btn"
+                  disabled={busy}
+                  onClick={() =>
+                    void run(async () => {
+                      await clearQuotes();
+                      setConfirmClear(false);
+                    })
+                  }
                 >
-                  <Trash size={16} /> Confirmar vaciado
+                  <Trash size={16} />
+                  {busy ? "Vaciando…" : "Confirmar vaciado"}
                 </button>
                 <button className="button button-outline" onClick={() => setConfirmClear(false)}>
                   <X size={16} /> Cancelar
@@ -985,6 +1201,22 @@ function QuotesPanel({
               </button>
             )}
           </div>
+        )}
+        {confirmClear && (
+          <p className="admin-row-warning" role="alert">
+            Se borrarán las {quotes.length} cotizaciones de la base de datos,
+            no solo de esta pantalla. No se puede deshacer.
+          </p>
+        )}
+        {error && (
+          <p className="admin-error-text" role="alert">
+            No se pudo leer el registro desde Supabase: {error}
+          </p>
+        )}
+        {actionError && (
+          <p className="admin-error-text" role="alert">
+            No se pudo completar el borrado: {actionError}
+          </p>
         )}
         {quotes.length === 0 ? (
           <div className="admin-empty">
@@ -1004,19 +1236,32 @@ function QuotesPanel({
                     <th className="num">Plan</th>
                     <th className="num">Cuota</th>
                     <th className="num">Meses</th>
+                    <th style={{ textAlign: "right" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {quotes.map((quote) => (
                     <tr key={quote.id}>
                       <td className="num">{dateTime.format(new Date(quote.createdAt))}</td>
-                      <td className="strong">{nameOf(quote.projectSlug)}</td>
+                      <td className="strong">{nameOf(quote)}</td>
                       <td className="num">{money.format(quote.price)}</td>
                       <td className="num">
                         {quote.signingPercent}/{quote.constructionPercent}/{quote.deliveryPercent}
                       </td>
                       <td className="num strong">{moneyExact.format(quote.monthly)}</td>
                       <td className="num">{quote.months}</td>
+                      <td>
+                        <div className="admin-row-actions">
+                          <button
+                            className="icon-action danger"
+                            aria-label={`Eliminar cotización de ${nameOf(quote)}`}
+                            disabled={busy}
+                            onClick={() => void run(() => deleteQuote(quote.id))}
+                          >
+                            <Trash size={17} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1026,7 +1271,7 @@ function QuotesPanel({
               {quotes.map((quote) => (
                 <article key={quote.id} className="admin-lead-card">
                   <div className="row">
-                    <strong>{nameOf(quote.projectSlug)}</strong>
+                    <strong>{nameOf(quote)}</strong>
                     <span className="chip info"><i />PDF</span>
                   </div>
                   <div className="row">
@@ -1036,6 +1281,17 @@ function QuotesPanel({
                   <div className="row">
                     <strong>{moneyExact.format(quote.monthly)} /mes</strong>
                     <small>{dateTime.format(new Date(quote.createdAt))}</small>
+                  </div>
+                  <div className="row">
+                    <small>{quote.months} meses · {quote.locale.toUpperCase()}</small>
+                    <button
+                      className="icon-action danger"
+                      aria-label={`Eliminar cotización de ${nameOf(quote)}`}
+                      disabled={busy}
+                      onClick={() => void run(() => deleteQuote(quote.id))}
+                    >
+                      <Trash size={16} />
+                    </button>
                   </div>
                 </article>
               ))}

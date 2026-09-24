@@ -1,16 +1,16 @@
 /**
- * Alta de proyectos del estudio CMS.
+ * Alta Y edicion de proyectos del estudio CMS: un unico formulario.
  *
- * Cambios frente a la version anterior:
- *  - importaba `LocationInput`, `NumberPicker`, `CurrencyInput` y `TagInput`
- *    sin declararlos, asi que la pestana entera reventaba en tiempo de
- *    ejecucion;
- *  - el boton decia "Guardar y publicar" y "aparecera en el catalogo
- *    automaticamente", pero solo escribia un borrador en `localStorage`.
+ * Antes eran dos cosas distintas y ninguna completa: esta pantalla solo daba
+ * de alta, y "editar" abria otro editor que guardaba cuatro campos en
+ * `localStorage` sin tocar la base. Ahora el mismo formulario se usa para las
+ * dos operaciones —`projectId` presente significa editar— y en ambos casos
+ * escribe el grafo completo en Supabase.
  *
- * Ahora escribe en Supabase cuando la sesion tiene permiso y, si RLS lo
- * rechaza, conserva el borrador local y explica que falta. El JSON del
- * proyecto siempre se puede descargar para pegarlo en `src/content/projects.ts`.
+ * Al editar, el componente se monta con `initial` ya resuelto por
+ * `loadProjectForEdit`, y el padre lo remonta con `key={projectId}`: por eso
+ * el estado se inicializa directamente desde `initial` y no hay ningun
+ * `setState` dentro de un efecto para rellenar campos.
  */
 "use client";
 
@@ -26,15 +26,24 @@ import {
   Image as ImageIcon,
   ListChecks,
   MapPin,
+  PencilSimple,
+  Plus,
   Ruler,
+  Trash,
   Warning,
   Eye,
   X,
 } from "@phosphor-icons/react";
 import type { AmenityEntry, Localized, PropertyProject } from "@/content/projects";
-import { draftsStore } from "@/lib/cms/local-store";
 import { describeError, isSupabaseConfigured } from "@/lib/cms/session";
-import { createProject, WriteDeniedError, type AmenityInput } from "@/lib/cms/project-writer";
+import {
+  createProject,
+  ProjectStepError,
+  updateProject,
+  WriteDeniedError,
+  type AmenityInput,
+  type ProjectFormValues,
+} from "@/lib/cms/project-writer";
 import { CurrencyInput } from "./currency-input";
 import { ImageInput } from "./image-input";
 import { NumberPicker } from "./number-picker";
@@ -82,6 +91,15 @@ function slugify(value: string): string {
 type TabId = "basico" | "mapa" | "espacios" | "precios" | "especificaciones" | "media";
 type FieldValue = string | number | string[] | AmenityInput[];
 
+export interface NewProjectFormProps {
+  /** Valores precargados de un proyecto existente, para editarlo. */
+  initial?: ProjectFormValues;
+  /** Se llama tras guardar en Supabase, para que el panel refresque la lista. */
+  onSaved?: () => void;
+  /** Vuelve al listado sin guardar. */
+  onCancel?: () => void;
+}
+
 const TABS: { id: TabId; label: string; icon: typeof FileText }[] = [
   { id: "basico", label: "General", icon: FileText },
   { id: "mapa", label: "Ubicación", icon: MapPin },
@@ -97,7 +115,7 @@ const TAB_FIELDS: Record<TabId, string[]> = {
   espacios: ["bedrooms", "areaMin"],
   precios: ["priceFrom", "reservation", "deliveryYear"],
   especificaciones: ["amenities", "typologies", "investmentBenefits", "nearby"],
-  media: ["heroImg", "gallery1"],
+  media: ["heroImg", "gallery"],
 };
 
 function isFilled(value: FieldValue | undefined): boolean {
@@ -187,46 +205,57 @@ function RichAmenityBuilder({
   );
 }
 
-export function NewProjectForm() {
+export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormProps = {}) {
+  const editing = initial !== undefined;
 
   const [activeTab, setActiveTab] = useState<TabId>("basico");
 
-  const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [location, setLocation] = useState("");
-  const [province, setProvince] = useState("La Altagracia");
-  const [sector, setSector] = useState("");
-  const [city, setCity] = useState("");
-  const [desc, setDesc] = useState("");
+  const [name, setName] = useState(initial?.name ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [location, setLocation] = useState(initial?.location ?? "");
+  const [province, setProvince] = useState(initial?.province ?? "La Altagracia");
+  const [sector, setSector] = useState(initial?.sector ?? "");
+  const [city, setCity] = useState(initial?.city ?? "");
+  const [desc, setDesc] = useState(initial?.description ?? "");
 
-  const [bedrooms, setBedrooms] = useState(0);
-  const [bathrooms, setBathrooms] = useState(0);
-  const [parking, setParking] = useState(0);
-  const [areaMin, setAreaMin] = useState(0);
-  const [areaMax, setAreaMax] = useState(0);
-  const [greenArea, setGreenArea] = useState(0);
+  const [bedrooms, setBedrooms] = useState(initial?.bedrooms ?? 0);
+  const [bathrooms, setBathrooms] = useState(initial?.bathrooms ?? 0);
+  const [parking, setParking] = useState(initial?.parking ?? 0);
+  const [areaMin, setAreaMin] = useState(initial?.areaMin ?? 0);
+  const [areaMax, setAreaMax] = useState(initial?.areaMax ?? 0);
+  const [greenArea, setGreenArea] = useState(initial?.greenArea ?? 0);
 
-  const [priceFrom, setPriceFrom] = useState(0);
-  const [priceTo, setPriceTo] = useState(0);
-  const [reservation, setReservation] = useState(0);
-  const [deliveryYear, setDeliveryYear] = useState(new Date().getFullYear() + 2);
-  const [deliveryLabel, setDeliveryLabel] = useState("");
+  const [priceFrom, setPriceFrom] = useState(initial?.priceFrom ?? 0);
+  const [priceTo, setPriceTo] = useState(initial?.priceTo ?? 0);
+  const [reservation, setReservation] = useState(initial?.reservation ?? 0);
+  const [deliveryYear, setDeliveryYear] = useState(
+    initial?.deliveryYear ?? new Date().getFullYear() + 2,
+  );
+  const [deliveryLabel, setDeliveryLabel] = useState(initial?.deliveryLabel ?? "");
   /**
    * El ano y el precio llegan prerrellenados o en cero, asi que enviarlos como
    * confirmados publicaria cifras que nadie verifico. La evidencia se declara
-   * a mano, igual que en el editor de proyectos existentes.
+   * a mano; al editar se conserva la que ya tenia el proyecto.
    */
-  const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
-  const [priceConfirmed, setPriceConfirmed] = useState(false);
-  const [signing, setSigning] = useState(0);
-  const [construction, setConstruction] = useState(0);
-  const [onDelivery, setOnDelivery] = useState(0);
+  const [deliveryConfirmed, setDeliveryConfirmed] = useState(
+    initial?.deliveryConfirmed ?? false,
+  );
+  const [priceConfirmed, setPriceConfirmed] = useState(initial?.priceConfirmed ?? false);
+  const [signing, setSigning] = useState(initial?.payment.signing ?? 0);
+  const [construction, setConstruction] = useState(initial?.payment.construction ?? 0);
+  const [onDelivery, setOnDelivery] = useState(initial?.payment.delivery ?? 0);
 
-  const [amenities, setAmenities] = useState<AmenityInput[]>([]);
+  const [amenities, setAmenities] = useState<AmenityInput[]>(initial?.amenities ?? []);
   /** `property_category_id` elegido en el combo box; `""` mientras no se elija. */
-  const [propertyCategoryId, setPropertyCategoryId] = useState("");
-  const [propertyCategoryKey, setPropertyCategoryKey] = useState("");
-  const [propertyCategoryLabel, setPropertyCategoryLabel] = useState("");
+  const [propertyCategoryId, setPropertyCategoryId] = useState(
+    initial?.propertyCategoryId ?? "",
+  );
+  const [propertyCategoryKey, setPropertyCategoryKey] = useState(
+    initial?.propertyCategoryKey ?? "",
+  );
+  const [propertyCategoryLabel, setPropertyCategoryLabel] = useState(
+    initial?.propertyCategoryLabel ?? "",
+  );
   /**
    * Ya no hay un campo de texto libre para el tipo de producto: la categoría
    * real se elige en `PropertyCategorySelect`. Este arreglo se deriva de esa
@@ -234,28 +263,40 @@ export function NewProjectForm() {
    * lectores antiguos todavía consultan.
    */
   const productTypes = propertyCategoryLabel ? [propertyCategoryLabel] : [];
-  const [typologies, setTypologies] = useState<string[]>([]);
-  const [nearby, setNearby] = useState<string[]>([]);
-  const [investmentBenefits, setInvestmentBenefits] = useState<string[]>([]);
-  const [includesAppliances, setIncludesAppliances] = useState(false);
+  const [typologies, setTypologies] = useState<string[]>(initial?.typologies ?? []);
+  const [nearby, setNearby] = useState<string[]>(initial?.nearby ?? []);
+  const [investmentBenefits, setInvestmentBenefits] = useState<string[]>(
+    initial?.investmentBenefits ?? [],
+  );
+  const [includesAppliances, setIncludesAppliances] = useState(
+    initial?.includesAppliances ?? false,
+  );
 
-  const [mapUrl, setMapUrl] = useState("");
-  const [mapCoords, setMapCoords] = useState("");
+  const [mapUrl, setMapUrl] = useState(initial?.mapUrl ?? "");
+  const [mapCoords, setMapCoords] = useState(
+    initial?.coordinates ? initial.coordinates.join(", ") : "",
+  );
 
-  const [heroImg, setHeroImg] = useState("");
-  const [gallery1, setGallery1] = useState("");
-  const [gallery2, setGallery2] = useState("");
-  const [gallery3, setGallery3] = useState("");
+  const [heroImg, setHeroImg] = useState(initial?.hero ?? "");
+  /**
+   * Galeria de longitud libre. Antes eran tres campos fijos (`gallery1..3`):
+   * al editar un proyecto con seis fotos, guardar habria borrado tres sin
+   * avisar, porque la edicion reemplaza las filas de `project_media`.
+   */
+  const [gallery, setGallery] = useState<string[]>(initial?.gallery ?? []);
 
-  const [publish, setPublish] = useState(false);
+  const [publish, setPublish] = useState(initial?.publish ?? false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [showMobilePreview, setShowMobilePreview] = useState(false);
 
+  const setGalleryAt = (index: number, value: string) =>
+    setGallery(gallery.map((item, position) => (position === index ? value : item)));
+
   const fieldValues: Record<string, FieldValue> = {
     name, location, desc, mapUrl, mapCoords, bedrooms, areaMin,
     priceFrom, reservation, deliveryYear, amenities, typologies,
-    investmentBenefits, nearby, heroImg, gallery1,
+    investmentBenefits, nearby, heroImg, gallery,
   };
 
   const totalFields = Object.keys(fieldValues).length;
@@ -281,7 +322,7 @@ export function NewProjectForm() {
   const validCoords: [number, number] | null =
     coords.length === 2 ? [coords[0], coords[1]] : null;
 
-  const galleryUrls = [gallery1, gallery2, gallery3].filter(Boolean);
+  const galleryUrls = gallery.map((url) => url.trim()).filter(Boolean);
 
   /** Registro en el formato de `src/content/projects.ts`, para exportarlo. */
   const buildProject = (): PropertyProject => ({
@@ -339,22 +380,6 @@ export function NewProjectForm() {
     },
   });
 
-  const saveLocalDraft = (project: PropertyProject) => {
-    draftsStore.save({
-      projectId: project.slug,
-      fields: {
-        priceFrom: project.price.from,
-        priceTo: project.price.to,
-        priceStatus: project.price.status,
-        reservationAmount: project.reservation.amount,
-        deliveryLabelEs: project.delivery.label.es,
-        deliveryYear: project.delivery.year,
-        status: project.status,
-      },
-      notes: JSON.stringify(project, null, 2),
-    });
-  };
-
   const downloadJson = () => {
     const project = buildProject();
     const blob = new Blob([JSON.stringify(project, null, 2)], {
@@ -375,76 +400,98 @@ export function NewProjectForm() {
   if (!heroImg.trim()) missing.push("imagen principal");
   if (!propertyCategoryId) missing.push("categoría de propiedad");
 
+  /** Mensaje de error que dice qué pasó y qué hacer, no solo que falló. */
+  const explainSaveError = (error: unknown): string => {
+    if (error instanceof WriteDeniedError) {
+      return (
+        "Supabase rechazó la escritura: esta sesión no tiene permiso de edición. " +
+        "Aplica la migración 0006_cms_studio_access.sql y registra tu usuario en cms_profiles. " +
+        "Nada se guardó; descarga el JSON si no quieres perder lo escrito."
+      );
+    }
+    if (error instanceof ProjectStepError) {
+      return editing
+        ? `Se guardaron los datos anteriores pero falló el paso «${error.step}»: ${error.message} El proyecto quedó a medias; vuelve a pulsar Guardar para completarlo.`
+        : `Falló el paso «${error.step}»: ${error.message} No se creó nada: el proyecto se revirtió por completo.`;
+    }
+    return `${describeError(error)} Descarga el JSON si no quieres perder lo escrito.`;
+  };
+
   const handleSave = async () => {
     if (missing.length > 0 || isSaving) return;
     setIsSaving(true);
     setFeedback(null);
 
     const project = buildProject();
-    // El borrador local se guarda siempre: pase lo que pase con la red,
-    // el trabajo escrito no se pierde.
-    saveLocalDraft(project);
 
     if (!isSupabaseConfigured()) {
       setFeedback({
-        tone: "info",
+        tone: "error",
         message:
-          "Supabase no está configurado, así que el proyecto quedó como borrador en este dispositivo. Descarga el JSON para añadirlo al contenido del sitio.",
+          "Supabase no está configurado en este despliegue, así que no hay dónde guardar el proyecto. " +
+          "Configura NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY, o descarga el JSON para no perder lo escrito.",
       });
       setIsSaving(false);
       return;
     }
 
+    const payload = {
+      slug: project.slug,
+      name: project.name,
+      publish,
+      sector,
+      city,
+      province,
+      description: desc,
+      deliveryLabel: deliveryLabel || "Por confirmar",
+      deliveryYear: deliveryYear || null,
+      deliveryConfirmed,
+      priceConfirmed,
+      propertyCategoryId,
+      propertyCategoryKey,
+      bedrooms,
+      bathrooms,
+      parking,
+      areaMin,
+      areaMax: areaMax || areaMin,
+      greenArea,
+      priceFrom: priceFrom || null,
+      priceTo: priceTo || null,
+      reservation: reservation || null,
+      productTypes,
+      typologies,
+      amenities,
+      investmentBenefits,
+      nearby,
+      includesAppliances,
+      mapUrl,
+      coordinates: validCoords,
+      hero: heroImg,
+      gallery: galleryUrls,
+      payment: { signing, construction, delivery: onDelivery },
+    };
+
     try {
-      await createProject({
-        slug: project.slug,
-        name: project.name,
-        publish,
-        sector,
-        city,
-        province,
-        description: desc,
-        deliveryLabel: deliveryLabel || "Por confirmar",
-        deliveryYear: deliveryYear || null,
-        deliveryConfirmed,
-        priceConfirmed,
-        propertyCategoryId,
-        propertyCategoryKey,
-        bedrooms,
-        bathrooms,
-        parking,
-        areaMin,
-        areaMax: areaMax || areaMin,
-        greenArea,
-        priceFrom: priceFrom || null,
-        priceTo: priceTo || null,
-        reservation: reservation || null,
-        productTypes,
-        typologies,
-        amenities,
-        investmentBenefits,
-        nearby,
-        includesAppliances,
-        mapUrl,
-        coordinates: validCoords,
-        hero: heroImg,
-        gallery: galleryUrls,
-        payment: { signing, construction, delivery: onDelivery },
-      });
-      setFeedback({
-        tone: "ok",
-        message: publish
-          ? `«${project.name}» se creó en Supabase y ya aparece en el catálogo.`
-          : `«${project.name}» se creó en Supabase como borrador. Publícalo cuando los datos estén confirmados.`,
-      });
+      if (initial) {
+        await updateProject(initial.id, payload);
+        setFeedback({
+          tone: "ok",
+          message: publish
+            ? `«${project.name}» se actualizó en Supabase y el catálogo ya muestra los cambios.`
+            : `«${project.name}» se actualizó en Supabase y quedó como borrador, fuera del catálogo público.`,
+        });
+      } else {
+        await createProject(payload);
+        setFeedback({
+          tone: "ok",
+          message: publish
+            ? `«${project.name}» se creó en Supabase y ya aparece en el catálogo.`
+            : `«${project.name}» se creó en Supabase como borrador. Publícalo cuando los datos estén confirmados.`,
+        });
+      }
+      onSaved?.();
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof WriteDeniedError
-            ? "Supabase rechazó la escritura: esta sesión no tiene permiso de edición. Aplica la migración 0006_cms_studio_access.sql y registra tu usuario en cms_profiles. El borrador quedó guardado en este dispositivo."
-            : `${describeError(error)} El borrador quedó guardado en este dispositivo.`,
-      });
+      setFeedback({ tone: "error", message: explainSaveError(error) });
     } finally {
       setIsSaving(false);
     }
@@ -456,11 +503,26 @@ export function NewProjectForm() {
         <div className="npf">
           <div className="npf-header">
         <div>
+          {onCancel && (
+            <button type="button" className="npf-back-btn" onClick={onCancel}>
+              <ArrowLeft size={15} /> Volver a Proyectos
+            </button>
+          )}
           <h2 className="npf-title">
-            <Buildings size={22} weight="duotone" /> Añadir proyecto
+            {editing ? (
+              <>
+                <PencilSimple size={22} weight="duotone" /> Editar proyecto
+              </>
+            ) : (
+              <>
+                <Buildings size={22} weight="duotone" /> Añadir proyecto
+              </>
+            )}
           </h2>
           <p className="npf-subtitle">
-            Completa cada sección para publicar en el catálogo, la matriz y el mapa.
+            {editing
+              ? `Modifica «${initial.name}». Al guardar se reescribe su ficha completa en Supabase.`
+              : "Completa cada sección para publicar en el catálogo, la matriz y el mapa."}
           </p>
         </div>
         <div className="npf-progress-pill" data-complete={completionPct === 100 ? "" : undefined}>
@@ -693,21 +755,48 @@ export function NewProjectForm() {
           <fieldset className="npf-fieldset">
             <legend>Galería de fotos</legend>
             <ImageInput label="Imagen principal (hero)" value={heroImg} onChange={setHeroImg} required />
-            <div className="admin-field-row admin-field-row--triple">
-              <ImageInput label="Foto 2" value={gallery1} onChange={setGallery1} />
-              <ImageInput label="Foto 3" value={gallery2} onChange={setGallery2} />
-              <ImageInput label="Foto 4" value={gallery3} onChange={setGallery3} />
-            </div>
+
+            {gallery.length > 0 && (
+              <div className="npf-gallery-grid">
+                {gallery.map((url, index) => (
+                  <div key={index} className="npf-gallery-slot">
+                    <ImageInput
+                      label={`Foto ${index + 2}`}
+                      value={url}
+                      onChange={(value) => setGalleryAt(index, value)}
+                    />
+                    <button
+                      type="button"
+                      className="npf-gallery-remove"
+                      onClick={() =>
+                        setGallery(gallery.filter((_, position) => position !== index))
+                      }
+                    >
+                      <Trash size={14} /> Quitar foto {index + 2}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              className="button button-outline"
+              onClick={() => setGallery([...gallery, ""])}
+            >
+              <Plus size={16} /> Añadir foto a la galería
+            </button>
 
             <div className="npf-save-card">
-              <h4>¿Todo listo?</h4>
+              <h4>{editing ? "¿Guardamos los cambios?" : "¿Todo listo?"}</h4>
               <label className="npf-check">
                 <input
                   type="checkbox"
                   checked={publish}
                   onChange={(event) => setPublish(event.target.checked)}
                 />
-                Publicar en el catálogo ahora (si no, se crea como borrador)
+                {editing
+                  ? "Publicado en el catálogo (al desmarcar vuelve a borrador)"
+                  : "Publicar en el catálogo ahora (si no, se crea como borrador)"}
               </label>
 
               {missing.length > 0 && (
@@ -732,11 +821,22 @@ export function NewProjectForm() {
                   disabled={isSaving || missing.length > 0}
                   className="npf-save-btn"
                 >
-                  {isSaving ? "Guardando…" : publish ? "Guardar y publicar" : "Guardar borrador"}
+                  {isSaving
+                    ? "Guardando…"
+                    : editing
+                      ? "Guardar cambios"
+                      : publish
+                        ? "Guardar y publicar"
+                        : "Guardar borrador"}
                 </button>
                 <button type="button" className="button button-outline" onClick={downloadJson}>
                   <DownloadSimple size={16} /> Descargar JSON
                 </button>
+                {onCancel && (
+                  <button type="button" className="button button-outline" onClick={onCancel}>
+                    <X size={16} /> Cancelar
+                  </button>
+                )}
               </div>
             </div>
           </fieldset>
@@ -767,7 +867,44 @@ export function NewProjectForm() {
             <X size={20} />
           </button>
         </div>
-        <LivePreviewPanel activeTab={activeTab} draft={fieldValues as unknown as Parameters<typeof LivePreviewPanel>[0]["draft"]} />
+        {/*
+          Antes esto era `fieldValues as unknown as DraftPreview`: el doble
+          cast colaba `amenities` como objetos donde la vista previa espera
+          nombres sueltos, así que la tarjeta no pintaba ninguna. El objeto se
+          arma explícito, con los tipos que el contrato declara.
+        */}
+        <LivePreviewPanel
+          activeTab={activeTab}
+          draft={{
+            name,
+            location,
+            desc,
+            bedrooms,
+            bathrooms,
+            parking,
+            areaMin,
+            areaMax,
+            greenArea,
+            deliveryLabel,
+            deliveryYear,
+            reservation,
+            productTypes,
+            typologies,
+            includesAppliances,
+            investmentBenefits,
+            nearby,
+            priceFrom,
+            priceTo,
+            heroImg,
+            gallery1: galleryUrls[0],
+            mapUrl,
+            mapCoords,
+            amenities: amenities.map((amenity) => amenity.name.es),
+            signing,
+            construction,
+            onDelivery,
+          }}
+        />
       </div>
       <button 
         type="button" 

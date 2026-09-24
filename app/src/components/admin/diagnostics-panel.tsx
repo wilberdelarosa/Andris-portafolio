@@ -179,14 +179,25 @@ async function runChecks(): Promise<Check[]> {
   }
 
   // --- Bucket de imagenes (migracion 0004) -----------------------------------
+  // Se lista el contenido del bucket en vez de pedir sus metadatos.
+  // `storage/v1/bucket/projects` es el endpoint de METADATOS y depende de
+  // permisos sobre `storage.buckets`, que la migracion 0004 nunca creo (solo
+  // creo politicas sobre `storage.objects`). Por eso devolvia 400 y este
+  // chequeo marcaba un fallo permanente aunque subir fotos funcionara bien.
+  // El listado sí depende de las politicas que existen, que es justo lo que
+  // el CMS necesita para operar.
   try {
-    const response = await cmsFetch("storage/v1/bucket/projects");
+    const response = await cmsFetch("storage/v1/object/list/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prefix: "", limit: 1 }),
+    });
     if (response.ok) {
       checks.push({
         id: "storage",
         label: "Bucket de imágenes",
         state: "ok",
-        detail: "El bucket «projects» existe: la subida de fotos funciona.",
+        detail: "El bucket «projects» responde: la subida de fotos funciona.",
       });
     } else {
       const body = await response.text();
@@ -194,13 +205,11 @@ async function runChecks(): Promise<Check[]> {
       checks.push({
         id: "storage",
         label: "Bucket de imágenes",
-        state: missing ? "fail" : "warn",
+        state: "fail",
         detail: missing
           ? "No existe el bucket «projects»: subir fotos falla."
-          : `No se pudo comprobar (${response.status}). Puede existir sin permiso de lectura de metadatos.`,
-        fix: missing
-          ? "Aplica supabase/migrations/0004_storage_bucket.sql en el editor SQL."
-          : undefined,
+          : `El bucket «projects» no acepta el listado (${response.status}): revisa las políticas de storage.objects.`,
+        fix: "Aplica supabase/migrations/0004_storage_bucket.sql en el editor SQL.",
       });
     }
   } catch (error) {
@@ -252,7 +261,7 @@ async function runChecks(): Promise<Check[]> {
       state: resp.ok ? "ok" : "warn",
       detail: resp.ok ? `Conexión establecida exitosamente (${ms}ms).` : `El servidor respondió con ${resp.status}.`,
     });
-  } catch (error) {
+  } catch {
     checks.push({
       id: "maps_api",
       label: "Servidor de Mapas (OpenFreeMap)",

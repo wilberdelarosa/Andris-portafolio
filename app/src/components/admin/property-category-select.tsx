@@ -109,7 +109,7 @@ export function PropertyCategorySelect({
       {status === "error" && (
         <small className="admin-field-help admin-error-text">
           No se pudieron cargar las categorías desde Supabase. Revisa la
-          conexión o crea categorías en Ajustes → Categorías.
+          conexión o crea categorías en la pestaña «Categorías».
         </small>
       )}
     </label>

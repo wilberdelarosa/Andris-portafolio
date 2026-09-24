@@ -14,15 +14,32 @@
  * así que aquí solo se puede crear y editar sus etiquetas/orden; no se ofrece
  * ningún botón de borrado tampoco, para no dejar amenidades con `group_id`
  * huérfano.
+ *
+ * Presentación: la lista se pinta como tarjetas (`.admin-category-card`), no
+ * como tabla. Antes era una `<table>` envuelta en `.admin-table-wrap`, que es
+ * la misma clase que usan Leads y Cotizaciones — pero esas dos pestañas
+ * además duplican su contenido en `.admin-list-cards` para móvil, y esta no
+ * lo hacía. Por debajo de 1100px `.admin-table-wrap` se oculta (ver esa regla
+ * en `admin.css`) y aquí no había nada detrás: la lista de categorías
+ * desaparecía por completo en el teléfono. Una sola lista de tarjetas, sin
+ * marcado paralelo, evita esa clase de bug de raíz y de paso deja "editar"
+ * como una acción explícita (abre un modal) en vez de una celda editable
+ * inline, que es lo que pidió el dueño.
  */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import {
   CheckCircle,
   CircleNotch,
+  ListChecks,
+  MagnifyingGlass,
+  PencilSimple,
   Plus,
+  Tag,
   Warning,
+  X,
 } from "@phosphor-icons/react";
 import { cmsFetch, describeError, readErrorMessage } from "@/lib/cms/session";
 
@@ -108,6 +125,21 @@ function slugifyKey(value: string): string {
     .slice(0, 60);
 }
 
+/** Coincide por nombre (en cualquier idioma) o por clave interna. */
+function matchesQuery(
+  row: { key: string; label_es: string; label_en: string | null; label_fr: string | null },
+  query: string,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    row.label_es.toLowerCase().includes(q) ||
+    (row.label_en ?? "").toLowerCase().includes(q) ||
+    (row.label_fr ?? "").toLowerCase().includes(q) ||
+    row.key.toLowerCase().includes(q)
+  );
+}
+
 export function CategoryManager() {
   const [section, setSection] = useState<"propiedad" | "amenidades">("propiedad");
 
@@ -123,7 +155,13 @@ export function CategoryManager() {
         </p>
       </div>
 
-      <nav className="npf-tabs" role="tablist" aria-label="Sección de categorías" style={{ marginBottom: 20 }}>
+      {/*
+        Misma tira de pestañas que el asistente de alta (`.npf-tabs`), con
+        icono incluido: sin él estas dos pestañas se quedaban sin nada visible
+        en móvil, porque la hoja del asistente ocultaba la etiqueta contando
+        con que hubiera un icono detrás.
+      */}
+      <nav className="npf-tabs npf-tabs--section" role="tablist" aria-label="Sección de categorías">
         <button
           type="button"
           role="tab"
@@ -131,6 +169,7 @@ export function CategoryManager() {
           className={`npf-tab${section === "propiedad" ? " is-active" : ""}`}
           onClick={() => setSection("propiedad")}
         >
+          <Tag size={17} weight={section === "propiedad" ? "fill" : "regular"} />
           <span className="npf-tab-label">Categorías de propiedad</span>
         </button>
         <button
@@ -140,6 +179,7 @@ export function CategoryManager() {
           className={`npf-tab${section === "amenidades" ? " is-active" : ""}`}
           onClick={() => setSection("amenidades")}
         >
+          <ListChecks size={17} weight={section === "amenidades" ? "fill" : "regular"} />
           <span className="npf-tab-label">Grupos de amenidades</span>
         </button>
       </nav>
@@ -149,11 +189,135 @@ export function CategoryManager() {
   );
 }
 
+/* ---------------------------------------------------------------------------
+   Buscador — mismo patrón visual que `.admin-search` en Proyectos.
+--------------------------------------------------------------------------- */
+function CategorySearchField({
+  value,
+  onChange,
+  label,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+}) {
+  return (
+    <div className="admin-search admin-category-search">
+      <MagnifyingGlass size={17} aria-hidden />
+      <input
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Buscar por nombre o clave…"
+        aria-label={label}
+      />
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Tarjeta de categoría — reemplaza la fila de tabla.
+--------------------------------------------------------------------------- */
+function CategoryCard({
+  label,
+  keySlug,
+  sortOrder,
+  statusChip,
+  onEdit,
+}: {
+  label: string;
+  keySlug: string;
+  sortOrder: number;
+  statusChip?: React.ReactNode;
+  onEdit: () => void;
+}) {
+  return (
+    <article className="admin-category-card">
+      <div className="meta">
+        <div className="row">
+          <strong>{label}</strong>
+          {statusChip}
+        </div>
+        <div className="row">
+          <code className="admin-category-key">{keySlug}</code>
+          <span className="admin-category-order">Orden {sortOrder}</span>
+        </div>
+      </div>
+      <div className="admin-row-actions">
+        <button type="button" className="button button-outline" onClick={onEdit}>
+          <PencilSimple size={15} /> Editar
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function CategoryListEmptyState({
+  hasAny,
+  search,
+  emptyLabel,
+}: {
+  hasAny: boolean;
+  search: string;
+  emptyLabel: string;
+}) {
+  if (!hasAny) return <p className="admin-empty">{emptyLabel}</p>;
+  return <p className="admin-empty">Ninguna coincide con «{search.trim()}».</p>;
+}
+
+/* ---------------------------------------------------------------------------
+   Modal de edición — reutiliza el patrón de diálogo del sitio
+   (`Dialog` de Radix + las clases `.dialog-overlay`/`.dialog-content` que ya
+   define `globals.css`, incluida su transformación a hoja inferior en
+   móvil). El `Modal` compartido de `src/components/ui.tsx` usa esas mismas
+   clases pero exige `ExperienceProvider` (idioma/tema del sitio público, que
+   `/admin` no monta en ningún otro punto); envolverlo aquí solo para
+   reutilizar una etiqueta de botón habría arrastrado ese contexto entero a
+   una pantalla de administración. Este wrapper es el mismo patrón (Radix +
+   las clases ya existentes), sin esa dependencia de más.
+--------------------------------------------------------------------------- */
+function CategoryEditModal({
+  open,
+  onOpenChange,
+  title,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="dialog-overlay" />
+        <Dialog.Content className="dialog-content admin-edit-modal">
+          <div className="dialog-header">
+            <Dialog.Title>{title}</Dialog.Title>
+            <Dialog.Close className="icon-action" aria-label="Cerrar">
+              <X size={20} />
+            </Dialog.Close>
+          </div>
+          <Dialog.Description className="sr-only">
+            Formulario para editar los campos de esta categoría.
+          </Dialog.Description>
+          {children}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Categorías de propiedad
+--------------------------------------------------------------------------- */
 function PropertyCategoriesSection() {
   const [rows, setRows] = useState<PropertyCategoryRow[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<PropertyCategoryRow | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -182,6 +346,11 @@ function PropertyCategoriesSection() {
 
   const reload = () => setReloadToken((n) => n + 1);
 
+  const filtered = useMemo(
+    () => rows.filter((row) => matchesQuery(row, search)),
+    [rows, search],
+  );
+
   const createRow = async (input: {
     key: string;
     label_es: string;
@@ -209,7 +378,13 @@ function PropertyCategoriesSection() {
     }
   };
 
-  const saveRow = async (row: PropertyCategoryRow) => {
+  /**
+   * Devuelve si la escritura tuvo éxito: el modal la usa para decidir si se
+   * cierra solo (éxito) o se queda abierto con el borrador intacto para
+   * reintentar (fallo) — la propia llamada a Supabase, cabeceras y payload
+   * son exactamente los mismos que antes.
+   */
+  const saveRow = async (row: PropertyCategoryRow): Promise<boolean> => {
     try {
       const response = await cmsFetch(`rest/v1/property_categories?id=eq.${row.id}`, {
         method: "PATCH",
@@ -226,8 +401,10 @@ function PropertyCategoriesSection() {
       if (!response.ok) throw new Error(await readErrorMessage(response));
       setFeedback({ tone: "ok", message: `Categoría «${row.label_es}» actualizada.` });
       reload();
+      return true;
     } catch (error) {
       setFeedback({ tone: "error", message: describeError(error) });
+      return false;
     }
   };
 
@@ -249,135 +426,147 @@ function PropertyCategoriesSection() {
 
       {state !== "loading" && (
         <>
-          <CategoryTable rows={rows} onSave={saveRow} />
+          <CategorySearchField
+            value={search}
+            onChange={setSearch}
+            label="Buscar categorías de propiedad"
+          />
+
+          {filtered.length === 0 ? (
+            <CategoryListEmptyState
+              hasAny={rows.length > 0}
+              search={search}
+              emptyLabel="Todavía no hay categorías de propiedad."
+            />
+          ) : (
+            <div className="admin-category-list">
+              {filtered.map((row) => (
+                <CategoryCard
+                  key={row.id}
+                  label={row.label_es}
+                  keySlug={row.key}
+                  sortOrder={row.sort_order}
+                  statusChip={
+                    <span className={`chip ${row.is_active ? "ok" : "neutral"}`}>
+                      <i />
+                      {row.is_active ? "Activa" : "Inactiva"}
+                    </span>
+                  }
+                  onEdit={() => setEditing(row)}
+                />
+              ))}
+            </div>
+          )}
+
           <NewCategoryForm onCreate={createRow} existingKeys={rows.map((r) => r.key)} />
         </>
+      )}
+
+      {editing && (
+        <PropertyCategoryEditModal
+          row={editing}
+          existingKeys={rows.filter((r) => r.id !== editing.id).map((r) => r.key)}
+          onSave={saveRow}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   );
 }
 
-function CategoryTable({
-  rows,
-  onSave,
-}: {
-  rows: PropertyCategoryRow[];
-  onSave: (row: PropertyCategoryRow) => Promise<void>;
-}) {
-  if (rows.length === 0) {
-    return <p className="admin-empty">Todavía no hay categorías de propiedad.</p>;
-  }
-
-  return (
-    <div className="admin-table-wrap" style={{ marginBottom: 20 }}>
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th>Orden</th>
-            <th>Clave</th>
-            <th>Español</th>
-            <th>Inglés</th>
-            <th>Francés</th>
-            <th>Activa</th>
-            <th style={{ textAlign: "right" }}>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <PropertyCategoryTableRow key={row.id} row={row} onSave={onSave} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/**
- * Fila editable con su propio borrador local, inicializado desde `row` solo
- * en el montaje (React lo reinicia únicamente si cambia la `key`, es decir,
- * el id): así no hace falta sincronizar el borrador con un efecto.
- */
-function PropertyCategoryTableRow({
+function PropertyCategoryEditModal({
   row,
+  existingKeys,
   onSave,
+  onClose,
 }: {
   row: PropertyCategoryRow;
-  onSave: (row: PropertyCategoryRow) => Promise<void>;
+  existingKeys: string[];
+  onSave: (row: PropertyCategoryRow) => Promise<boolean>;
+  onClose: () => void;
 }) {
   const [draft, setDraft] = useState(row);
   const [saving, setSaving] = useState(false);
-  const dirty =
-    draft.key !== row.key ||
-    draft.label_es !== row.label_es ||
-    (draft.label_en ?? "") !== (row.label_en ?? "") ||
-    (draft.label_fr ?? "") !== (row.label_fr ?? "") ||
-    draft.sort_order !== row.sort_order ||
-    draft.is_active !== row.is_active;
   const patch = (changes: Partial<PropertyCategoryRow>) =>
     setDraft((current) => ({ ...current, ...changes }));
 
+  const effectiveKey = slugifyKey(draft.key);
+  const duplicate = effectiveKey.length > 0 && existingKeys.includes(effectiveKey);
+  const canSubmit = draft.label_es.trim().length > 0 && effectiveKey.length > 0 && !duplicate && !saving;
+
+  const submit = async () => {
+    if (!canSubmit) return;
+    setSaving(true);
+    const ok = await onSave({ ...draft, key: effectiveKey, label_es: draft.label_es.trim() });
+    setSaving(false);
+    if (ok) onClose();
+  };
+
   return (
-    <tr>
-      <td>
-        <input
-          type="number"
-          value={draft.sort_order}
-          onChange={(e) => patch({ sort_order: Number(e.target.value) || 0 })}
-          style={{ width: 64 }}
-        />
-      </td>
-      <td>
-        <input
-          type="text"
-          value={draft.key}
-          onChange={(e) => patch({ key: slugifyKey(e.target.value) })}
-          style={{ width: 120 }}
-        />
-      </td>
-      <td>
-        <input type="text" value={draft.label_es} onChange={(e) => patch({ label_es: e.target.value })} />
-      </td>
-      <td>
-        <input
-          type="text"
-          value={draft.label_en ?? ""}
-          onChange={(e) => patch({ label_en: e.target.value })}
-          placeholder="—"
-        />
-      </td>
-      <td>
-        <input
-          type="text"
-          value={draft.label_fr ?? ""}
-          onChange={(e) => patch({ label_fr: e.target.value })}
-          placeholder="—"
-        />
-      </td>
-      <td>
-        <input
-          type="checkbox"
-          checked={draft.is_active}
-          onChange={(e) => patch({ is_active: e.target.checked })}
-          aria-label={`${row.label_es} activa`}
-        />
-      </td>
-      <td>
-        <div className="admin-row-actions">
-          <button
-            type="button"
-            className="button button-outline"
-            disabled={!dirty || saving}
-            onClick={async () => {
-              setSaving(true);
-              await onSave(draft);
-              setSaving(false);
-            }}
-          >
-            {saving ? <CircleNotch size={14} className="spin" /> : "Guardar"}
-          </button>
+    <CategoryEditModal open onOpenChange={(next) => !next && onClose()} title={`Editar «${row.label_es}»`}>
+      <div className="npf-fieldset">
+        <div className="admin-field-row admin-field-row--triple">
+          <label className="admin-field">
+            Español (obligatorio)
+            <input type="text" value={draft.label_es} onChange={(e) => patch({ label_es: e.target.value })} />
+          </label>
+          <label className="admin-field">
+            Inglés (opcional)
+            <input
+              type="text"
+              value={draft.label_en ?? ""}
+              onChange={(e) => patch({ label_en: e.target.value })}
+              placeholder="—"
+            />
+          </label>
+          <label className="admin-field">
+            Francés (opcional)
+            <input
+              type="text"
+              value={draft.label_fr ?? ""}
+              onChange={(e) => patch({ label_fr: e.target.value })}
+              placeholder="—"
+            />
+          </label>
         </div>
-      </td>
-    </tr>
+        <div className="admin-field-row">
+          <label className="admin-field">
+            Clave interna
+            <input type="text" value={draft.key} onChange={(e) => patch({ key: slugifyKey(e.target.value) })} />
+          </label>
+          <label className="admin-field">
+            Orden
+            <input
+              type="number"
+              value={draft.sort_order}
+              onChange={(e) => patch({ sort_order: Number(e.target.value) || 0 })}
+            />
+          </label>
+        </div>
+        <label className="npf-check">
+          <input
+            type="checkbox"
+            checked={draft.is_active}
+            onChange={(e) => patch({ is_active: e.target.checked })}
+          />
+          Categoría activa (visible en el catálogo y en «Añadir proyecto»)
+        </label>
+        {duplicate && (
+          <p className="admin-error-text">
+            <Warning size={15} weight="fill" /> Ya existe otra categoría con la clave «{effectiveKey}».
+          </p>
+        )}
+      </div>
+      <div className="admin-actions" style={{ marginTop: 18 }}>
+        <button type="button" className="button button-primary" disabled={!canSubmit} onClick={() => void submit()}>
+          {saving ? <CircleNotch size={16} className="spin" /> : <CheckCircle size={16} />}
+          {saving ? "Guardando…" : "Guardar cambios"}
+        </button>
+        <button type="button" className="button button-outline" disabled={saving} onClick={onClose}>
+          <X size={16} /> Cancelar
+        </button>
+      </div>
+    </CategoryEditModal>
   );
 }
 
@@ -463,11 +652,16 @@ function NewCategoryForm({
   );
 }
 
+/* ---------------------------------------------------------------------------
+   Grupos de amenidades
+--------------------------------------------------------------------------- */
 function AmenityGroupsSection() {
   const [rows, setRows] = useState<AmenityGroupRow[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [search, setSearch] = useState("");
+  const [editing, setEditing] = useState<AmenityGroupRow | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -496,7 +690,12 @@ function AmenityGroupsSection() {
 
   const reload = () => setReloadToken((n) => n + 1);
 
-  const saveRow = async (row: AmenityGroupRow) => {
+  const filtered = useMemo(
+    () => rows.filter((row) => matchesQuery(row, search)),
+    [rows, search],
+  );
+
+  const saveRow = async (row: AmenityGroupRow): Promise<boolean> => {
     try {
       const response = await cmsFetch(`rest/v1/amenity_groups?id=eq.${row.id}`, {
         method: "PATCH",
@@ -512,8 +711,10 @@ function AmenityGroupsSection() {
       if (!response.ok) throw new Error(await readErrorMessage(response));
       setFeedback({ tone: "ok", message: `Grupo «${row.label_es}» actualizado.` });
       reload();
+      return true;
     } catch (error) {
       setFeedback({ tone: "error", message: describeError(error) });
+      return false;
     }
   };
 
@@ -573,30 +774,34 @@ function AmenityGroupsSection() {
         <p className="admin-field-help"><CircleNotch size={14} className="spin" /> Cargando grupos de amenidades…</p>
       )}
 
-      {state !== "loading" && rows.length === 0 && (
-        <p className="admin-empty">Todavía no hay grupos de amenidades.</p>
-      )}
+      {state !== "loading" && (
+        <>
+          <CategorySearchField
+            value={search}
+            onChange={setSearch}
+            label="Buscar grupos de amenidades"
+          />
 
-      {state !== "loading" && rows.length > 0 && (
-        <div className="admin-table-wrap" style={{ marginBottom: 20 }}>
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Orden</th>
-                <th>Clave</th>
-                <th>Español</th>
-                <th>Inglés</th>
-                <th>Francés</th>
-                <th style={{ textAlign: "right" }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <AmenityGroupTableRow key={row.id} row={row} onSave={saveRow} />
+          {filtered.length === 0 ? (
+            <CategoryListEmptyState
+              hasAny={rows.length > 0}
+              search={search}
+              emptyLabel="Todavía no hay grupos de amenidades."
+            />
+          ) : (
+            <div className="admin-category-list">
+              {filtered.map((row) => (
+                <CategoryCard
+                  key={row.id}
+                  label={row.label_es}
+                  keySlug={row.key}
+                  sortOrder={row.sort_order}
+                  onEdit={() => setEditing(row)}
+                />
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       <fieldset className="npf-fieldset">
@@ -636,72 +841,103 @@ function AmenityGroupsSection() {
           </button>
         </div>
       </fieldset>
+
+      {editing && (
+        <AmenityGroupEditModal
+          row={editing}
+          existingKeys={rows.filter((r) => r.id !== editing.id).map((r) => r.key)}
+          onSave={saveRow}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }
 
-/** Misma idea que `PropertyCategoryTableRow`: borrador local sin efecto. */
-function AmenityGroupTableRow({
+function AmenityGroupEditModal({
   row,
+  existingKeys,
   onSave,
+  onClose,
 }: {
   row: AmenityGroupRow;
-  onSave: (row: AmenityGroupRow) => Promise<void>;
+  existingKeys: string[];
+  onSave: (row: AmenityGroupRow) => Promise<boolean>;
+  onClose: () => void;
 }) {
   const [draft, setDraft] = useState(row);
   const [saving, setSaving] = useState(false);
-  const dirty =
-    draft.key !== row.key ||
-    draft.label_es !== row.label_es ||
-    (draft.label_en ?? "") !== (row.label_en ?? "") ||
-    (draft.label_fr ?? "") !== (row.label_fr ?? "") ||
-    draft.sort_order !== row.sort_order;
   const patch = (changes: Partial<AmenityGroupRow>) =>
     setDraft((current) => ({ ...current, ...changes }));
 
+  const effectiveKey = slugifyKey(draft.key);
+  const duplicate = effectiveKey.length > 0 && existingKeys.includes(effectiveKey);
+  const canSubmit = draft.label_es.trim().length > 0 && effectiveKey.length > 0 && !duplicate && !saving;
+
+  const submit = async () => {
+    if (!canSubmit) return;
+    setSaving(true);
+    const ok = await onSave({ ...draft, key: effectiveKey, label_es: draft.label_es.trim() });
+    setSaving(false);
+    if (ok) onClose();
+  };
+
   return (
-    <tr>
-      <td>
-        <input
-          type="number"
-          value={draft.sort_order}
-          onChange={(e) => patch({ sort_order: Number(e.target.value) || 0 })}
-          style={{ width: 64 }}
-        />
-      </td>
-      <td>
-        <input
-          type="text"
-          value={draft.key}
-          onChange={(e) => patch({ key: slugifyKey(e.target.value) })}
-          style={{ width: 120 }}
-        />
-      </td>
-      <td>
-        <input type="text" value={draft.label_es} onChange={(e) => patch({ label_es: e.target.value })} />
-      </td>
-      <td>
-        <input type="text" value={draft.label_en ?? ""} onChange={(e) => patch({ label_en: e.target.value })} placeholder="—" />
-      </td>
-      <td>
-        <input type="text" value={draft.label_fr ?? ""} onChange={(e) => patch({ label_fr: e.target.value })} placeholder="—" />
-      </td>
-      <td>
-        <div className="admin-row-actions">
-          <button
-            type="button"
-            className="button button-outline"
-            disabled={!dirty || saving}
-            onClick={async () => {
-              setSaving(true);
-              await onSave(draft);
-              setSaving(false);
-            }}
-          >
-            {saving ? <CircleNotch size={14} className="spin" /> : "Guardar"}
-          </button>
+    <CategoryEditModal open onOpenChange={(next) => !next && onClose()} title={`Editar «${row.label_es}»`}>
+      <div className="npf-fieldset">
+        <div className="admin-field-row admin-field-row--triple">
+          <label className="admin-field">
+            Español (obligatorio)
+            <input type="text" value={draft.label_es} onChange={(e) => patch({ label_es: e.target.value })} />
+          </label>
+          <label className="admin-field">
+            Inglés (opcional)
+            <input
+              type="text"
+              value={draft.label_en ?? ""}
+              onChange={(e) => patch({ label_en: e.target.value })}
+              placeholder="—"
+            />
+          </label>
+          <label className="admin-field">
+            Francés (opcional)
+            <input
+              type="text"
+              value={draft.label_fr ?? ""}
+              onChange={(e) => patch({ label_fr: e.target.value })}
+              placeholder="—"
+            />
+          </label>
         </div>
-      </td>
-    </tr>
+        <div className="admin-field-row">
+          <label className="admin-field">
+            Clave interna
+            <input type="text" value={draft.key} onChange={(e) => patch({ key: slugifyKey(e.target.value) })} />
+          </label>
+          <label className="admin-field">
+            Orden
+            <input
+              type="number"
+              value={draft.sort_order}
+              onChange={(e) => patch({ sort_order: Number(e.target.value) || 0 })}
+            />
+          </label>
+        </div>
+        {duplicate && (
+          <p className="admin-error-text">
+            <Warning size={15} weight="fill" /> Ya existe otro grupo con la clave «{effectiveKey}».
+          </p>
+        )}
+      </div>
+      <div className="admin-actions" style={{ marginTop: 18 }}>
+        <button type="button" className="button button-primary" disabled={!canSubmit} onClick={() => void submit()}>
+          {saving ? <CircleNotch size={16} className="spin" /> : <CheckCircle size={16} />}
+          {saving ? "Guardando…" : "Guardar cambios"}
+        </button>
+        <button type="button" className="button button-outline" disabled={saving} onClick={onClose}>
+          <X size={16} /> Cancelar
+        </button>
+      </div>
+    </CategoryEditModal>
   );
 }
