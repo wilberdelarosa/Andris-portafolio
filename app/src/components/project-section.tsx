@@ -33,13 +33,13 @@ import {
   MetricTicker,
 } from "./premium-motion";
 import { editorialAccents } from "@/content/editorial-accents";
-import { melcon, type PropertyProject } from "@/content/projects";
+import { type PropertyProject } from "@/content/projects";
 import { useExperience } from "./experience-provider";
 import { useProjects } from "./projects-provider";
 import { Photo, Modal } from "./ui";
 import { PropertyCard } from "./property-card";
 
-export function ProjectFacts({ project = melcon }: { project?: PropertyProject }) {
+export function ProjectFacts({ project }: { project: PropertyProject }) {
   const { t } = useExperience();
   if (!project.bedrooms.length && !project.area.max && !project.greenArea)
     return null;
@@ -67,12 +67,12 @@ export function Gallery({
   open,
   onOpenChange,
   start = 0,
-  project = melcon,
+  project,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   start?: number;
-  project?: PropertyProject;
+  project: PropertyProject;
 }) {
   const { t, locale } = useExperience();
   const [index, setIndex] = useState(start);
@@ -150,7 +150,7 @@ export function Gallery({
     </Modal>
   );
 }
-export function SaveButton({ project = melcon }: { project?: PropertyProject }) {
+export function SaveButton({ project }: { project: PropertyProject }) {
   const { isSaved, toggleSlug, t } = useExperience();
   const saved = isSaved(project.slug);
   return (

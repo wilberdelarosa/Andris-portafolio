@@ -525,6 +525,15 @@
   font: inherit;
   font-size: 14px;
   color: var(--text);
+  /**
+   * `min-width: 0` + `width: 100%`: el `<input>` nativo nace con `size=20`
+   * (~170px de min-content). Sin esto, dentro de una fila de dos o tres
+   * columnas (`minmax(0, 1fr)`) la pista se encoge pero el campo no, y el
+   * resultado era el «Francés (opcional)» de Categorías pintándose fuera de
+   * la tarjeta a 768px. El campo pasa a medir lo que mide su pista.
+   */
+  min-width: 0;
+  width: 100%;
 }
 .admin-field textarea {
   min-height: 90px;
@@ -581,6 +590,17 @@
   display: grid;
   gap: 10px;
   justify-items: center;
+}
+/* Variante de error: sustituye al estado vacío cuando la lectura falla, para
+   que no convivan un «no hay nada» y un aviso rojo diciendo lo contrario. */
+.admin-empty--error {
+  border-color: #f3c2c2;
+  background: #fdecec66;
+  color: #8f2323;
+  line-height: 1.6;
+}
+.admin-empty--error .button {
+  margin-top: 6px;
 }
 
 /* --- Tablas responsivas ------------------------------------------------------- */
@@ -949,7 +969,10 @@
     padding-inline: 4px;
   }
   .admin-main {
-    padding: 22px 16px 110px;
+    /* La tabbar fija mide ~94px + área segura: el contenido debe poder
+       desplazarse por completo por encima de ella (antes 110px y la tarjeta
+       «Precio por confirmar» del Resumen quedaba tapada a media altura). */
+    padding: 22px 16px calc(var(--admin-tabbar-height) + 40px);
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -1138,6 +1161,11 @@
    */
   min-width: 0;
   max-width: 100%;
+  /* El degradado lateral anuncia que hay más pasos deslizando: sin pista
+     visual, la sexta pestaña parecía «cortada» a cualquier ancho. */
+  mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  scroll-padding-inline: 8px;
 }
 .npf-tabs::-webkit-scrollbar { display: none; }
 
@@ -1244,6 +1272,15 @@
    encogerse. */
 .admin-field-row--triple {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* Con la barra lateral (264px) el contenido de una tableta de 768px se queda
+   en ~440px: tres columnas ahí son ~130px por campo. La fila triple pasa a
+   una columna cuando el hueco real ya no respira, no solo en teléfono. */
+@media (max-width: 960px) {
+  .admin-field-row--triple {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ── Checkbox ── */
@@ -1673,6 +1710,7 @@
   border-radius: 6px;
   overflow: hidden;
   width: fit-content;
+  max-width: 100%;
 }
 .admin-number-picker button {
   background: var(--soft);
@@ -1680,14 +1718,22 @@
   padding: 10px 12px;
   cursor: pointer;
   color: var(--text);
+  /* En filas estrechas el dedo necesita un objetivo estable, no uno que se encoge. */
+  flex-shrink: 0;
+  min-width: 40px;
+  min-height: 40px;
 }
 .admin-number-picker button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .admin-number-picker input {
-  width: 60px;
+  /* 4 dígitos (año de entrega) + padding: con 60px el último dígito se
+     recortaba contra el borde. */
+  width: 72px;
+  min-width: 0;
   text-align: center;
+  font-variant-numeric: tabular-nums;
   border: none !important;
   border-left: 1px solid var(--line) !important;
   border-right: 1px solid var(--line) !important;
@@ -2272,7 +2318,9 @@
      */
   .npf-split-layout {
     display: block; /* Remove grid so form takes full width */
-    padding-bottom: 80px; /* Space for FAB */
+    /* Hueco para el FAB flotante de vista previa: sin esta reserva el botón
+       quedaba encima de «Siguiente» al llegar al final del formulario. */
+    padding-bottom: calc(var(--admin-tabbar-height) + 88px);
   }
   
   /* FAB (Floating Action Button) */
@@ -2353,6 +2401,12 @@
     flex: 1;
     overflow-y: auto;
   }
+
+  /* Con la hoja de vista previa abierta a pantalla completa, el FAB que la
+     abre no debe quedar flotando por encima ni duplicado detrás. */
+  .npf-preview-container.is-open ~ .npf-mobile-preview-fab {
+    display: none;
+  }
 }
 
 /* Responsive Text Fixes for Diagnostics */
@@ -2410,15 +2464,20 @@
    que cualquier `:nth-child` se rompería al primer cambio.
    =========================================================================== */
 .admin-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  /**
+   * Grid y no flex-wrap: con flex la fila se rompía de forma imprevisible y
+   * el combo de Categoría (min-content largo: «Selecciona una categoría»)
+   * acababa pintándose por debajo del botón «Añadir proyecto». Las pistas
+   * `minmax(0, …)` reparten el ancho disponible y el CTA conserva su medida.
+   */
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(130px, 0.7fr) minmax(0, 1fr) auto;
+  align-items: end;
   gap: 12px;
   margin-bottom: 16px;
 }
 .admin-search {
   position: relative;
-  flex: 1 1 220px;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -2443,17 +2502,34 @@
   color: var(--muted);
 }
 .admin-toolbar-field {
-  flex: 0 1 180px;
-  min-width: 150px;
+  min-width: 0;
 }
 .admin-toolbar-field .admin-field,
 .admin-toolbar-field .admin-field select {
   margin: 0;
 }
 .admin-toolbar-cta {
-  flex: 0 0 auto;
   height: 44px;
   white-space: nowrap;
+  justify-content: center;
+}
+
+/* Tableta: búsqueda y CTA a fila completa, los dos filtros se reparten. */
+@media (max-width: 1100px) {
+  .admin-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .admin-toolbar .admin-search,
+  .admin-toolbar .admin-toolbar-cta {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Teléfono: todo en una columna, cada control a ancho completo. */
+@media (max-width: 760px) {
+  .admin-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .admin-project-row {
@@ -2682,10 +2758,6 @@
 }
 
 @media (max-width: 760px) {
-  .admin-toolbar-cta {
-    flex: 1 1 100%;
-    justify-content: center;
-  }
   /* La fila pasa a dos líneas: miniatura + datos arriba, acciones abajo a
      ancho completo, para que los botones sigan siendo pulsables con el dedo. */
   .admin-project-row {

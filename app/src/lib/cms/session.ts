@@ -184,7 +184,7 @@ interface TokenResponse {
 
 function toSession(data: TokenResponse, fallbackEmail: string): CmsSession {
   if (!data.access_token) {
-    throw new CmsError("Supabase no devolvio un token de acceso.", 500);
+    throw new CmsError("Supabase no devolvió un token de acceso.", 500);
   }
   const expiresAt =
     data.expires_at ?? Math.floor(Date.now() / 1000) + (data.expires_in ?? 3600);
@@ -197,6 +197,29 @@ function toSession(data: TokenResponse, fallbackEmail: string): CmsSession {
   };
 }
 
+/**
+ * Traduce los detalles habituales de Supabase Auth a español claro: el
+ * servidor responde en inglés («Invalid login credentials») y ese texto
+ * terminaba tal cual en la tarjeta de acceso.
+ */
+function describeAuthError(detail: string | undefined, fallback: string): string {
+  if (!detail) return fallback;
+  const text = detail.toLowerCase();
+  if (text.includes("invalid login") || text.includes("invalid credentials")) {
+    return "Correo o contraseña incorrectos.";
+  }
+  if (text.includes("email not confirmed")) {
+    return "Este correo aún no está confirmado en Supabase.";
+  }
+  if (text.includes("refresh token") || text.includes("session")) {
+    return "La sesión expiró. Vuelve a iniciar sesión.";
+  }
+  if (text.includes("too many requests") || text.includes("rate limit")) {
+    return "Demasiados intentos seguidos. Espera un minuto y prueba otra vez.";
+  }
+  return detail;
+}
+
 async function requestToken(
   grantType: "password" | "refresh_token",
   body: Record<string, string>,
@@ -205,7 +228,7 @@ async function requestToken(
   const config = getSupabaseConfig();
   if (!config) {
     throw new CmsError(
-      "Supabase no esta configurado: faltan NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      "Supabase no está configurado: faltan NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.",
     );
   }
   let response: Response;
@@ -216,15 +239,18 @@ async function requestToken(
       body: JSON.stringify(body),
     });
   } catch {
-    throw new CmsError("No se pudo conectar con Supabase. Revisa la conexion.");
+    throw new CmsError("No se pudo conectar con Supabase. Revisa la conexión.");
   }
   const data = (await response.json().catch(() => ({}))) as TokenResponse;
   if (!response.ok) {
     const detail = data.error_description || data.msg || data.message || data.error;
     throw new CmsError(
-      grantType === "password"
-        ? detail || "Correo o contrasena incorrectos."
-        : detail || "La sesion expiro. Vuelve a iniciar sesion.",
+      describeAuthError(
+        detail,
+        grantType === "password"
+          ? "Correo o contraseña incorrectos."
+          : "La sesión expiró. Vuelve a iniciar sesión.",
+      ),
       response.status,
     );
   }
@@ -334,7 +360,7 @@ export async function cmsFetch(
   const token = await getAccessToken();
   if (!token && !allowAnonymous) {
     clearSession();
-    throw new CmsError("La sesion expiro. Vuelve a iniciar sesion.", 401);
+    throw new CmsError("La sesión expiró. Vuelve a iniciar sesión.", 401);
   }
 
   const response = await send(token);
@@ -364,7 +390,7 @@ export async function cmsFetch(
 export function describeError(error: unknown): string {
   if (error instanceof CmsError) return error.message;
   if (error instanceof Error) return error.message;
-  return "Ocurrio un error inesperado.";
+  return "Ocurrió un error inesperado.";
 }
 
 /** Lee el cuerpo de error de PostgREST o de Storage, que no comparten formato. */

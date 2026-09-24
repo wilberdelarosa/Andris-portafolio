@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowSquareOut,
+  ArrowClockwise,
   Buildings,
   CaretLeft,
   CaretRight,
@@ -24,6 +25,7 @@ import {
   Tag,
   Trash,
   UsersThree,
+  Warning,
   X,
 } from "@phosphor-icons/react";
 import "./admin.css";
@@ -745,6 +747,8 @@ function ProjectsPanel({
           <div className="admin-toolbar-field">
             <PropertyCategorySelect
               label="Categoría"
+              placeholder="Todas"
+              required={false}
               value={categoryId}
               onChange={(nextId) => {
                 setCategoryId(nextId);
@@ -770,9 +774,13 @@ function ProjectsPanel({
         )}
 
         {error && (
-          <p className="admin-error-text" role="alert">
-            No se pudo leer el catálogo desde Supabase: {error}
-          </p>
+          <div className="admin-empty admin-empty--error" role="alert">
+            <Warning size={26} />
+            <span>No se pudo leer el catálogo desde Supabase: {error}</span>
+            <button type="button" className="button button-outline" onClick={reload}>
+              <ArrowClockwise size={15} /> Reintentar
+            </button>
+          </div>
         )}
 
         {loading && rows.length === 0 && (
@@ -1017,9 +1025,13 @@ function LeadsPanel({
         )}
 
         {error && (
-          <p className="admin-error-text" role="alert">
-            No se pudo leer la bandeja desde Supabase: {error}
-          </p>
+          <div className="admin-empty admin-empty--error" role="alert">
+            <Warning size={26} />
+            <span>No se pudo leer la bandeja desde Supabase: {error}</span>
+            <button type="button" className="button button-outline" onClick={onChanged}>
+              <ArrowClockwise size={15} /> Reintentar
+            </button>
+          </div>
         )}
         {actionError && (
           <p className="admin-error-text" role="alert">
@@ -1027,13 +1039,14 @@ function LeadsPanel({
           </p>
         )}
 
-        {leads.length === 0 ? (
-          <div className="admin-empty">
-            <UsersThree size={30} />
-            La bandeja está vacía. Los leads aparecen cuando alguien prepara
-            una consulta en /contacto.
-          </div>
-        ) : (
+        {!error &&
+          (leads.length === 0 ? (
+            <div className="admin-empty">
+              <UsersThree size={30} />
+              La bandeja está vacía. Los leads aparecen cuando alguien prepara
+              una consulta en /contacto.
+            </div>
+          ) : (
           <>
             <div className="admin-table-wrap">
               <table className="admin-table">
@@ -1104,7 +1117,7 @@ function LeadsPanel({
               ))}
             </div>
           </>
-        )}
+          ))}
       </div>
     </>
   );
@@ -1206,22 +1219,27 @@ function QuotesPanel({
           </p>
         )}
         {error && (
-          <p className="admin-error-text" role="alert">
-            No se pudo leer el registro desde Supabase: {error}
-          </p>
+          <div className="admin-empty admin-empty--error" role="alert">
+            <Warning size={26} />
+            <span>No se pudo leer el registro desde Supabase: {error}</span>
+            <button type="button" className="button button-outline" onClick={onChanged}>
+              <ArrowClockwise size={15} /> Reintentar
+            </button>
+          </div>
         )}
         {actionError && (
           <p className="admin-error-text" role="alert">
             No se pudo completar el borrado: {actionError}
           </p>
         )}
-        {quotes.length === 0 ? (
-          <div className="admin-empty">
-            <Calculator size={30} />
-            Aún no hay cotizaciones. Se registran al descargar el PDF en
-            /calculadora.
-          </div>
-        ) : (
+        {!error &&
+          (quotes.length === 0 ? (
+            <div className="admin-empty">
+              <Calculator size={30} />
+              Aún no hay cotizaciones. Se registran al descargar el PDF en
+              /calculadora.
+            </div>
+          ) : (
           <>
             <div className="admin-table-wrap">
               <table className="admin-table">
@@ -1294,7 +1312,7 @@ function QuotesPanel({
               ))}
             </div>
           </>
-        )}
+          ))}
       </div>
     </>
   );

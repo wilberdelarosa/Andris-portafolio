@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
-import { melcon, type PropertyProject } from "@/content/projects";
+import { type PropertyProject } from "@/content/projects";
 import { journeyCopy } from "@/content/journey-copy";
 import { useExperience } from "./experience-provider";
 import { MapExplorer } from "./map-explorer";
 import "./journey.css";
 
-export function ProjectMap({ project = melcon }: { project?: PropertyProject }) {
+export function ProjectMap({ project }: { project: PropertyProject }) {
   const { locale } = useExperience();
   const j = journeyCopy[locale];
   return <section className="section project-location-section" id="ubicacion" aria-labelledby="project-location-title">

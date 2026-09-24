@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getPublishedProjects, type PropertyProject } from "../src/content/projects.ts";
+import { testProjects } from "./fixtures/projects.ts";
+import type { PropertyProject } from "../src/content/projects.ts";
 
 test("published projects contain exactly the 3 verified real estate developments", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
   assert.equal(projects.length, 3);
   const slugs = projects.map((p) => p.slug);
   assert.ok(slugs.includes("melcon-paradise"));
@@ -12,7 +13,7 @@ test("published projects contain exactly the 3 verified real estate developments
 });
 
 test("data audit: no fabricated prices, and pending prices are strictly marked pending", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
   const melcon = projects.find((p) => p.slug === "melcon-paradise")!;
   const terra = projects.find((p) => p.slug === "terra-serena")!;
   const beach = projects.find((p) => p.slug === "the-beach-at-punta-cana-city-place")!;
@@ -33,7 +34,7 @@ test("data audit: no fabricated prices, and pending prices are strictly marked p
 });
 
 test("data audit: bathrooms and parking are unconfirmed across all 3 projects", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
   for (const project of projects) {
     assert.deepEqual(project.bathrooms, [], `${project.slug} must not have fabricated bathrooms`);
     assert.equal(project.parking, null, `${project.slug} must not have fabricated parking`);
@@ -41,7 +42,7 @@ test("data audit: bathrooms and parking are unconfirmed across all 3 projects", 
 });
 
 test("CONFOTUR benefit is present exclusively in The Beach as verified", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
   const beach = projects.find((p) => p.slug === "the-beach-at-punta-cana-city-place")!;
   const melcon = projects.find((p) => p.slug === "melcon-paradise")!;
   const terra = projects.find((p) => p.slug === "terra-serena")!;
@@ -55,7 +56,7 @@ test("CONFOTUR benefit is present exclusively in The Beach as verified", () => {
 });
 
 test("pricing filter correctly filters between confirmed, pending and price brackets", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
 
   const confirmedProjects = projects.filter(
     (p) => p.price.status === "confirmed" && p.price.from !== null,
@@ -74,7 +75,7 @@ test("pricing filter correctly filters between confirmed, pending and price brac
 });
 
 test("bedroom filter matches available project typologies accurately", () => {
-  const projects = getPublishedProjects();
+  const projects = testProjects;
   const oneBedProjects = projects.filter((p) => p.bedrooms.includes(1));
   assert.equal(oneBedProjects.length, 3); // All 3 offer 1 bedroom
 

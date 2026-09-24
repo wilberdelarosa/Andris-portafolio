@@ -28,6 +28,10 @@ interface PropertyCategorySelectProps {
   value: string;
   onChange: (categoryId: string, categoryKey: string, categoryLabel: string) => void;
   label?: string;
+  /** Texto de la opción vacía. «Todas» cuando se usa como filtro. */
+  placeholder?: string;
+  /** El filtro del listado admite vacío (=todas); el alta de proyecto no. */
+  required?: boolean;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -50,6 +54,8 @@ export function PropertyCategorySelect({
   value,
   onChange,
   label = "Categoría de propiedad",
+  placeholder = "Selecciona una categoría",
+  required = true,
 }: PropertyCategorySelectProps) {
   const [options, setOptions] = useState<PropertyCategoryOption[]>([]);
   // Instantánea estable calculada en el primer render: evita un setState
@@ -95,10 +101,10 @@ export function PropertyCategorySelect({
           onChange(selectedId, selected?.key ?? "", selected?.label ?? "");
         }}
         disabled={status !== "ready"}
-        required
+        required={required}
       >
         <option value="">
-          {status === "loading" ? "Cargando categorías…" : "Selecciona una categoría"}
+          {status === "loading" ? "Cargando categorías…" : placeholder}
         </option>
         {options.map((option) => (
           <option key={option.id} value={option.id}>

@@ -95,6 +95,7 @@ const es = {
   delivery: "A la entrega",
   monthly: "Cuota mensual estimada",
   monthsUnit: "meses",
+  monthUnit: "mes",
   calcNote:
     "Ejercicio ilustrativo, no una oferta ni un cálculo hipotecario. La reserva, gastos, impuestos y financiamiento no están incluidos. El plan 10 / 40 / 50 del material recibido requiere confirmar vigencia y cómo se aplica la reserva.",
   calcError:
@@ -294,6 +295,7 @@ const en: Copy = {
   delivery: "On delivery",
   monthly: "Estimated monthly payment",
   monthsUnit: "months",
+  monthUnit: "month",
   calcNote:
     "An illustrative exercise, not an offer or mortgage calculation. Reservation, fees, taxes and financing are not included. The supplied 10 / 40 / 50 plan requires confirmation, including how the reservation is applied.",
   calcError:
@@ -496,6 +498,7 @@ const fr: Copy = {
   delivery: "À la livraison",
   monthly: "Mensualité estimée",
   monthsUnit: "mois",
+  monthUnit: "mois",
   calcNote:
     "Exercice illustratif, sans valeur d’offre ni de calcul hypothécaire. Réservation, frais, impôts et financement non inclus. Le plan 10 / 40 / 50 fourni reste à confirmer, ainsi que l’imputation de la réservation.",
   calcError:

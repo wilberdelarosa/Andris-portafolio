@@ -259,7 +259,7 @@ export function PaymentCalculator() {
             }
           />
           <div className="range-labels">
-            <span>1 {t.monthsUnit}</span>
+            <span>1 {t.monthUnit}</span>
             <span>120 {t.monthsUnit}</span>
           </div>
           <div className="percentage-controls">

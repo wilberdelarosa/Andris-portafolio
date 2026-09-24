@@ -318,6 +318,7 @@ function PropertyCategoriesSection() {
   const [reloadToken, setReloadToken] = useState(0);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<PropertyCategoryRow | null>(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -351,13 +352,17 @@ function PropertyCategoriesSection() {
     [rows, search],
   );
 
+  /**
+   * Devuelve si la escritura tuvo éxito: el modal de alta la usa para
+   * cerrarse solo cuando la categoría quedó creada, igual que el de edición.
+   */
   const createRow = async (input: {
     key: string;
     label_es: string;
     label_en: string;
     label_fr: string;
     sort_order: number;
-  }) => {
+  }): Promise<boolean> => {
     try {
       const response = await cmsFetch("rest/v1/property_categories", {
         method: "POST",
@@ -373,8 +378,10 @@ function PropertyCategoriesSection() {
       if (!response.ok) throw new Error(await readErrorMessage(response));
       setFeedback({ tone: "ok", message: `Categoría «${input.label_es}» creada.` });
       reload();
+      return true;
     } catch (error) {
       setFeedback({ tone: "error", message: describeError(error) });
+      return false;
     }
   };
 
@@ -426,6 +433,25 @@ function PropertyCategoriesSection() {
 
       {state !== "loading" && (
         <>
+          {/*
+            Cabecera con el total y el alta en modal: antes el formulario de
+            «Nueva categoría» ocupaba siempre la parte baja de la tarjeta, y
+            en móvil empujaba la lista fuera de la primera pantalla. Ahora la
+            lista manda y el alta vive en el mismo diálogo que la edición.
+          */}
+          <div className="admin-section-head">
+            <h2>
+              {rows.length === 1 ? "1 categoría" : `${rows.length} categorías`}
+            </h2>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={() => setCreating(true)}
+            >
+              <Plus size={16} /> Añadir categoría
+            </button>
+          </div>
+
           <CategorySearchField
             value={search}
             onChange={setSearch}
@@ -436,7 +462,7 @@ function PropertyCategoriesSection() {
             <CategoryListEmptyState
               hasAny={rows.length > 0}
               search={search}
-              emptyLabel="Todavía no hay categorías de propiedad."
+              emptyLabel="Todavía no hay categorías de propiedad. Empieza por «Añadir categoría»."
             />
           ) : (
             <div className="admin-category-list">
@@ -457,9 +483,21 @@ function PropertyCategoriesSection() {
               ))}
             </div>
           )}
-
-          <NewCategoryForm onCreate={createRow} existingKeys={rows.map((r) => r.key)} />
         </>
+      )}
+
+      {creating && (
+        <CategoryEditModal
+          open
+          onOpenChange={(next) => !next && setCreating(false)}
+          title="Nueva categoría de propiedad"
+        >
+          <NewCategoryForm
+            onCreate={createRow}
+            existingKeys={rows.map((r) => r.key)}
+            onDone={() => setCreating(false)}
+          />
+        </CategoryEditModal>
       )}
 
       {editing && (
@@ -573,9 +611,12 @@ function PropertyCategoryEditModal({
 function NewCategoryForm({
   onCreate,
   existingKeys,
+  onDone,
 }: {
-  onCreate: (input: { key: string; label_es: string; label_en: string; label_fr: string; sort_order: number }) => Promise<void>;
+  onCreate: (input: { key: string; label_es: string; label_en: string; label_fr: string; sort_order: number }) => Promise<boolean>;
   existingKeys: string[];
+  /** Se llama tras crear con éxito: el modal que lo aloja se cierra solo. */
+  onDone: () => void;
 }) {
   const [labelEs, setLabelEs] = useState("");
   const [key, setKey] = useState("");
@@ -591,7 +632,7 @@ function NewCategoryForm({
   const submit = async () => {
     if (!canSubmit) return;
     setSaving(true);
-    await onCreate({
+    const ok = await onCreate({
       key: effectiveKey,
       label_es: labelEs.trim(),
       label_en: labelEn.trim(),
@@ -599,20 +640,16 @@ function NewCategoryForm({
       sort_order: sortOrder,
     });
     setSaving(false);
-    setLabelEs("");
-    setKey("");
-    setLabelEn("");
-    setLabelFr("");
-    setSortOrder(0);
+    if (ok) onDone();
   };
 
   return (
     <fieldset className="npf-fieldset">
-      <legend>Nueva categoría de propiedad</legend>
+      <legend className="sr-only">Datos de la nueva categoría</legend>
       <div className="admin-field-row admin-field-row--triple">
         <label className="admin-field">
           Español (obligatorio)
-          <input type="text" value={labelEs} onChange={(e) => setLabelEs(e.target.value)} placeholder="Ej. Villa de lujo" />
+          <input type="text" value={labelEs} onChange={(e) => setLabelEs(e.target.value)} placeholder="Ej. Villa de lujo" autoFocus />
         </label>
         <label className="admin-field">
           Inglés (opcional)
@@ -643,9 +680,12 @@ function NewCategoryForm({
           <Warning size={15} weight="fill" /> Ya existe una categoría con la clave «{effectiveKey}».
         </p>
       )}
-      <div className="admin-actions">
+      <div className="admin-actions" style={{ marginTop: 4 }}>
         <button type="button" className="button button-primary" disabled={!canSubmit} onClick={() => void submit()}>
           <Plus size={16} /> {saving ? "Creando…" : "Crear categoría"}
+        </button>
+        <button type="button" className="button button-outline" disabled={saving} onClick={onDone}>
+          <X size={16} /> Cancelar
         </button>
       </div>
     </fieldset>
@@ -662,6 +702,7 @@ function AmenityGroupsSection() {
   const [reloadToken, setReloadToken] = useState(0);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<AmenityGroupRow | null>(null);
+  const [creatingGroup, setCreatingGroup] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -750,6 +791,7 @@ function AmenityGroupsSection() {
       setLabelEn("");
       setLabelFr("");
       setSortOrder(0);
+      setCreatingGroup(false);
       reload();
     } catch (error) {
       setFeedback({ tone: "error", message: describeError(error) });
@@ -776,6 +818,17 @@ function AmenityGroupsSection() {
 
       {state !== "loading" && (
         <>
+          <div className="admin-section-head">
+            <h2>{rows.length === 1 ? "1 grupo" : `${rows.length} grupos`}</h2>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={() => setCreatingGroup(true)}
+            >
+              <Plus size={16} /> Añadir grupo
+            </button>
+          </div>
+
           <CategorySearchField
             value={search}
             onChange={setSearch}
@@ -786,7 +839,7 @@ function AmenityGroupsSection() {
             <CategoryListEmptyState
               hasAny={rows.length > 0}
               search={search}
-              emptyLabel="Todavía no hay grupos de amenidades."
+              emptyLabel="Todavía no hay grupos de amenidades. Empieza por «Añadir grupo»."
             />
           ) : (
             <div className="admin-category-list">
@@ -804,43 +857,54 @@ function AmenityGroupsSection() {
         </>
       )}
 
-      <fieldset className="npf-fieldset">
-        <legend>Nuevo grupo de amenidades</legend>
-        <div className="admin-field-row admin-field-row--triple">
-          <label className="admin-field">
-            Español (obligatorio)
-            <input type="text" value={labelEs} onChange={(e) => setLabelEs(e.target.value)} placeholder="Ej. Seguridad" />
-          </label>
-          <label className="admin-field">
-            Inglés (opcional)
-            <input type="text" value={labelEn} onChange={(e) => setLabelEn(e.target.value)} />
-          </label>
-          <label className="admin-field">
-            Francés (opcional)
-            <input type="text" value={labelFr} onChange={(e) => setLabelFr(e.target.value)} />
-          </label>
-        </div>
-        <div className="admin-field-row">
-          <label className="admin-field">
-            Clave interna
-            <input type="text" value={key} onChange={(e) => setKey(e.target.value)} placeholder={effectiveKey || "se genera del nombre en español"} />
-          </label>
-          <label className="admin-field">
-            Orden
-            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value) || 0)} />
-          </label>
-        </div>
-        {duplicate && (
-          <p className="admin-error-text">
-            <Warning size={15} weight="fill" /> Ya existe un grupo con la clave «{effectiveKey}».
-          </p>
-        )}
-        <div className="admin-actions">
-          <button type="button" className="button button-primary" disabled={!canSubmit} onClick={() => void createRow()}>
-            <Plus size={16} /> {creating ? "Creando…" : "Crear grupo"}
-          </button>
-        </div>
-      </fieldset>
+      {creatingGroup && (
+        <CategoryEditModal
+          open
+          onOpenChange={(next) => !next && setCreatingGroup(false)}
+          title="Nuevo grupo de amenidades"
+        >
+          <fieldset className="npf-fieldset">
+            <legend className="sr-only">Datos del nuevo grupo</legend>
+            <div className="admin-field-row admin-field-row--triple">
+              <label className="admin-field">
+                Español (obligatorio)
+                <input type="text" value={labelEs} onChange={(e) => setLabelEs(e.target.value)} placeholder="Ej. Seguridad" autoFocus />
+              </label>
+              <label className="admin-field">
+                Inglés (opcional)
+                <input type="text" value={labelEn} onChange={(e) => setLabelEn(e.target.value)} />
+              </label>
+              <label className="admin-field">
+                Francés (opcional)
+                <input type="text" value={labelFr} onChange={(e) => setLabelFr(e.target.value)} />
+              </label>
+            </div>
+            <div className="admin-field-row">
+              <label className="admin-field">
+                Clave interna
+                <input type="text" value={key} onChange={(e) => setKey(e.target.value)} placeholder={effectiveKey || "se genera del nombre en español"} />
+              </label>
+              <label className="admin-field">
+                Orden
+                <input type="number" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value) || 0)} />
+              </label>
+            </div>
+            {duplicate && (
+              <p className="admin-error-text">
+                <Warning size={15} weight="fill" /> Ya existe un grupo con la clave «{effectiveKey}».
+              </p>
+            )}
+            <div className="admin-actions" style={{ marginTop: 4 }}>
+              <button type="button" className="button button-primary" disabled={!canSubmit} onClick={() => void createRow()}>
+                <Plus size={16} /> {creating ? "Creando…" : "Crear grupo"}
+              </button>
+              <button type="button" className="button button-outline" disabled={creating} onClick={() => setCreatingGroup(false)}>
+                <X size={16} /> Cancelar
+              </button>
+            </div>
+          </fieldset>
+        </CategoryEditModal>
+      )}
 
       {editing && (
         <AmenityGroupEditModal

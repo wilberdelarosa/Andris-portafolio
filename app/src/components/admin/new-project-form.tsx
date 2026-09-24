@@ -545,6 +545,13 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
               role="tab"
               type="button"
               aria-selected={activeTab === tab.id}
+              /* La pestaña activa siempre queda visible dentro de la tira
+                 deslizable: al avanzar con «Siguiente» la tira acompaña. */
+              ref={(el) => {
+                if (el && activeTab === tab.id) {
+                  el.scrollIntoView({ block: "nearest", inline: "nearest" });
+                }
+              }}
               className={`npf-tab${activeTab === tab.id ? " is-active" : ""}${isComplete ? " is-done" : ""}`}
               onClick={() => setActiveTab(tab.id)}
             >
@@ -911,7 +918,7 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
         className="npf-mobile-preview-fab" 
         onClick={() => setShowMobilePreview(true)}
       >
-        <Eye size={20} /> Preview
+        <Eye size={20} /> Vista previa
       </button>
     </div>
   );

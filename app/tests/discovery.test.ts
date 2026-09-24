@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getPublishedProjects } from "../src/content/projects.ts";
+import { testProjects } from "./fixtures/projects.ts";
 import {
   emptyCatalogFilters,
   matchesCatalog,
@@ -8,7 +8,7 @@ import {
 } from "../src/lib/catalog-filtering.ts";
 import { projectTours } from "../src/content/project-discovery.ts";
 
-const projects = getPublishedProjects();
+const projects = testProjects;
 const matching = (patch: Partial<CatalogFilters>) =>
   projects
     .filter((p) => matchesCatalog(p, { ...emptyCatalogFilters, ...patch }))

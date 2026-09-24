@@ -191,6 +191,14 @@ export function ProjectCatalog() {
       : locale === "fr"
         ? "Rechercher un nom ou un secteur"
         : "Search by name or area";
+  /* Un nombre de proyecto a secas como placeholder parecía un valor ya
+     escrito; con el prefijo «Ej.» se lee como ejemplo. */
+  const searchPlaceholder =
+    locale === "es"
+      ? "Ej.: Terra Serena"
+      : locale === "fr"
+        ? "Ex. : Terra Serena"
+        : "E.g.: Terra Serena";
   return (
     <div className="catalog">
       <DecorativeLayer variant="plan" />
@@ -269,7 +277,7 @@ export function ProjectCatalog() {
                 value={filters.query}
                 maxLength={100}
                 onChange={(e) => update({ query: e.target.value })}
-                placeholder="Terra Serena"
+                placeholder={searchPlaceholder}
               />
             </div>
           </label>

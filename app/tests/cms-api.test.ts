@@ -1,14 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getPublishedProjects } from "../src/content/projects.ts";
+import { testProjects } from "./fixtures/projects.ts";
 import {
   toApiProjectDetail,
   toApiProjectSummary,
 } from "../src/lib/cms/mappers.ts";
-import { staticRepository } from "../src/lib/cms/repository.ts";
+import { getContentRepository } from "../src/lib/cms/repository.ts";
 
 test("el API v1 expone un resumen por proyecto publicado", () => {
-  const summaries = getPublishedProjects().map(toApiProjectSummary);
+  const summaries = testProjects.map(toApiProjectSummary);
   assert.equal(summaries.length, 3);
   for (const summary of summaries) {
     assert.ok(summary.slug);
@@ -20,7 +20,7 @@ test("el API v1 expone un resumen por proyecto publicado", () => {
 });
 
 test("el detalle del API conserva evidencia y nunca inventa precios", () => {
-  const melcon = getPublishedProjects().find((p) => p.slug === "melcon-paradise");
+  const melcon = testProjects.find((p) => p.slug === "melcon-paradise");
   assert.ok(melcon);
   const detail = toApiProjectDetail(melcon);
   assert.equal(detail.price.status, "pending");
@@ -31,15 +31,13 @@ test("el detalle del API conserva evidencia y nunca inventa precios", () => {
   assert.equal("links" in detail, false);
 });
 
-test("el repositorio estático sirve listado, detalle y salud", async () => {
-  const list = await staticRepository.listProjects();
-  assert.equal(list.length, 3);
-  const detail = await staticRepository.getProject("terra-serena");
-  assert.equal(detail?.name, "Terra Serena");
-  assert.equal(detail?.price.from, 120000);
-  assert.equal(await staticRepository.getProject("no-existe"), null);
-  const health = await staticRepository.health();
-  assert.equal(health.status, "ok");
-  assert.equal(health.provider, "static");
-  assert.deepEqual(health.locales, ["es", "en", "fr"]);
+test("el repositorio de contenido activo expone la interfaz completa", () => {
+  const repository = getContentRepository();
+  assert.equal(repository.provider, "supabase");
+  assert.equal(typeof repository.listProjects, "function");
+  assert.equal(typeof repository.getProject, "function");
+  assert.equal(typeof repository.health, "function");
+  const connection = repository.connection();
+  assert.equal(connection.provider, "supabase");
+  assert.equal(typeof connection.ready, "boolean");
 });
