@@ -65,7 +65,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://static.kuula.io" crossOrigin="" />
         <link rel="preconnect" href="https://files.kuula.io" crossOrigin="" />
       </head>
-      <body>
+      {/*
+        Browser privacy/security extensions may add attributes to <body>
+        before React hydrates (for example, bis_* markers). The attributes
+        are external to the app and have no effect on layout or behavior;
+        suppress only this root boundary so real component mismatches still
+        surface in development.
+      */}
+      <body suppressHydrationWarning>
         <KuulaWarmup />
         <AnalyticsTracker />
         {/*
