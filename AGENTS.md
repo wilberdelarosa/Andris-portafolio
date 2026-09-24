@@ -2,6 +2,8 @@
 
 Este proyecto está en fase de preparación. El objetivo del sitio es presentar a Andris Peña como agente inmobiliario y convertir visitas en conversaciones verificables.
 
+La guía general para trabajar con asistentes y agentes de IA en desarrollo está en [`docs/AI-DEV-PLAYBOOK-2026.md`](docs/AI-DEV-PLAYBOOK-2026.md). Este playbook complementa estas reglas; ante una diferencia, prevalecen las instrucciones específicas de este archivo y la solicitud explícita del usuario.
+
 ## Lectura obligatoria antes de editar
 
 1. `README.md`
