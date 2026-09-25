@@ -24,6 +24,10 @@ jobs:
     env:
       BROWSER_CHANNEL: chrome
       TEST_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SITE_URL: https://andrispenarealty.com
+      NEXT_PUBLIC_SITE_SETTINGS_ENABLED: "true"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,6 +47,11 @@ jobs:
         run: npm run typecheck
       - name: Unit and contract tests
         run: npm test
+      - name: Verify production content configuration
+        shell: bash
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL" || { echo "Missing GitHub Actions secret NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
+          test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" || { echo "Missing GitHub Actions secret NEXT_PUBLIC_SUPABASE_ANON_KEY"; exit 1; }
       - name: Build GPT Sites artifact
         run: npm run build:sites
       - name: Browser smoke tests for public routes and CMS
@@ -58,6 +67,7 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:3012/ > /dev/null
+          BASE_URL=http://127.0.0.1:3012 npm run test:intro
           BASE_URL=http://127.0.0.1:3012 npm run test:browser
           BASE_URL=http://127.0.0.1:3012 npm run test:cms-browser
       - name: Lighthouse performance and image format audit

@@ -176,11 +176,11 @@ async function checkGallery(route) {
       ? page.locator(".featured-gallery-link")
       : page.locator(".detail-gallery > button").first();
   await opener.click();
-  const dialog = page.getByRole("dialog", {
-    name: "Melcon Paradise",
-    exact: true,
-  });
+  // Public project names can be globally hidden by the owner, so assert the
+  // accessible gallery dialog itself instead of its private project label.
+  const dialog = page.getByRole("dialog");
   await dialog.waitFor();
+  await dialog.getByRole("heading").waitFor();
   const stage = dialog.locator(".gallery-stage");
   const initialSource = await stage.locator("img").getAttribute("src");
   await stage.focus();
@@ -279,11 +279,15 @@ async function checkContactPreview() {
     "El formulario vacío debe ser inválido",
   );
   assert.equal(await page.getByRole("dialog").count(), 0);
-  await form.locator('select[name="project"] option[value="Terra Serena"]').waitFor({ state: "attached" });
+  await form.locator('select[name="project"] option').nth(1).waitFor({ state: "attached" });
   await page.waitForFunction(
-    () => document.querySelector('select[name="project"]')?.value === "Terra Serena",
+    () => {
+      const select = document.querySelector('select[name="project"]');
+      return Boolean(select?.value && [...select.options].some((option) => option.value === select.value));
+    },
   );
-  assert.equal(await form.locator('select[name="project"]').inputValue(), "Terra Serena");
+  const selectedProjectLabel = await form.locator('select[name="project"]').inputValue();
+  assert.ok(selectedProjectLabel, "La ficha solicitada debe estar preseleccionada");
   await form.locator('input[name="name"]').fill("Prueba navegador");
   await form.locator("details.contact-more summary").click();
   await form.locator('input[name="email"]').fill("qa@example.com");
@@ -324,7 +328,7 @@ async function checkContactPreview() {
     const summary = await dialog.locator("pre").textContent();
     assert.ok(
       summary.includes("Prueba navegador") &&
-        summary.includes("qa@example.com") && summary.includes("Terra Serena"),
+        summary.includes("qa@example.com") && summary.includes(selectedProjectLabel),
     );
     assert.ok((await dialog.textContent()).includes("Aún no se ha enviado"));
     const whatsapp = await dialog

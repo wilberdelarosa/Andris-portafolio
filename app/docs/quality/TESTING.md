@@ -15,6 +15,7 @@ GitHub bloquea cambios de `src/` que no traigan evidencia en `tests/`,
 | `npm test` | Datos, cálculos, filtros, formularios y adaptadores puros. |
 | `npm run build:sites` | Export estático compatible con GPT Sites. |
 | `npm run test:browser` | Carga real de rutas públicas, responsive e interacciones. |
+| `npm run test:intro` | Primera visita, duración y omisión de la cortina de entrada. |
 | `npm run test:cms-browser` | Acceso, paneles CMS y vista previa, sin escribir datos reales. |
 
 ## Pruebas unitarias y de contrato
@@ -35,6 +36,7 @@ GitHub bloquea cambios de `src/` que no traigan evidencia en `tests/`,
 | Flujo | Cobertura automática |
 | --- | --- |
 | Rutas públicas | `/`, catálogo, tres fichas, mapa, sobre mí, contacto, calculadora y ruta 404 a 320, 375, 768 y 1440 px. |
+| Intro de entrada | Se muestra al abrir una sesión nueva, termina sin bloquear y se omite al volver dentro de la misma pestaña. |
 | Presentación | Un `main` y un `h1`, sin overflow horizontal, imágenes cargadas, idioma sincronizado y sin excepciones ni recursos 404 inesperados. |
 | Galería | Apertura, avance y retroceso con teclado, cierre con Escape. |
 | Contacto | Validación nativa, proyecto preseleccionado, resumen local y cero solicitudes mutantes. |

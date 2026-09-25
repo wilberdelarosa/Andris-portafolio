@@ -2,6 +2,7 @@
 @import "@fontsource/cormorant-garamond/latin-500.css";
 @import "@fontsource/cormorant-garamond/latin-500-italic.css";
 @import "maplibre-gl/dist/maplibre-gl.css";
+@import "../components/intro-curtain.css";
 @import "../components/site-refinements.css";
 :root {
   --color-ink: #0b1f3a;

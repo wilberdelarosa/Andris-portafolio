@@ -18,6 +18,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:alterestate": "node scripts/test-alterestate-lead.mjs",
     "test:browser": "node scripts/verify-browser.mjs",
+    "test:intro": "node scripts/verify-intro.mjs",
     "test:performance": "lhci autorun && node scripts/check-performance-budget.mjs",
     "test:cms-browser": "node scripts/verify-cms-browser.mjs",
     "test:quality": "npm run lint && npm run typecheck && npm test && npm run build:sites",

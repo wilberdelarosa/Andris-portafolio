@@ -35,6 +35,7 @@ import { contactCopy } from "@/content/contact-copy";
 import { PrivacyNotice } from "./privacy-notice";
 import { LanguageSwitch } from "./language-switch";
 import { getPublicProjectName } from "@/lib/public-project-label";
+import { IntroCurtain } from "./intro-curtain";
 
 
 export function Shell({
@@ -98,6 +99,7 @@ export function Shell({
   }[locale];
   return (
     <>
+      <IntroCurtain />
       <PwaManager />
       <ReadingProgress/>
       {isHome && <JourneyScrollTracker locale={locale} />}
