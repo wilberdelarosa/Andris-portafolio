@@ -131,6 +131,29 @@ try {
       return { projectEditor: true, mockedProject: true };
     });
 
+    await check(`CMS muestra el historial completo de migraciones @ ${width}px`, async () => {
+      const page = await browser.newPage({ viewport: { width, height: 900 } });
+      await mockCmsReadEndpoints(page);
+      await page.addInitScript((session) => {
+        localStorage.setItem("ap-cms-session", JSON.stringify(session));
+      }, fakeSession());
+      page.on("pageerror", (error) => report.errors.push(`[esquema ${width}] ${error.message}`));
+      await navigate(page, "/admin/#esquema");
+      await page.locator(".admin-shell").waitFor();
+      const panel = page.locator(".admin-card").filter({ has: page.getByRole("heading", { name: "Migraciones", exact: true }) });
+      const links = panel.locator('a[href^="/cms/migrations/"]');
+      const migrationCount = await links.count();
+      assert.equal(migrationCount, 15);
+      assert.ok(await page.locator(".admin-page-head").getByText(/15 archivos de esquema versionados/).count());
+      assert.equal(
+        await links.last().getAttribute("href"),
+        "/cms/migrations/20260925192222_remove_amenity_placeholders.sql",
+      );
+      await capture(page, `schema-migrations-${width}`);
+      await page.close();
+      return { migrationLinks: migrationCount, productionWarning: true };
+    });
+
     await check(`CMS autenticado: alta de proyecto y vista previa @ ${width}px`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 } });
       await mockCmsReadEndpoints(page);

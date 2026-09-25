@@ -19,7 +19,11 @@ try {
   console.log("OK: la cortina termina y deja libre la página.");
 
   await firstPage.reload({ waitUntil: "domcontentloaded" });
-  await firstPage.waitForTimeout(350);
+  await firstPage.waitForFunction(
+    () => document.documentElement.dataset.intro === "skip",
+    { timeout: 5000 },
+  );
+  await firstPage.locator(".intro").waitFor({ state: "detached", timeout: 1500 });
   assert.equal(await firstPage.locator(".intro").isVisible(), false);
   console.log("OK: al volver en la misma pestaña no se repite.");
 

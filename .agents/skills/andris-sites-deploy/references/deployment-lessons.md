@@ -10,6 +10,14 @@ Append a short, sanitized record when a deployment or release check reveals a ne
 - **Proof:** The staging script completed; the generated archive contained the static hosting manifest and homepage; Sites accepted the saved version and deployment reached success.
 - **Prevent:** Detect the host shell before invoking package scripts. Prefer a single native runtime for build and packaging, and validate the archive before making a release.
 
+## 2026-09-25 — Supabase migration history drift
+
+- **Trigger:** A production deployment review found the same six migration names locally and remotely, but the local `0007`–`0012` prefixes did not match the timestamp IDs recorded by Supabase.
+- **Cause:** The schema changes had been recorded remotely with timestamp IDs while the repository retained numbered filenames. Matching names alone hid the history mismatch and could make a future `db push` treat already-applied SQL as pending.
+- **Fix:** Matched local files to the exact remote IDs, preserved their SQL byte-for-byte, updated the CMS download catalog, and did not run DDL against production again.
+- **Proof:** Supabase reports 15 applied migration records; the app build emitted all 15 files with matching version IDs and the CMS browser checks passed.
+- **Prevent:** Compare exact version IDs and names before deploying schema work. Treat ID/name drift as a release blocker until reconciled; do not use blind `db push` or manually rerun SQL on the active database.
+
 ## 2026-09-25 — GitHub push protection
 
 - **Trigger:** GitHub rejected a normal push because a pre-existing unpublished commit contained an embedded credential in a development screenshot helper.

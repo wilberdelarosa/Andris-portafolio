@@ -1508,11 +1508,15 @@ const MIGRATIONS = [
   { file: "0004_storage_bucket.sql", title: "0004 — bucket de imágenes", detail: "necesaria para subir fotos" },
   { file: "0005_categories_and_tags.sql", title: "0005 — catálogo de etiquetas", detail: "sugerencias de amenidades y tipologías" },
   { file: "0006_cms_studio_access.sql", title: "0006 — permisos del estudio", detail: "necesaria para crear proyectos y ver leads" },
-  { file: "0007_property_categories_and_amenity_groups.sql", title: "0007 — catálogo de amenidades", detail: "categorías y grupos reutilizables" },
-  { file: "0008_api_projects_v1_property_category.sql", title: "0008 — API por categoría", detail: "categoría pública de cada proyecto" },
-  { file: "0009_api_projects_v1_bedrooms_fix.sql", title: "0009 — API con habitaciones", detail: "tipologías y habitaciones públicas" },
-  { file: "0010_api_projects_v1_bathrooms.sql", title: "0010 — rangos de baños", detail: "mínimo y máximo por tipología" },
-  { file: "0011_site_visibility_settings.sql", title: "0011 — visibilidad pública", detail: "nombres públicos controlados desde el CMS" },
+  { file: "20260922103844_0007_property_categories_and_amenity_groups.sql", title: "0007 — catálogo de amenidades", detail: "categorías y grupos reutilizables" },
+  { file: "20260922135839_0008_api_projects_v1_property_category.sql", title: "0008 — API por categoría", detail: "categoría pública de cada proyecto" },
+  { file: "20260924194041_api_projects_v1_bedrooms_fix.sql", title: "0009 — API con habitaciones", detail: "tipologías y habitaciones públicas" },
+  { file: "20260924194345_analytics_security_hardening.sql", title: "Seguridad analítica", detail: "políticas y acceso del registro analítico" },
+  { file: "20260925171019_lead_read_tracking.sql", title: "Lectura de leads", detail: "marca los leads nuevos ya revisados" },
+  { file: "20260925171551_initialize_legacy_leads_unread.sql", title: "Leads existentes", detail: "inicializa el estado de lectura" },
+  { file: "20260925192220_api_projects_v1_bathrooms.sql", title: "0010 — rangos de baños", detail: "mínimo y máximo por tipología" },
+  { file: "20260925192221_site_visibility_settings.sql", title: "0011 — visibilidad pública", detail: "nombres públicos controlados desde el CMS" },
+  { file: "20260925192222_remove_amenity_placeholders.sql", title: "0012 — amenidades verificadas", detail: "elimina opciones de amenidades de ejemplo" },
 ];
 
 function SchemaPanel() {
@@ -1522,9 +1526,9 @@ function SchemaPanel() {
         <p className="kicker">Base de datos</p>
         <h1>Esquema SQL · Supabase</h1>
         <p>
-          Migración PostgreSQL lista para aplicar cuando existan las
-          credenciales: contenido con evidencia editorial, leads, cotizaciones,
-          RLS y la vista pública que alimenta el API.
+          {MIGRATIONS.length} archivos de esquema versionados. Producción ya registra estas
+          migraciones como aplicadas; este catálogo permite consultar y descargar
+          sus fuentes sin volver a ejecutarlas sobre la base activa.
         </p>
       </div>
 
@@ -1554,7 +1558,8 @@ function SchemaPanel() {
         <div className="admin-card pad-lg">
           <h2>Activación con credenciales</h2>
           <ol className="schema-steps">
-            <li>Aplicar las migraciones <strong>en orden</strong> en el editor SQL de Supabase, o con <code className="code-line">supabase db push</code>.</li>
+            <li>Antes de actualizar una base conectada, comparar el historial con <code className="code-line">supabase migration list --linked</code> y aplicar únicamente versiones pendientes.</li>
+            <li>En un proyecto nuevo, enlazarlo y aplicar el historial versionado con <code className="code-line">supabase db push</code>.</li>
             <li>Crear el usuario administrador en Authentication y añadir su fila en <code className="code-line">cms_profiles</code> con rol <code className="code-line">admin</code>.</li>
             <li>Configurar <code className="code-line">NEXT_PUBLIC_SUPABASE_URL</code> y <code className="code-line">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> en el despliegue.</li>
             <li>Abrir <strong>Diagnóstico</strong> en este panel: ahí se comprueba pieza por pieza qué quedó activo.</li>

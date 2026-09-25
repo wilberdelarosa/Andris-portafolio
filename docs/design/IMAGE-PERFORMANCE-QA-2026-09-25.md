@@ -33,7 +33,7 @@ npm run test:cms-browser
 
 `test:performance` ejecuta dos pasadas por página, exige formato moderno y un desperdicio estimado menor de 200 KiB en cada ruta. El flujo `.github/workflows/quality.yml` ejecuta la misma auditoría en cada PR y adjunta los informes. `test:cms-browser` simula una subida PNG y comprueba extensión `.webp`, cabecera `image/webp` y firma binaria `WEBP` sin escribir en Supabase.
 
-La opción nueva de visibilidad de nombres del CMS se activa con `NEXT_PUBLIC_SITE_SETTINGS_ENABLED=true` solo después de aplicar `0011_site_visibility_settings.sql`; así la web pública no interroga una tabla que todavía no existe.
+La opción nueva de visibilidad de nombres del CMS se activa con `NEXT_PUBLIC_SITE_SETTINGS_ENABLED=true` solo después de aplicar la migración `site_visibility_settings`; así la web pública no interroga una tabla que todavía no existe.
 
 ## Resultado de la validación final
 

@@ -16,7 +16,7 @@ GitHub bloquea cambios de `src/` que no traigan evidencia en `tests/`,
 | `npm run build:sites` | Export estático compatible con GPT Sites. |
 | `npm run test:browser` | Carga real de rutas públicas, responsive e interacciones. |
 | `npm run test:intro` | Primera visita, duración y omisión de la cortina de entrada. |
-| `npm run test:cms-browser` | Acceso, paneles CMS y vista previa, sin escribir datos reales. |
+| `npm run test:cms-browser` | Acceso, paneles CMS, vista previa y los 15 enlaces del historial de migraciones, sin escribir datos reales. |
 
 ## Pruebas unitarias y de contrato
 
