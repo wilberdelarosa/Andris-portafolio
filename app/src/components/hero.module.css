@@ -231,9 +231,9 @@
   inset: -20px -24px -22px -26px;
   z-index: -1;
   border-radius: 16px;
-  background: linear-gradient(155deg, #0b1f3a6b, #0b1f3a94);
-  backdrop-filter: blur(14px) saturate(0.9);
-  -webkit-backdrop-filter: blur(14px) saturate(0.9);
+  background: linear-gradient(155deg, #0b1f3a9e, #0b1f3abd);
+  backdrop-filter: blur(22px) saturate(0.95);
+  -webkit-backdrop-filter: blur(22px) saturate(0.95);
   border: 1px solid #fbf9f41f;
 }
 .smallRule {
