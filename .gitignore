@@ -15,6 +15,7 @@ Thumbs.db
 # Local validation and build state
 .playwright-cli/
 output/playwright/
+output/lighthouse/
 app/tsconfig.tsbuildinfo
 .mcp.json
 .21st/portfolio-hero-9037.json

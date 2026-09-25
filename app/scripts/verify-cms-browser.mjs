@@ -9,6 +9,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
+import sharp from "sharp";
 
 const baseURL = new URL(process.env.BASE_URL || "http://127.0.0.1:3012");
 const appRoot = fileURLToPath(new URL("../", import.meta.url));
@@ -149,6 +150,51 @@ try {
       return { newProjectForm: true, livePreview: true };
     });
   }
+
+  await check("CMS convierte PNG a WebP antes de subirlo", async () => {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await mockCmsReadEndpoints(page);
+    await page.addInitScript((session) => {
+      localStorage.setItem("ap-cms-session", JSON.stringify(session));
+    }, fakeSession());
+
+    let upload;
+    await page.route("**/storage/v1/object/projects/uploads/**", async (route) => {
+      const request = route.request();
+      upload = {
+        url: request.url(),
+        type: request.headers()["content-type"],
+        body: request.postDataBuffer(),
+      };
+      await route.fulfill({ status: 200, contentType: "application/json", body: '{}' });
+    });
+
+    await navigate(page, "/admin/#proyectos");
+    await page.getByRole("button", { name: "Añadir proyecto", exact: true }).click();
+    await page.getByRole("tab", { name: /Galería/ }).click();
+    const field = page.locator(".admin-image-input").filter({ hasText: "Imagen principal (hero)" });
+    await field.getByRole("button", { name: "Subir", exact: true }).click();
+    await field.locator('input[type="file"]').setInputFiles({
+      name: "imagen-de-prueba.png",
+      mimeType: "image/png",
+      buffer: await sharp({ create: { width: 32, height: 32, channels: 4, background: "#c9966a" } }).png().toBuffer(),
+    });
+    await Promise.race([
+      field.locator(".admin-image-preview img").waitFor({ state: "attached", timeout: 5000 }),
+      field.locator(".admin-error-text").waitFor({ state: "visible", timeout: 5000 }),
+    ]);
+    const uploadError = (await field.locator(".admin-error-text").count())
+      ? await field.locator(".admin-error-text").textContent()
+      : null;
+    assert.equal(uploadError, null, uploadError ?? "");
+    assert.ok(upload, "No se envió la imagen a Storage");
+    assert.match(upload.url, /\/uploads\/[^/]+\.webp$/);
+    assert.equal(upload.type, "image/webp");
+    assert.equal(upload.body.subarray(0, 4).toString(), "RIFF");
+    assert.equal(upload.body.subarray(8, 12).toString(), "WEBP");
+    await page.close();
+    return { input: "PNG", output: "WebP", bytes: upload.body.length };
+  });
 
   await check("CMS no registra excepciones de JavaScript", async () => {
     assert.deepEqual(report.errors, []);

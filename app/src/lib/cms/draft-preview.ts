@@ -10,7 +10,7 @@ export type DraftPreview = {
   name?: string;
   location?: string;
   desc?: string;
-  bedrooms?: number;
+  bedrooms?: number[];
   bathrooms?: number;
   parking?: number;
   areaMin?: number;
@@ -63,7 +63,7 @@ export function draftToProject(draft: DraftPreview): PropertyProject {
     status: "draft",
     location: draft.location || "Sector · Ciudad",
     description: { es: draft.desc || "Descripción del proyecto...", en: "", fr: "" },
-    bedrooms: draft.bedrooms ? [draft.bedrooms] : [1],
+    bedrooms: draft.bedrooms ?? [],
     bathrooms: draft.bathrooms ? [draft.bathrooms] : [1],
     parking: draft.parking || 1,
     area: { min: draft.areaMin || 0, max: draft.areaMax || 0, unit: "m²" },

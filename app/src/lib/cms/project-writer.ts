@@ -20,13 +20,14 @@
 
 import { cmsFetch, readErrorMessage } from "./session.ts";
 import type { Localized } from "../../content/projects.ts";
+import { expandBedroomRange, normalizeBedroomOptions } from "../project-bedrooms.ts";
 
 /**
  * Amenidad tal como la arma `RichAmenityBuilder` en `new-project-form.tsx`:
  * nombre localizado, imagen propia opcional, viñetas ya localizadas
  * (`{es,en,fr}` por cada una) y el grupo elegido en el combo box. `groupId`
- * viaja vacío cuando el editor no elige grupo; `createProject` resuelve el
- * `amenity_groups` "general" como respaldo, nunca lo deja sin catalogar.
+ * viaja vacío cuando el editor no elige grupo y se conserva como `null`; el
+ * CMS no inventa un grupo que el editor no haya elegido.
  */
 export interface AmenityInput {
   name: Localized;
@@ -64,8 +65,11 @@ export interface NewProjectInput {
    * esas columnas sigan existiendo (se retiran en una migración posterior).
    */
   propertyCategoryKey: string;
-  bedrooms: number;
-  bathrooms: number;
+  /** Cantidades exactas disponibles: p. ej. [1, 2, 4], no un máximo. */
+  bedrooms: number[];
+  /** Rango real de baños por tipología; cero significa dato no informado. */
+  bathroomsMin: number;
+  bathroomsMax: number;
   parking: number;
   areaMin: number;
   areaMax: number;
@@ -329,25 +333,30 @@ async function writeProjectChildren(
     }),
   );
 
-  await step("tipología", () =>
-    send("project_unit_types", {
+  const bedroomOptions = normalizeBedroomOptions(input.bedrooms);
+  const unitRows = (bedroomOptions.length > 0 ? bedroomOptions : [null]).map(
+    (bedroomCount, sortOrder) => ({
       project_id: projectId,
-      name: input.typologies[0] ?? "Tipología única",
+      name: bedroomCount === null
+        ? input.typologies[0] ?? "Tipología única"
+        : bedroomCount === 0 ? "Estudio" : `${bedroomCount} habitaciones`,
       property_category_id: input.propertyCategoryId,
       // Columna de texto vieja: mismo criterio que en `projects` arriba.
       property_type: input.propertyCategoryKey,
-      bedrooms_min: input.bedrooms || null,
-      bedrooms_max: input.bedrooms || null,
-      bathrooms_min: input.bathrooms || null,
-      bathrooms_max: input.bathrooms || null,
+      bedrooms_min: bedroomCount,
+      bedrooms_max: bedroomCount,
+      bathrooms_min: input.bathroomsMin || null,
+      bathrooms_max: input.bathroomsMax || input.bathroomsMin || null,
       area_min_m2: input.areaMin || null,
       area_max_m2: input.areaMax || input.areaMin || null,
       parking_min: input.parking || null,
       parking_max: input.parking || null,
       furnished_status: input.includesAppliances ? "yes" : "unknown",
       source_status: evidence(input.areaMin),
+      sort_order: sortOrder,
     }),
   );
+  await step("tipologías", () => send("project_unit_types", unitRows));
 
   await step("plan de pago", () =>
     send("project_payment_plans", {
@@ -387,18 +396,6 @@ async function writeProjectChildren(
 
   if (input.amenities.length > 0) {
     await step("amenidades", async () => {
-      // `group_id`: el editor elige un grupo opcional por amenidad; sin
-      // elección cae al grupo "general" del catálogo (nunca queda sin
-      // catalogar). Solo se consulta si de verdad hace falta el respaldo.
-      let fallbackGroupId: string | null = null;
-      if (input.amenities.some((amenity) => !amenity.groupId)) {
-        const generalGroup = await fetchRows<{ id: string }[]>(
-          "amenity_groups?select=id&key=eq.general&limit=1",
-        );
-        fallbackGroupId = generalGroup[0]?.id ?? null;
-      }
-      const groupIdFor = (amenity: AmenityInput) => amenity.groupId || fallbackGroupId || null;
-
       const amenityKeys = input.amenities.map((amenity) => toKey(amenity.name.es));
 
       // Sin `image_url` en este upsert: si se manda, `merge-duplicates`
@@ -412,7 +409,7 @@ async function writeProjectChildren(
           label_es: amenity.name.es,
           label_en: amenity.name.en || null,
           label_fr: amenity.name.fr || null,
-          group_id: groupIdFor(amenity),
+          group_id: amenity.groupId || null,
           display_order: index,
         })),
         { upsertOn: "amenity_key", expectRows: true },
@@ -910,7 +907,9 @@ interface EditRow {
     source_status: string;
   }[];
   project_unit_types: {
+    bedrooms_min: number | string | null;
     bedrooms_max: number | string | null;
+    bathrooms_min: number | string | null;
     bathrooms_max: number | string | null;
     parking_max: number | string | null;
     area_min_m2: number | string | null;
@@ -954,7 +953,7 @@ const EDIT_SELECT =
   "project_translations(locale,description)," +
   "project_locations(latitude,longitude,map_label)," +
   "project_phases(name,delivery_year,source_status)," +
-  "project_unit_types(bedrooms_max,bathrooms_max,parking_max,area_min_m2,area_max_m2)," +
+  "project_unit_types(bedrooms_min,bedrooms_max,bathrooms_min,bathrooms_max,parking_max,area_min_m2,area_max_m2)," +
   "project_price_snapshots(price_from,price_to,reservation_amount,source_status)," +
   "project_payment_plans(initial_percent,during_construction_percent,on_delivery_percent)," +
   "project_media(media_type,url)," +
@@ -1047,8 +1046,14 @@ export async function loadProjectForEdit(
     propertyCategoryId: row.property_category_id ?? "",
     propertyCategoryKey: row.property_categories?.key ?? "",
     propertyCategoryLabel: row.property_categories?.label_es ?? "",
-    bedrooms: numberOrNull(unit?.bedrooms_max) ?? 0,
-    bathrooms: numberOrNull(unit?.bathrooms_max) ?? 0,
+    bedrooms: normalizeBedroomOptions(row.project_unit_types.flatMap((unitType) =>
+      expandBedroomRange(
+        numberOrNull(unitType.bedrooms_min),
+        numberOrNull(unitType.bedrooms_max),
+      ),
+    )),
+    bathroomsMin: numberOrNull(unit?.bathrooms_min) ?? 0,
+    bathroomsMax: numberOrNull(unit?.bathrooms_max) ?? numberOrNull(unit?.bathrooms_min) ?? 0,
     parking: numberOrNull(unit?.parking_max) ?? 0,
     areaMin: numberOrNull(unit?.area_min_m2) ?? 0,
     areaMax: numberOrNull(unit?.area_max_m2) ?? 0,

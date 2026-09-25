@@ -8,7 +8,7 @@ test("la vista previa convierte un borrador en una ficha segura para la tarjeta"
     location: "Punta Cana",
     heroImg: "/hero.webp",
     gallery1: "/gallery.webp",
-    bedrooms: 2,
+    bedrooms: [2],
     areaMin: 80,
     areaMax: 105,
     mapCoords: "18.6201, -68.4562",
@@ -27,6 +27,7 @@ test("la vista previa conserva un contrato válido ante datos incompletos o coor
   assert.equal(project.name, "Nombre del Proyecto");
   assert.equal(project.gallery.length, 1);
   assert.equal(project.map.coordinates, null);
+  assert.deepEqual(project.bedrooms, []);
   assert.equal(project.price.from, null);
   assert.equal(project.price.status, "pending");
 });

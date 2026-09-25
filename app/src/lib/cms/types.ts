@@ -117,6 +117,8 @@ export interface ApiProjectIndex {
 export interface CmsLead {
   id: string;
   createdAt: string;
+  /** Null until an editor opens the lead in the CMS. */
+  readAt?: string | null;
   name: string;
   email: string;
   phone: string;

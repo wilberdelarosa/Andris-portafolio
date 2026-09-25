@@ -199,6 +199,7 @@ export function Photo({
           fill
           sizes={sizes}
           priority={priority}
+          unoptimized={!src.startsWith("/derived/")}
           onLoad={() => setLoaded(true)}
           onError={() => setFailed(true)}
         />

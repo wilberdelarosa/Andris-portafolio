@@ -52,6 +52,8 @@ import { PropertyCategorySelect } from "./property-category-select";
 import { AmenityGroupSelect } from "./amenity-group-select";
 import { TagInput } from "./tag-input";
 import { LivePreviewPanel } from "./live-preview-panel";
+import { useAdminToast } from "./admin-toast";
+import { formatBedroomOptions, normalizeBedroomOptions } from "@/lib/project-bedrooms";
 
 function loc(text: string): Localized {
   return { es: text, en: text, fr: text };
@@ -89,7 +91,7 @@ function slugify(value: string): string {
 }
 
 type TabId = "basico" | "mapa" | "espacios" | "precios" | "especificaciones" | "media";
-type FieldValue = string | number | string[] | AmenityInput[];
+type FieldValue = string | number | number[] | string[] | AmenityInput[];
 
 export interface NewProjectFormProps {
   /** Valores precargados de un proyecto existente, para editarlo. */
@@ -170,36 +172,83 @@ function RichAmenityBuilder({
   };
 
   return (
-    <div className="admin-card" style={{ marginBottom: '16px', background: 'var(--soft)' }}>
-      <label>
-        Construir Amenidad Interactiva
-        <input type="text" placeholder="Nombre (ej. Piscina)" value={name} onChange={e => setName(e.target.value)} />
-      </label>
-      <ImageInput label="Imagen de Amenidad" value={image} onChange={setImage} />
-      <AmenityGroupSelect value={groupId} onChange={setGroupId} />
-      <label style={{ marginTop: '10px' }}>
-        Añadir viñeta (Enter para confirmar)
-        <input type="text" placeholder="ej. Climatizada" value={feature} onChange={e => setFeature(e.target.value)} onKeyDown={addFeature} />
-      </label>
-      {features.length > 0 && (
-        <ul style={{ paddingLeft: '20px', marginBottom: '10px' }}>
-          {features.map((f, i) => <li key={i}>{f.es}</li>)}
-        </ul>
-      )}
-      <button type="button" className="button button-outline" onClick={addAmenity}>Agregar Amenidad</button>
+    <div className="admin-card admin-amenity-builder" style={{ marginBottom: "16px" }}>
+      <div className="admin-amenity-builder-head">
+        <div>
+          <p className="kicker">Contenido del proyecto</p>
+          <h3>Amenidades</h3>
+          <p className="admin-field-help">
+            Empieza con una lista vacía. Añade solo las amenidades documentadas para este proyecto;
+            ninguna opción se selecciona automáticamente.
+          </p>
+        </div>
+        <span className="admin-amenity-count" aria-live="polite">{amenities.length} añadida{amenities.length === 1 ? "" : "s"}</span>
+      </div>
 
-      {amenities.length > 0 && (
-        <div style={{ marginTop: '16px' }}>
-          <strong>Amenidades agregadas:</strong>
+      <div className="admin-amenity-builder-step">
+        <span className="admin-amenity-step-number">1</span>
+        <div className="admin-amenity-step-body">
+          <strong>Identifica la amenidad</strong>
+          <label className="admin-field">
+            Nombre
+            <input type="text" placeholder="Nombre de la amenidad" value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <AmenityGroupSelect value={groupId} onChange={setGroupId} />
+        </div>
+      </div>
+
+      <div className="admin-amenity-builder-step">
+        <span className="admin-amenity-step-number">2</span>
+        <div className="admin-amenity-step-body">
+          <strong>Describe lo que incluye</strong>
+          <label className="admin-field">
+            Característica opcional
+            <input type="text" placeholder="Escribe una característica" value={feature} onChange={(event) => setFeature(event.target.value)} onKeyDown={addFeature} />
+            <small className="admin-field-help">Pulsa Enter para añadirla.</small>
+          </label>
+          {features.length > 0 && (
+            <div className="admin-amenity-chips" aria-label="Características añadidas">
+              {features.map((item, index) => (
+                <span className="admin-amenity-chip" key={`${item.es}-${index}`}>
+                  {item.es}
+                  <button type="button" aria-label={`Quitar característica ${item.es}`} onClick={() => setFeatures(features.filter((_, position) => position !== index))}>
+                    <X size={13} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="admin-amenity-builder-step">
+        <span className="admin-amenity-step-number">3</span>
+        <div className="admin-amenity-step-body">
+          <strong>Añade un recurso visual (opcional)</strong>
+          <ImageInput label="Imagen de la amenidad" value={image} onChange={setImage} />
+        </div>
+      </div>
+
+      <button type="button" className="button button-primary" onClick={addAmenity} disabled={!name.trim()}>
+        <Plus size={16} /> Añadir a este proyecto
+      </button>
+
+      {amenities.length > 0 ? (
+        <div className="admin-amenity-added" aria-label="Amenidades del proyecto">
+          <strong>Amenidades de este proyecto</strong>
           <ul>
-            {amenities.map((a, idx) => (
-              <li key={idx}>
-                {a.name.es}
-                <button type="button" style={{ marginLeft: '10px', color: 'red' }} onClick={() => setAmenities(amenities.filter((_, i) => i !== idx))}>Quitar</button>
+            {amenities.map((amenity, index) => (
+              <li key={`${amenity.name.es}-${index}`}>
+                <span>{amenity.name.es}</span>
+                <button type="button" className="button button-outline" onClick={() => setAmenities(amenities.filter((_, position) => position !== index))}>
+                  <Trash size={14} /> Quitar
+                </button>
               </li>
             ))}
           </ul>
         </div>
+      ) : (
+        <p className="admin-amenity-empty">Todavía no hay amenidades añadidas.</p>
       )}
     </div>
   );
@@ -207,6 +256,7 @@ function RichAmenityBuilder({
 
 export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormProps = {}) {
   const editing = initial !== undefined;
+  const { notify } = useAdminToast();
 
   const [activeTab, setActiveTab] = useState<TabId>("basico");
 
@@ -218,8 +268,9 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
   const [city, setCity] = useState(initial?.city ?? "");
   const [desc, setDesc] = useState(initial?.description ?? "");
 
-  const [bedrooms, setBedrooms] = useState(initial?.bedrooms ?? 0);
-  const [bathrooms, setBathrooms] = useState(initial?.bathrooms ?? 0);
+  const [bedrooms, setBedrooms] = useState(initial?.bedrooms ?? []);
+  const [bathroomsMin, setBathroomsMin] = useState(initial?.bathroomsMin ?? 0);
+  const [bathroomsMax, setBathroomsMax] = useState(initial?.bathroomsMax ?? initial?.bathroomsMin ?? 0);
   const [parking, setParking] = useState(initial?.parking ?? 0);
   const [areaMin, setAreaMin] = useState(initial?.areaMin ?? 0);
   const [areaMax, setAreaMax] = useState(initial?.areaMax ?? 0);
@@ -293,6 +344,14 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
   const setGalleryAt = (index: number, value: string) =>
     setGallery(gallery.map((item, position) => (position === index ? value : item)));
 
+  const toggleBedroomOption = (bedroomCount: number) => {
+    setBedrooms((current) => normalizeBedroomOptions(
+      current.includes(bedroomCount)
+        ? current.filter((value) => value !== bedroomCount)
+        : [...current, bedroomCount],
+    ));
+  };
+
   const fieldValues: Record<string, FieldValue> = {
     name, location, desc, mapUrl, mapCoords, bedrooms, areaMin,
     priceFrom, reservation, deliveryYear, amenities, typologies,
@@ -335,8 +394,13 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
     status: publish ? "reviewed" : "draft",
     location,
     description: loc(desc),
-    bedrooms: bedrooms ? [bedrooms] : [],
-    bathrooms: bathrooms ? [bathrooms] : [],
+    bedrooms: normalizeBedroomOptions(bedrooms),
+    bathrooms: bathroomsMin
+      ? Array.from(
+          { length: Math.max(1, Math.round((bathroomsMax - bathroomsMin) / 0.5) + 1) },
+          (_, index) => bathroomsMin + index * 0.5,
+        )
+      : [],
     parking: parking || null,
     area: { min: areaMin || 0, max: areaMax || areaMin || 0, unit: "m²" },
     greenArea: greenArea || 0,
@@ -425,12 +489,11 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
     const project = buildProject();
 
     if (!isSupabaseConfigured()) {
-      setFeedback({
-        tone: "error",
-        message:
-          "Supabase no está configurado en este despliegue, así que no hay dónde guardar el proyecto. " +
-          "Configura NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY, o descarga el JSON para no perder lo escrito.",
-      });
+      const message =
+        "Supabase no está configurado en este despliegue, así que no hay dónde guardar el proyecto. " +
+        "Configura NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY, o descarga el JSON para no perder lo escrito.";
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message });
       setIsSaving(false);
       return;
     }
@@ -450,7 +513,8 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
       propertyCategoryId,
       propertyCategoryKey,
       bedrooms,
-      bathrooms,
+      bathroomsMin,
+      bathroomsMax,
       parking,
       areaMin,
       areaMax: areaMax || areaMin,
@@ -474,24 +538,30 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
     try {
       if (initial) {
         await updateProject(initial.id, payload);
+        const message = publish
+          ? `«${project.name}» se actualizó en Supabase y el catálogo ya muestra los cambios.`
+          : `«${project.name}» se actualizó en Supabase y quedó como borrador, fuera del catálogo público.`;
         setFeedback({
           tone: "ok",
-          message: publish
-            ? `«${project.name}» se actualizó en Supabase y el catálogo ya muestra los cambios.`
-            : `«${project.name}» se actualizó en Supabase y quedó como borrador, fuera del catálogo público.`,
+          message,
         });
+        notify({ tone: "success", message });
       } else {
         await createProject(payload);
+        const message = publish
+          ? `«${project.name}» se creó en Supabase y ya aparece en el catálogo.`
+          : `«${project.name}» se creó en Supabase como borrador. Publícalo cuando los datos estén confirmados.`;
         setFeedback({
           tone: "ok",
-          message: publish
-            ? `«${project.name}» se creó en Supabase y ya aparece en el catálogo.`
-            : `«${project.name}» se creó en Supabase como borrador. Publícalo cuando los datos estén confirmados.`,
+          message,
         });
+        notify({ tone: "success", message });
       }
       onSaved?.();
     } catch (error) {
-      setFeedback({ tone: "error", message: explainSaveError(error) });
+      const message = explainSaveError(error);
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message });
     } finally {
       setIsSaving(false);
     }
@@ -657,8 +727,39 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
           <fieldset className="npf-fieldset">
             <legend>Dimensiones y espacios</legend>
             <div className="admin-field-row admin-field-row--triple">
-              <NumberPicker label="Habitaciones (máx)" value={bedrooms} onChange={setBedrooms} min={0} max={10} />
-              <NumberPicker label="Baños (máx)" value={bathrooms} onChange={setBathrooms} min={0} max={10} step={0.5} />
+              <div className="admin-field npf-bedroom-picker">
+                <span className="npf-bedroom-label">Habitaciones disponibles</span>
+                <p className="npf-bedroom-help" id="npf-bedroom-help">
+                  Selecciona cada opción real del proyecto. Puedes elegir varias; se mostrarán igual en la ficha y la comparativa.
+                </p>
+                <div className="npf-bedroom-options" role="group" aria-describedby="npf-bedroom-help" aria-label="Opciones de habitaciones">
+                  {[0, ...Array.from({ length: 10 }, (_, index) => index + 1)].map((bedroomCount) => {
+                    const selected = bedrooms.includes(bedroomCount);
+                    const label = bedroomCount === 0 ? "Estudio" : String(bedroomCount);
+                    return (
+                      <button
+                        key={bedroomCount}
+                        type="button"
+                        className={`npf-bedroom-option${selected ? " is-selected" : ""}`}
+                        aria-pressed={selected}
+                        onClick={() => toggleBedroomOption(bedroomCount)}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <span className="npf-bedroom-summary" aria-live="polite">
+                  {bedrooms.length > 0
+                    ? formatBedroomOptions(bedrooms, "es")
+                    : "Sin opciones seleccionadas"}
+                </span>
+              </div>
+              <NumberPicker label="Baños (mín.)" value={bathroomsMin} onChange={(value) => {
+                setBathroomsMin(value);
+                if (bathroomsMax > 0 && value > bathroomsMax) setBathroomsMax(value);
+              }} min={0} max={10} step={0.5} />
+              <NumberPicker label="Baños (máx.)" value={bathroomsMax} onChange={(value) => setBathroomsMax(Math.max(value, bathroomsMin))} min={0} max={10} step={0.5} />
               <NumberPicker label="Parqueos (máx)" value={parking} onChange={setParking} min={0} max={10} />
             </div>
             <div className="admin-field-row admin-field-row--triple">
@@ -887,7 +988,7 @@ export function NewProjectForm({ initial, onSaved, onCancel }: NewProjectFormPro
             location,
             desc,
             bedrooms,
-            bathrooms,
+            bathrooms: bathroomsMin,
             parking,
             areaMin,
             areaMax,

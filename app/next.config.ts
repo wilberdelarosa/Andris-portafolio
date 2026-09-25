@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "export",
   trailingSlash: true,
-  images: { unoptimized: true },
+  images: {
+    loader: "custom",
+    loaderFile: "./src/lib/image-loader.ts",
+    deviceSizes: [320, 480, 640, 750, 960, 1440],
+    imageSizes: [48, 96, 256],
+  },
   // The local validation browser reaches the app through 127.0.0.1. Next 16
   // otherwise blocks its development resources before client hydration.
   allowedDevOrigins: ["127.0.0.1", "localhost"],

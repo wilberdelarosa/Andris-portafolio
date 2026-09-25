@@ -579,6 +579,7 @@ export function ProjectCatalog() {
               >
                 <PropertyCard
                   project={project}
+                  displayIndex={projects.findIndex((item) => item.slug === project.slug)}
                   isComparing={comparisonSlugs.includes(project.slug)}
                   onToggleCompare={() => toggleCompareSlug(project.slug)}
                 />

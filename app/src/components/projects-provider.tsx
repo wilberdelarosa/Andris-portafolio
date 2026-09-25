@@ -8,10 +8,9 @@
  * repositorio de contenido (`getContentRepository()`), que ya sabe elegir
  * entre Supabase y el contenido estático según haya credenciales
  * configuradas. Este provider hace la única llamada real —
- * `getContentRepository().listProjects()` seguida de un `getProject(slug)`
- * por cada proyecto para recomponer la forma completa `PropertyProject` que
- * ya esperan las vistas— y la comparte vía contexto para que ningún
- * componente dispare su propio fetch redundante.
+ * `getContentRepository().listProjectDetails()` para recomponer la forma
+ * completa `PropertyProject` que ya esperan las vistas. Una sola petición
+ * comparte los datos con todos los componentes de la sesión.
  *
  * Se monta una sola vez en `app/layout.tsx`, así que el listado persiste
  * mientras el usuario navega entre rutas del App Router (el layout no se
@@ -27,6 +26,7 @@ import {
 import { getContentRepository } from "@/lib/cms/repository";
 import { fromApiProjectDetail } from "@/lib/cms/mappers";
 import type { PropertyProject } from "@/content/projects";
+import type { ApiProjectDetail } from "@/lib/cms/types";
 
 interface ProjectsContextValue {
   /** Proyectos ya en forma `PropertyProject`, listos para las vistas. */
@@ -44,6 +44,21 @@ function describeError(cause: unknown): string {
   return "No se pudo cargar el catálogo de proyectos desde el servidor.";
 }
 
+async function loadStaticSnapshot(): Promise<PropertyProject[]> {
+  const indexResponse = await fetch("/api/v1/projects.json", { cache: "no-store" });
+  if (!indexResponse.ok) throw new Error(`No se pudo cargar la instantánea pública (${indexResponse.status}).`);
+  const index = (await indexResponse.json()) as { projects?: Array<{ slug?: string }> };
+  const slugs = (index.projects ?? []).map((item) => item.slug).filter((slug): slug is string => Boolean(slug));
+  const details = await Promise.all(
+    slugs.map(async (slug) => {
+      const response = await fetch(`/api/v1/projects/${encodeURIComponent(slug)}.json`, { cache: "no-store" });
+      if (!response.ok) return null;
+      return (await response.json()) as ApiProjectDetail;
+    }),
+  );
+  return details.filter((detail): detail is ApiProjectDetail => detail !== null).map(fromApiProjectDetail);
+}
+
 export function ProjectsProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<PropertyProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,20 +70,23 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
 
     async function load() {
       try {
-        const summaries = await repository.listProjects();
-        const details = await Promise.all(
-          summaries.map((summary) => repository.getProject(summary.slug)),
-        );
+        const details = await repository.listProjectDetails();
         if (cancelled) return;
-        const loaded = details
-          .filter((detail): detail is NonNullable<typeof detail> => detail !== null)
-          .map(fromApiProjectDetail);
+        const loaded = details.map(fromApiProjectDetail);
         setProjects(loaded);
         setError(null);
       } catch (cause) {
         if (cancelled) return;
-        setProjects([]);
-        setError(describeError(cause));
+        try {
+          const fallback = await loadStaticSnapshot();
+          if (cancelled) return;
+          setProjects(fallback);
+          setError(null);
+        } catch (fallbackCause) {
+          if (cancelled) return;
+          setProjects([]);
+          setError(describeError(fallbackCause || cause));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }

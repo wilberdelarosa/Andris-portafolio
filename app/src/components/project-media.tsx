@@ -14,6 +14,8 @@ import type { PropertyProject } from "@/content/projects";
 import { discoveryCopy, projectTours } from "@/content/project-discovery";
 import { useExperience } from "./experience-provider";
 import { Modal, Photo } from "./ui";
+import { useProjects } from "./projects-provider";
+import { getPublicProjectName } from "@/lib/public-project-label";
 import "./project-media.css";
 
 function kuulaSceneUrl(sceneId: string, collection: string, embed = true) {
@@ -107,8 +109,10 @@ export function ProjectMedia({
   onOpenChange: (open: boolean) => void;
   initialView?: "tour" | "photos";
 }) {
-  const { locale, offline } = useExperience();
+  const { locale, offline, hideProjectNames } = useExperience();
+  const { projects } = useProjects();
   const c = discoveryCopy[locale];
+  const displayName = getPublicProjectName(project, Math.max(0, projects.findIndex((item) => item.slug === project.slug)), hideProjectNames, locale);
   const tour = projectTours[project.slug];
   const [view, setView] = useState(tour ? initialView : "photos");
   const [photo, setPhoto] = useState(0);
@@ -132,7 +136,7 @@ export function ProjectMedia({
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title={project.name}
+      title={displayName}
       className="project-media-modal"
     >
       <div className="project-media-toolbar">

@@ -16,7 +16,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
     <motion.div
       initial={false}
       animate={reduced ? { opacity: 1, y: 0 } : { opacity: [0.94, 1], y: [6, 0] }}
-      transition={{ duration: reduced ? 0 : 0.42, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: reduced ? 0 : 0.18, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>

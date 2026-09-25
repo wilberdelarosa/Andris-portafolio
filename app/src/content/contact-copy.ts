@@ -6,6 +6,8 @@ export const contactCopy = {
     timeframe: "¿Cuándo te gustaría adquirir?",
     choose: "Selecciona una opción",
     countryPlaceholder: "País donde resides",
+    countrySearchPlaceholder: "Buscar país…",
+    countryNoResults: "No encontramos ese país.",
     moreDetails: "Añadir más detalles (opcional)",
     storeFailed:
       "No pudimos registrar tu consulta en el sistema. Envíala por WhatsApp para que no se pierda.",
@@ -58,6 +60,8 @@ export const contactCopy = {
     timeframe: "When would you like to buy?",
     choose: "Select an option",
     countryPlaceholder: "Country where you live",
+    countrySearchPlaceholder: "Search country…",
+    countryNoResults: "No countries found.",
     moreDetails: "Add more details (optional)",
     storeFailed:
       "We couldn't record your enquiry. Please send it over WhatsApp so it doesn't get lost.",
@@ -109,6 +113,8 @@ export const contactCopy = {
     timeframe: "Quand souhaitez-vous acheter ?",
     choose: "Sélectionnez une option",
     countryPlaceholder: "Pays où vous résidez",
+    countrySearchPlaceholder: "Rechercher un pays…",
+    countryNoResults: "Aucun pays trouvé.",
     moreDetails: "Ajouter plus de détails (facultatif)",
     storeFailed:
       "Nous n'avons pas pu enregistrer votre demande. Envoyez-la par WhatsApp pour qu'elle ne se perde pas.",

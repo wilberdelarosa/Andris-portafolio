@@ -60,6 +60,15 @@ jobs:
           curl --fail --silent http://127.0.0.1:3012/ > /dev/null
           BASE_URL=http://127.0.0.1:3012 npm run test:browser
           BASE_URL=http://127.0.0.1:3012 npm run test:cms-browser
+      - name: Lighthouse performance and image format audit
+        run: npm run test:performance
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: output/lighthouse/ci
+          if-no-files-found: ignore
       - name: Upload browser reports when a check fails
         if: failure()
         uses: actions/upload-artifact@v4

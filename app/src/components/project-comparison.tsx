@@ -34,6 +34,9 @@ import {
 } from "@/content/project-information";
 import { useExperience } from "./experience-provider";
 import { useProjects } from "./projects-provider";
+import { ActionToast } from "./action-toast";
+import { shareOrCopy } from "@/lib/share";
+import { getPublicProjectName } from "@/lib/public-project-label";
 import "./project-comparison.css";
 
 interface ComparisonProps {
@@ -159,7 +162,7 @@ const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
   ...field,
   icon: infoIcons[field.id],
   getValue: (project, locale) => {
-    const information = getProjectInformation(project.slug, field.id);
+    const information = getProjectInformation(project.slug, field.id, project);
     const isChecklist = CHECKLIST_FIELD_IDS.has(field.id);
     const isUnavailable =
       information.status === "pending" || information.status === "not-applicable";
@@ -172,7 +175,7 @@ const SPEC_ROWS: SpecRow[] = projectInformationFields.map((field) => ({
     };
   },
   isDifferent: (projects) => new Set(projects.map((project) => {
-    const information = getProjectInformation(project.slug, field.id);
+    const information = getProjectInformation(project.slug, field.id, project);
     return `${information.status}:${information.value?.es ?? ""}`;
   })).size > 1,
 }));
@@ -230,6 +233,7 @@ export function ProjectComparisonDock({
                     <Image
                       src={p.hero}
                       alt=""
+                      unoptimized={!p.hero.startsWith("/derived/")}
                       width={28}
                       height={28}
                       className="compare-dock-thumb-img"
@@ -311,28 +315,30 @@ export function ProjectComparisonModal({
   onClearAll,
 }: ComparisonProps) {
   const { locale, hideProjectNames } = useExperience();
+  const { projects: allProjects } = useProjects();
   const c = catalogCopy[locale];
   const [onlyDiffs, setOnlyDiffs] = useState(false);
-  const dn = (p: PropertyProject) => hideProjectNames ? `Proyecto en ${p.location}` : p.name;
+  const [shareToast, setShareToast] = useState<{ tone: "success" | "error"; message: string } | null>(null);
+  const dn = (p: PropertyProject) => getPublicProjectName(p, allProjects.findIndex((item) => item.slug === p.slug), hideProjectNames, locale);
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
     const text = activeProjects.map((p) => dn(p)).join(" vs ");
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({ title: c.compareTitle, text, url });
-      } catch { /* User cancelled share */ }
-    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
+    const outcome = await shareOrCopy({ title: c.compareTitle, text, url });
+    if (outcome === "shared") {
+      setShareToast({ tone: "success", message: locale === "es" ? "Comparativa compartida." : locale === "fr" ? "Comparatif partagé." : "Comparison shared." });
+    } else if (outcome === "copied") {
+      setShareToast({ tone: "success", message: locale === "es" ? "Enlace de la comparativa copiado." : locale === "fr" ? "Lien du comparatif copié." : "Comparison link copied." });
+    } else if (outcome === "failed") {
+      setShareToast({ tone: "error", message: locale === "es" ? "No se pudo compartir la comparativa." : locale === "fr" ? "Impossible de partager le comparatif." : "The comparison could not be shared." });
     }
   };
 
-  const { projects: allProjects } = useProjects();
   const activeProjects = allProjects.filter((p) => selectedSlugs.includes(p.slug));
 
   const whatsappPhone =
     process.env.NEXT_PUBLIC_WHATSAPP?.replace(/\D/g, "") || advisor.whatsapp;
-  const whatsappNames = activeProjects.map((p) => p.name).join(", ");
+  const whatsappNames = activeProjects.map(dn).join(", ");
   const whatsappUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(
     c.whatsappCompare(whatsappNames),
   )}`;
@@ -351,7 +357,8 @@ export function ProjectComparisonModal({
   );
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
+    <>
+      <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="compare-overlay" />
         <Dialog.Content
@@ -425,6 +432,7 @@ export function ProjectComparisonModal({
                         <Image
                           src={project.hero}
                           alt={dn(project)}
+                          unoptimized={!project.hero.startsWith("/derived/")}
                           fill
                           sizes="(max-width: 760px) 260px, 320px"
                           className="compare-card-img"
@@ -581,6 +589,7 @@ export function ProjectComparisonModal({
                       <Image
                         src={project.hero}
                         alt=""
+                        unoptimized={!project.hero.startsWith("/derived/")}
                         fill
                         sizes="96px"
                         className="compare-card-img"
@@ -728,6 +737,14 @@ export function ProjectComparisonModal({
           </footer>
         </Dialog.Content>
       </Dialog.Portal>
-    </Dialog.Root>
+      </Dialog.Root>
+      {shareToast && (
+        <ActionToast
+          tone={shareToast.tone}
+          message={shareToast.message}
+          onDismiss={() => setShareToast(null)}
+        />
+      )}
+    </>
   );
 }

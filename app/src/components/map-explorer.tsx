@@ -13,6 +13,8 @@ import { useExperience } from "./experience-provider";
 import { useProjects } from "./projects-provider";
 import { Photo } from "./ui";
 import { ProjectMedia } from "./project-media";
+import { getPublicProjectName } from "@/lib/public-project-label";
+import { formatBedroomOptions } from "@/lib/project-bedrooms";
 import "./map-explorer.css";
 
 const MAP_LAYER_STORAGE = "andris-map-layer";
@@ -36,9 +38,9 @@ const satelliteTones: Record<SatelliteTone, {
   brightnessMax: number;
   hueRotate: number;
 }> = {
-  natural: { opacity: 0.96, contrast: 0.05, saturation: 0.08, brightnessMin: 0.04, brightnessMax: 1, hueRotate: 0 },
-  vivid: { opacity: 0.98, contrast: 0.22, saturation: 0.34, brightnessMin: 0.03, brightnessMax: 1, hueRotate: 0 },
-  nocturne: { opacity: 0.96, contrast: 0.18, saturation: -0.04, brightnessMin: 0.01, brightnessMax: 0.84, hueRotate: -8 },
+  natural: { opacity: 1, contrast: 0.05, saturation: 0.08, brightnessMin: 0.04, brightnessMax: 1, hueRotate: 0 },
+  vivid: { opacity: 1, contrast: 0.16, saturation: 0.26, brightnessMin: 0.03, brightnessMax: 1, hueRotate: 0 },
+  nocturne: { opacity: 1, contrast: 0.14, saturation: -0.04, brightnessMin: 0.01, brightnessMax: 0.84, hueRotate: -8 },
 };
 const terrainSource = {
   type: "raster-dem" as const,
@@ -65,7 +67,12 @@ function applySatellite(instance: MapLibreMap, enabled: boolean, tone: Satellite
   if (enabled && !instance.getSource("ap-satellite")) {
     instance.addSource("ap-satellite", satelliteSource);
     const firstSymbol = instance.getStyle().layers.find((layer) => layer.type === "symbol")?.id;
-    instance.addLayer({ id: "ap-satellite-layer", type: "raster", source: "ap-satellite", paint: {} }, firstSymbol);
+    instance.addLayer({
+      id: "ap-satellite-layer",
+      type: "raster",
+      source: "ap-satellite",
+      paint: { "raster-fade-duration": 0, "raster-resampling": "linear" },
+    }, firstSymbol);
   }
   if (!instance.getLayer("ap-satellite-layer")) return;
   instance.setLayoutProperty("ap-satellite-layer", "visibility", enabled ? "visible" : "none");
@@ -77,6 +84,10 @@ function applySatellite(instance: MapLibreMap, enabled: boolean, tone: Satellite
   instance.setPaintProperty("ap-satellite-layer", "raster-brightness-min", values.brightnessMin);
   instance.setPaintProperty("ap-satellite-layer", "raster-brightness-max", values.brightnessMax);
   instance.setPaintProperty("ap-satellite-layer", "raster-hue-rotate", values.hueRotate);
+  // Evita que el mosaico de teselas revele cambios bruscos durante el
+  // desplazamiento o el cambio de zoom.
+  instance.setPaintProperty("ap-satellite-layer", "raster-fade-duration", 0);
+  instance.setPaintProperty("ap-satellite-layer", "raster-resampling", "linear");
 }
 const toLngLat = ([latitude, longitude]: [number, number]) => [longitude, latitude] as [number, number];
 /** Recibe la lista ya filtrada (con coordenadas) en vez de leerla de un módulo estático. */
@@ -99,7 +110,7 @@ const puntaCanaBoundsOf = (items: PropertyProject[]) => {
 
 /** One geographic view shared by the home preview and the independent map route. */
 export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: boolean; initialSlug?: string }) {
-  const { locale, offline } = useExperience();
+  const { locale, offline, hideProjectNames } = useExperience();
   const { projects: allProjects, loading: projectsLoading, error: projectsError } = useProjects();
   const projects = useMemo(
     () => allProjects.filter((project) => project.map.coordinates),
@@ -279,17 +290,18 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       }, 12000);
 
       for (const item of projects) {
+        const displayName = getPublicProjectName(item, allProjects.findIndex((candidate) => candidate.slug === item.slug), hideProjectNames, locale);
         const element = document.createElement("button");
         element.type = "button";
         element.className = "ap-explorer-marker";
-        element.setAttribute("aria-label", `${projectTours[item.slug] ? d.openTour : d.openPhotos}: ${item.name}`);
+        element.setAttribute("aria-label", `${projectTours[item.slug] ? d.openTour : d.openPhotos}: ${displayName}`);
         element.setAttribute("aria-haspopup", "dialog");
         element.setAttribute("aria-pressed", String(item.slug === selectedRef.current));
         const pin = document.createElement("span");
         pin.className = "ap-explorer-pin";
         pin.setAttribute("aria-hidden", "true");
         const label = document.createElement("strong");
-        label.textContent = item.slug.startsWith("the-beach") ? "The Beach" : item.name;
+        label.textContent = displayName;
         element.append(pin, label);
         element.dataset.project = item.slug;
         element.addEventListener("click", () => { focus(item.slug); setMedia(true); });
@@ -322,7 +334,7 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
       map.current = null;
       markers.current = {};
     };
-  }, [c, d, compact, focus, initialSlug, mapPreferenceReady, offline, projects, retry, shouldReduce]);
+  }, [allProjects, c, d, compact, focus, hideProjectNames, initialSlug, locale, mapPreferenceReady, offline, projects, retry, shouldReduce]);
 
   useEffect(() => {
     if (!map.current || status !== "ready") return;
@@ -355,6 +367,8 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
   if (projectsLoading) return <p className="section" role="status">{j.loading}</p>;
   if (projectsError) return <p className="section" role="alert">{c.error}</p>;
   if (!project) return <p className="section">{j.noMatch}</p>;
+  const projectIndex = Math.max(0, allProjects.findIndex((item) => item.slug === project.slug));
+  const displayName = getPublicProjectName(project, projectIndex, hideProjectNames, locale);
   return (
     <div className={`explorer ${compact ? "explorer-compact" : ""}`}>
       <aside className="explorer-panel" aria-label={c.listLabel} data-lenis-prevent>
@@ -365,17 +379,17 @@ export function MapExplorer({ compact = false, initialSlug = "" }: { compact?: b
           {mapSelectionMode === "overview" && <Check size={16} aria-hidden="true" />}
         </button>
         <div className="explorer-list" role="group" aria-label={j.select}>
-          {projects.map((item) => <button key={item.slug} type="button" className="explorer-item" aria-label={c.select(item.name)} aria-pressed={selected === item.slug} onClick={() => focus(item.slug)}>
+          {projects.map((item) => <button key={item.slug} type="button" className="explorer-item" aria-label={c.select(getPublicProjectName(item, allProjects.findIndex((candidate) => candidate.slug === item.slug), hideProjectNames, locale))} aria-pressed={selected === item.slug} onClick={() => focus(item.slug)}>
             <Photo src={item.hero} alt="" sizes="64px" />
-            <span><strong>{item.name}</strong><small>{item.location.split("·")[0].trim()}</small></span>
+            <span><strong>{getPublicProjectName(item, allProjects.findIndex((candidate) => candidate.slug === item.slug), hideProjectNames, locale)}</strong><small>{item.location.split("·")[0].trim()}</small></span>
             {selected === item.slug && <Check size={16} aria-hidden="true" />}
           </button>)}
         </div>
         <div className="explorer-selected" aria-live="polite" aria-atomic="true">
           <div className="explorer-selected-image"><Photo key={project.slug} src={project.hero} alt={project.gallery[0].alt[locale]} sizes="360px" /><span>{j.render}</span></div>
-          <div className="explorer-selected-copy"><span className="explorer-location"><MapPin size={14} />{project.location}</span><h3>{project.name}</h3>
+          <div className="explorer-selected-copy"><span className="explorer-location"><MapPin size={14} />{project.location}</span><h3>{displayName}</h3>
             <p>{project.bedrooms.length
-              ? `${project.bedrooms.join(", ")} ${locale === "es" ? "habitaciones" : locale === "fr" ? "chambres" : "bedrooms"}${project.area.max > 0 ? ` · ${project.area.min}–${project.area.max} m²` : ""}`
+              ? `${formatBedroomOptions(project.bedrooms, locale)}${project.area.max > 0 ? ` · ${project.area.min}–${project.area.max} m²` : ""}`
               : j.pending}</p>
             <button type="button" className="button button-primary explorer-media-launch" onClick={() => setMedia(true)}>{projectTours[project.slug] ? <Panorama size={19} /> : <Images size={19} />}{projectTours[project.slug] ? d.openTour : d.openPhotos}</button>
             <Link className="explorer-google" href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{c.open}<ArrowUpRight size={18} /></Link>

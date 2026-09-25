@@ -30,6 +30,7 @@ export interface LeadSubmission extends Omit<CmsLead, "id" | "createdAt"> {
 interface LeadRow {
   id: string;
   created_at: string;
+  read_at: string | null;
   name: string | null;
   email: string | null;
   phone: string | null;
@@ -61,6 +62,7 @@ export async function listLeads(): Promise<CmsLead[]> {
   return rows.map((row) => ({
     id: row.id,
     createdAt: row.created_at,
+    readAt: row.read_at,
     name: row.name ?? "",
     email: row.email ?? "",
     phone: row.phone ?? "",
@@ -77,6 +79,22 @@ export async function listLeads(): Promise<CmsLead[]> {
       ? (row.status as CmsLead["status"])
       : "sent",
   }));
+}
+
+/** Persist the editor's first view so the unread badge stays correct on reload. */
+export async function markLeadRead(id: string): Promise<void> {
+  const response = await cmsFetch(
+    `rest/v1/leads?id=eq.${encodeURIComponent(id)}&read_at=is.null`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ read_at: new Date().toISOString() }),
+    },
+  );
+  if (!response.ok) throw new Error(await readErrorMessage(response));
 }
 
 export async function createLead(lead: LeadSubmission): Promise<void> {

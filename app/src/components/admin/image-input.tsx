@@ -22,9 +22,10 @@ import {
   isSupabaseConfigured,
   readErrorMessage,
 } from "@/lib/cms/session";
+import { prepareWebpUpload } from "@/lib/prepare-webp-upload";
 
 const BUCKET = "projects";
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
 
 interface ImageInputProps {
   label: string;
@@ -49,35 +50,33 @@ export function ImageInput({ label, value, onChange, required }: ImageInputProps
       setError("Supabase no está configurado: usa el modo Enlace.");
       return;
     }
-    if (!file.type.startsWith("image/")) {
-      setError("El archivo debe ser una imagen.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Selecciona una imagen JPG, PNG o WebP.");
       return;
     }
-    if (file.size > MAX_BYTES) {
-      setError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB; el máximo es 8 MB.`);
+    if (file.size > MAX_SOURCE_BYTES) {
+      setError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB; el máximo de origen es 20 MB.`);
       return;
     }
 
     setUploading(true);
     setError(null);
     try {
-      const extension = file.name.includes(".")
-        ? file.name.split(".").pop()!.toLowerCase().replace(/[^a-z0-9]/g, "")
-        : "jpg";
+      const webp = await prepareWebpUpload(file);
       const unique =
         typeof crypto !== "undefined" && "randomUUID" in crypto
           ? crypto.randomUUID()
           : Math.random().toString(36).slice(2);
-      const path = `uploads/${Date.now()}-${unique}.${extension || "jpg"}`;
+      const path = `uploads/${Date.now()}-${unique}.webp`;
 
       const response = await cmsFetch(`storage/v1/object/${BUCKET}/${path}`, {
         method: "POST",
         headers: {
-          "Content-Type": file.type || "application/octet-stream",
+          "Content-Type": "image/webp",
           "cache-control": "max-age=31536000",
           "x-upsert": "true",
         },
-        body: file,
+        body: webp,
       });
 
       if (!response.ok) {
@@ -131,15 +130,18 @@ export function ImageInput({ label, value, onChange, required }: ImageInputProps
       </div>
 
       {mode === "link" ? (
-        <input
-          type="text"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="/derived/proyecto-hero.webp o https://…"
-          required={required && !value}
-          className="admin-field-input"
-          aria-label={label}
-        />
+        <div className="admin-image-link-field">
+          <input
+            type="text"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="/derived/proyecto-hero.webp o https://…"
+            required={required && !value}
+            className="admin-field-input"
+            aria-label={label}
+          />
+          {value.trim() && <ImageLinkPreview key={value} src={value.trim()} label={label} />}
+        </div>
       ) : (
         <div className={`admin-image-dropzone ${value ? "has-value" : ""}`}>
           {value ? (
@@ -170,19 +172,41 @@ export function ImageInput({ label, value, onChange, required }: ImageInputProps
                 <ImageIcon size={24} />
               )}
               <span>{uploading ? "Subiendo…" : "Clic para subir desde la galería"}</span>
-              <small>JPG, PNG o WebP · hasta 8 MB</small>
+              <small>JPG, PNG o WebP · hasta 20 MB · se publica en WebP</small>
             </button>
           )}
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleUpload}
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             hidden
           />
         </div>
       )}
       {error && <p className="admin-error-text">{error}</p>}
+    </div>
+  );
+}
+
+function ImageLinkPreview({ src, label }: { src: string; label: string }) {
+  const [failed, setFailed] = useState(false);
+
+  return (
+    <div
+      className={`admin-image-link-preview ${failed ? "is-error" : ""}`}
+      aria-label={`Vista previa de ${label}`}
+    >
+      {failed ? (
+        <span className="admin-image-link-preview-message" role="status">
+          <ImageIcon size={18} /> No se pudo cargar la vista previa. Comprueba la ruta o el enlace.
+        </span>
+      ) : (
+        // URL arbitrary: next/image would require allow-listing every source host.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={`Vista previa de ${label}`} onError={() => setFailed(true)} />
+      )}
+      {!failed && <span className="admin-image-link-preview-badge">Vista previa</span>}
     </div>
   );
 }

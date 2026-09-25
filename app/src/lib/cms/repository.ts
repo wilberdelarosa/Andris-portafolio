@@ -18,6 +18,7 @@ import { supabaseRepository } from "./supabase-repository.ts";
 export interface ContentRepository {
   readonly provider: "static" | "supabase";
   listProjects(): Promise<ApiProjectSummary[]>;
+  listProjectDetails(): Promise<ApiProjectDetail[]>;
   getProject(slug: string): Promise<ApiProjectDetail | null>;
   health(): Promise<ApiHealth>;
   connection(): CmsConnection;

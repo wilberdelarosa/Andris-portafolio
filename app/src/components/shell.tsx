@@ -22,6 +22,7 @@ import {
   X,
   List,
   InstagramLogo,
+  GearSix,
 } from "@phosphor-icons/react";
 import { useExperience, type Theme } from "./experience-provider";
 import { Modal } from "./ui";
@@ -29,12 +30,11 @@ import "./journey.css";
 import { ReadingProgress, Magnetic, JourneyScrollTracker } from "./premium-motion";
 import { advisor } from "@/content/advisor";
 import { InstallButton, PwaManager } from "./pwa-manager";
-import { IntroCurtain } from "./intro-curtain";
-import { SmoothScroll } from "./smooth-scroll";
 import type { Locale } from "@/content/projects";
 import { contactCopy } from "@/content/contact-copy";
 import { PrivacyNotice } from "./privacy-notice";
 import { LanguageSwitch } from "./language-switch";
+import { getPublicProjectName } from "@/lib/public-project-label";
 
 
 export function Shell({
@@ -46,7 +46,7 @@ export function Shell({
   /** Retira el pie de pagina: para rutas donde el contenido llena la pantalla. */
   bare?: boolean;
 }) {
-  const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline, hideProjectNames, setHideProjectNames } =
+  const { t, locale, setLocale, theme, setTheme, savedSlugs, reset, offline, hideProjectNames } =
     useExperience();
   const { projects, loading: projectsLoading } = useProjects();
   const pathname = usePathname();
@@ -101,8 +101,6 @@ export function Shell({
       <PwaManager />
       <ReadingProgress/>
       {isHome && <JourneyScrollTracker locale={locale} />}
-      <IntroCurtain />
-      <SmoothScroll />
       <a className="skip-link" href="#main-content">
         {t.skip}
       </a>
@@ -121,7 +119,6 @@ export function Shell({
               width={40}
               height={44}
               priority
-              unoptimized
             />
             <Image
               className="logo-dark"
@@ -130,7 +127,6 @@ export function Shell({
               width={40}
               height={44}
               priority
-              unoptimized
             />
           </span>
           <span className="brand-copy">
@@ -159,6 +155,16 @@ export function Shell({
           >
             <SlidersHorizontal size={20} />
           </button>
+          <Link
+            className="header-admin-link"
+            href={`/admin/?lang=${locale}`}
+            prefetch={false}
+            aria-label={t.adminAccess}
+            title={t.adminAccess}
+          >
+            <GearSix size={18} aria-hidden="true" />
+            <span>{t.adminAccess}</span>
+          </Link>
           <Link className="header-contact" href={`/contacto?lang=${locale}`} prefetch={false}>
             {t.talk}
             <ArrowUpRight size={17} />
@@ -179,6 +185,9 @@ export function Shell({
         <nav id="mobile-navigation" className="navigation-links" aria-label={t.portfolio}>
           {navigation.map((item) => <Link key={item.path} href={`${item.path}?lang=${locale}`} prefetch={false} onClick={() => setMenu(false)} aria-current={isActive(item.path) ? "page" : undefined}>{item.label}<ArrowUpRight size={22}/></Link>)}
           <button type="button" onClick={() => { setMenu(false); setFavorites(true); }}>{t.favorites}<Heart size={22}/></button>
+          <Link href={`/admin/?lang=${locale}`} prefetch={false} onClick={() => setMenu(false)}>
+            {t.adminAccess}<GearSix size={22} />
+          </Link>
         </nav>
       </Modal>
       <div className="page-shell">
@@ -299,16 +308,17 @@ export function Shell({
           </div>
         </div>
         <div className="settings-section">
-          <h3>Privacidad (Modo Broker)</h3>
-          <button 
-            className="settings-favorite" 
-            onClick={() => setHideProjectNames(!hideProjectNames)}
-          >
-            Ocultar nombres reales
-            <span style={{ fontSize: '13px', fontWeight: 'bold' }}>
-              {hideProjectNames ? "ACTIVO" : "INACTIVO"}
-            </span>
-          </button>
+          <h3>Visibilidad del catálogo</h3>
+          <p className="field-hint">
+            {hideProjectNames
+              ? "Los nombres públicos están protegidos y se muestran como Proyecto 01, Proyecto 02…"
+              : "Los nombres públicos están visibles según la configuración del CMS."}
+          </p>
+          <Link className="settings-favorite" href={`/admin/?lang=${locale}#configuracion`} onClick={() => setSettings(false)}>
+            <GearSix size={20} />
+            <span>Gestionar desde el CMS</span>
+            <ArrowUpRight size={19} />
+          </Link>
         </div>
         <div className="settings-section">
           <button
@@ -338,8 +348,8 @@ export function Shell({
           </p>
         ) : savedProjects.length ? savedProjects.map((project) => (
           <Link key={project.slug} className="saved-project" onClick={() => setFavorites(false)} href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>
-            <Image src={project.hero} alt="" width={90} height={76}/>
-            <span><strong>{project.name}</strong><small>{project.location}</small></span><ArrowUpRight size={20}/>
+            <Image src={project.hero} alt="" width={90} height={76} unoptimized={!project.hero.startsWith("/derived/")}/>
+            <span><strong>{getPublicProjectName(project, projects.findIndex((item) => item.slug === project.slug), hideProjectNames, locale)}</strong><small>{project.location}</small></span><ArrowUpRight size={20}/>
           </Link>
         )) : <div className="saved-empty"><Heart size={32} weight="light"/><p>{j.noSaved}</p><p>{j.saveHint}</p><Link className="button button-primary" href={`/proyectos?lang=${locale}`} prefetch={false} onClick={() => setFavorites(false)}>{j.all}<ArrowUpRight size={18}/></Link></div>}
       </Modal>

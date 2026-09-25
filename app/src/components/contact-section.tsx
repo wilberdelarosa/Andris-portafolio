@@ -25,6 +25,8 @@ import {
 } from "@/lib/lead-payload";
 import { formatPhone, formatPhoneWithCaret } from "@/lib/phone-format";
 import { createLead } from "@/lib/cms/lead-writer";
+import { getPublicProjectName } from "@/lib/public-project-label";
+import { CountryCombobox } from "./country-combobox";
 
 type LeadDelivery =
   | { state: "idle" }
@@ -34,11 +36,12 @@ type LeadDelivery =
   | { state: "failed" };
 
 export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
-  const { t, locale } = useExperience();
+  const { t, locale, hideProjectNames } = useExperience();
   const j = journeyCopy[locale];
   const c = contactCopy[locale];
   const { projects, loading: projectsLoading } = useProjects();
   const [selectedProject, setSelectedProject] = useState(projectSlug);
+  const selectedProjectRecord = projects.find((item) => item.slug === selectedProject);
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);
   const [privacy, setPrivacy] = useState(false);
@@ -73,6 +76,10 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
     const form = event.currentTarget;
     const data = new FormData(form);
     if (!form.reportValidity() || data.get("consent") !== "accepted") return;
+    const selected = projects.find((item) => item.slug === selectedProject);
+    const selectedProjectName = selected
+      ? getPublicProjectName(selected, projects.findIndex((item) => item.slug === selected.slug), hideProjectNames, locale)
+      : "";
     const lead: ContactLeadInput = {
       name: String(data.get("name")).trim(),
       email: String(data.get("email")).trim(),
@@ -80,7 +87,7 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
       country: String(data.get("country")).trim(),
       budget: String(data.get("budget") ?? "").trim(),
       timeframe: String(data.get("timeframe") ?? "").trim(),
-      project: String(data.get("project") ?? "").trim(),
+      project: selectedProjectName,
       interest: String(data.get("interest") ?? "").trim(),
       message: String(data.get("message") ?? "").trim(),
       locale,
@@ -239,10 +246,15 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
             {j.projectField}
             <select
               name="project"
-              value={projects.find((p) => p.slug === selectedProject)?.name ?? ""}
+              value={selectedProjectRecord
+                ? getPublicProjectName(selectedProjectRecord, projects.findIndex((item) => item.slug === selectedProjectRecord.slug), hideProjectNames, locale)
+                : ""}
               disabled={projectsLoading}
               onChange={(event) => {
-                const project = projects.find((item) => item.name === event.target.value);
+                const project = projects.find((item) =>
+                  item.slug === event.target.value ||
+                  getPublicProjectName(item, projects.findIndex((candidate) => candidate.slug === item.slug), hideProjectNames, locale) === event.target.value,
+                );
                 setSelectedProject(project?.slug ?? "");
               }}
             >
@@ -255,7 +267,10 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
                       : "Loading projects…"
                   : j.general}
               </option>
-              {projects.map((project) => <option key={project.slug} value={project.name}>{project.name}</option>)}
+              {projects.map((project) => {
+                const displayName = getPublicProjectName(project, projects.findIndex((item) => item.slug === project.slug), hideProjectNames, locale);
+                return <option key={project.slug} value={displayName}>{displayName}</option>;
+              })}
             </select>
           </label>
           <label>
@@ -287,7 +302,16 @@ export function ContactSection({ projectSlug = "" }: { projectSlug?: string }) {
                     placeholder={t.emailPlaceholder}
                   />
                 </label>
-                <label>{c.country}<input name="country" maxLength={80} autoComplete="country-name" placeholder={c.countryPlaceholder} /></label>
+                <label>
+                  {c.country}
+                  <CountryCombobox
+                    locale={locale}
+                    label={c.country}
+                    placeholder={c.countryPlaceholder}
+                    searchPlaceholder={c.countrySearchPlaceholder}
+                    noResults={c.countryNoResults}
+                  />
+                </label>
               </div>
               <div className="form-row">
                 <label>{c.budget}<select name="budget" defaultValue=""><option value="">{c.choose}</option>{c.budgets.map((value) => <option key={value}>{value}</option>)}</select></label>

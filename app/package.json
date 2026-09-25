@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
-    "prebuild": "node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
-    "prebuild:sites": "node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
+    "predev": "node scripts/generate-responsive-images.mjs && node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
+    "prebuild": "node scripts/generate-responsive-images.mjs && node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
+    "prebuild:sites": "node scripts/generate-responsive-images.mjs && node scripts/copy-maplibre-worker.mjs && node --experimental-strip-types scripts/generate-static-api.mjs",
+    "images:prepare": "node scripts/generate-responsive-images.mjs",
     "generate:api": "node --experimental-strip-types scripts/generate-static-api.mjs",
     "dev": "next dev --webpack",
     "build": "next build",
@@ -17,6 +18,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:alterestate": "node scripts/test-alterestate-lead.mjs",
     "test:browser": "node scripts/verify-browser.mjs",
+    "test:performance": "lhci autorun && node scripts/check-performance-budget.mjs",
     "test:cms-browser": "node scripts/verify-cms-browser.mjs",
     "test:quality": "npm run lint && npm run typecheck && npm test && npm run build:sites",
     "test:updates": "node scripts/check-test-updates.mjs"
@@ -41,12 +43,14 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "^0.15.1",
     "@types/node": "^22.20.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.5",
     "prettier": "^3.9.6",
+    "sharp": "^0.35.4",
     "typescript": "^6.0.3",
     "wrangler": "^4.131.1"
   }

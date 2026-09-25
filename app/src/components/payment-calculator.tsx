@@ -19,11 +19,12 @@ import { useProjects } from "./projects-provider";
 import { Reveal } from "./ui";
 import { createQuote } from "@/lib/cms/quote-writer";
 import { isSupabaseConfigured } from "@/lib/cms/session";
+import { getPublicProjectName } from "@/lib/public-project-label";
 
 const DEFAULTS = { price: "150000", months: "24", signing: "10", construction: "40" };
 
 export function PaymentCalculator() {
-  const { t, locale } = useExperience();
+  const { t, locale, hideProjectNames } = useExperience();
   const { projects, loading: projectsLoading } = useProjects();
   const [projectSlug, setProjectSlug] = useState("");
   const [planIndex, setPlanIndex] = useState(0);
@@ -173,7 +174,7 @@ export function PaymentCalculator() {
               </option>
               {projects.map((item) => (
                 <option key={item.slug} value={item.slug}>
-                  {item.name}
+                  {getPublicProjectName(item, projects.findIndex((candidate) => candidate.slug === item.slug), hideProjectNames, locale)}
                 </option>
               ))}
             </select>
@@ -298,7 +299,7 @@ export function PaymentCalculator() {
         >
           {plan ? (
             <>
-              {project && <p className="result-project">{project.name}</p>}
+              {project && <p className="result-project">{getPublicProjectName(project, projects.findIndex((item) => item.slug === project.slug), hideProjectNames, locale)}</p>}
               <div className="result-label">
                 <span className="tiny-line" />
                 {t.monthly}

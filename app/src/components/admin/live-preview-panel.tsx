@@ -44,7 +44,7 @@ export function LivePreviewPanel({ activeTab, draft }: { activeTab: string, draf
           <div className="admin-preview-card-wrapper">
             <ExperienceProvider>
               <div style={{ pointerEvents: "none" }}>
-                <PropertyCard project={project} />
+                <PropertyCard project={project} revealName displayIndex={0} />
               </div>
             </ExperienceProvider>
           </div>

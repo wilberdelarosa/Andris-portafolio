@@ -9,6 +9,7 @@ import { Photo } from "./ui";
 import { catalogCopy } from "@/content/catalog-copy";
 import { journeyCopy } from "@/content/journey-copy";
 import type { PropertyProject } from "@/content/projects";
+import { getPublicProjectName } from "@/lib/public-project-label";
 import "./property-card.css";
 
 /**
@@ -30,11 +31,16 @@ export function PropertyCard({
   featured = false,
   isComparing = false,
   onToggleCompare,
+  displayIndex = 0,
+  revealName = false,
 }: {
   project: PropertyProject;
   featured?: boolean;
   isComparing?: boolean;
   onToggleCompare?: () => void;
+  displayIndex?: number;
+  /** Solo para la vista previa autenticada del CMS. */
+  revealName?: boolean;
 }) {
   const { locale, t, isSaved, toggleSlug, hideProjectNames } = useExperience();
   const c = catalogCopy[locale];
@@ -47,13 +53,13 @@ export function PropertyCard({
   const saved = isSaved(project.slug);
   const slides = project.gallery;
   const slide = slides[index];
-  const displayName = hideProjectNames ? `Proyecto en ${project.location}` : project.name;
+  const displayName = getPublicProjectName(project, displayIndex, hideProjectNames && !revealName, locale);
   const changeImage = (next: number) => {
     setDirection(next > index ? 1 : -1);
     setIndex((next + slides.length) % slides.length);
   };
   return (
-    <motion.article {...surface.bindings} className={`pcard ${featured ? "pcard-featured" : ""}`} aria-label={project.name}>
+    <motion.article {...surface.bindings} className={`pcard ${featured ? "pcard-featured" : ""}`} aria-label={displayName}>
       {featured && <ArchitecturalCrosshair position="top-left" />}
       {featured && <ArchitecturalCrosshair position="bottom-right" />}
       <div className="pcard-media"
@@ -83,7 +89,7 @@ export function PropertyCard({
                 type="button"
                 className={`pcard-compare-pill ${isComparing ? "is-active" : ""}`}
                 aria-pressed={isComparing}
-                aria-label={isComparing ? c.removeFromCompare(project.name) : c.addToCompare(project.name)}
+                aria-label={isComparing ? c.removeFromCompare(displayName) : c.addToCompare(displayName)}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -98,7 +104,7 @@ export function PropertyCard({
               type="button"
               className="pcard-heart"
               aria-pressed={saved}
-              aria-label={saved ? c.unsave(project.name) : c.save(project.name)}
+              aria-label={saved ? c.unsave(displayName) : c.save(displayName)}
               onClick={() => toggleSlug(project.slug)}
             >
               <motion.span animate={reduced ? undefined : { scale: saved ? [1, 1.2, 1] : 1 }} transition={{ duration: 0.25 }}>
@@ -107,10 +113,10 @@ export function PropertyCard({
             </button>
           </div>
         </div>
-        {slides.length > 1 && <div className="pcard-image-controls" role="group" aria-label={`${j.photos}: ${project.name}`}>
-          <button type="button" onClick={() => changeImage(index - 1)} aria-label={`${t.previous}: ${project.name}`}><ArrowLeft size={18} /></button>
+        {slides.length > 1 && <div className="pcard-image-controls" role="group" aria-label={`${j.photos}: ${displayName}`}>
+          <button type="button" onClick={() => changeImage(index - 1)} aria-label={`${t.previous}: ${displayName}`}><ArrowLeft size={18} /></button>
           <span aria-live="polite" aria-atomic="true" aria-label={c.image(index + 1, slides.length)}>{String(index + 1).padStart(2, "0")} <i>/</i> {String(slides.length).padStart(2, "0")}</span>
-          <button type="button" onClick={() => changeImage(index + 1)} aria-label={`${t.next}: ${project.name}`}><ArrowRight size={18} /></button>
+          <button type="button" onClick={() => changeImage(index + 1)} aria-label={`${t.next}: ${displayName}`}><ArrowRight size={18} /></button>
         </div>}
       </div>
       <div className="pcard-glass">
@@ -118,7 +124,7 @@ export function PropertyCard({
           <p className="pcard-location"><MapPin size={15} aria-hidden="true" />{project.location}</p>
           <h3 className="pcard-name"><Link className="pcard-cover-link" href={`/proyectos/${project.slug}?lang=${locale}`} prefetch={false}>{displayName}</Link></h3>
           {(project.bedrooms?.length || 0) > 0 ? <ul className="pcard-specs">
-            <li><Bed size={18} /><span>{(project.bedrooms || []).join(", ")} {c.bedroomsShort}</span></li>
+            <li><Bed size={18} /><span>{c.bedroomsValue(project.bedrooms || [])}</span></li>
             <li><Ruler size={18} /><span>{project.area?.min || 0}–{project.area.max} {project.area.unit}</span></li>
             {featured && project.greenArea > 0 && <li><Tree size={18} /><span>{project.greenArea.toLocaleString("en-US")}+ m²</span></li>}
           </ul> : <p className="pcard-pending">{c.pending}</p>}

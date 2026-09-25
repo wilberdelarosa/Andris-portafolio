@@ -2,9 +2,8 @@
  * Combo box de grupo de amenidad, contra `public.amenity_groups`.
  *
  * Mismo patrón que `PropertyCategorySelect`, pero opcional: una amenidad sin
- * grupo elegido no queda "mal" porque `createProject` (`project-writer.ts`)
- * cae al grupo "general" del catálogo cuando `groupId` llega vacío. Por eso
- * este select no lleva `required` y su primera opción es "Sin elegir…".
+ * grupo elegido se conserva sin grupo. Este select no lleva `required` y no
+ * aplica ninguna opción predeterminada.
  */
 "use client";
 
@@ -18,7 +17,7 @@ export interface AmenityGroupOption {
 }
 
 interface AmenityGroupSelectProps {
-  /** `amenity_groups.id` elegido, o `""` para dejar que el escritor use "general". */
+  /** `amenity_groups.id` elegido, o `""` para dejar la amenidad sin grupo. */
   value: string;
   onChange: (groupId: string) => void;
 }
@@ -73,7 +72,7 @@ export function AmenityGroupSelect({ value, onChange }: AmenityGroupSelectProps)
       Grupo de la amenidad (opcional)
       <select value={value} onChange={(event) => onChange(event.target.value)} disabled={status !== "ready"}>
         <option value="">
-          {status === "loading" ? "Cargando grupos…" : "Sin elegir (se usa «General»)"}
+          {status === "loading" ? "Cargando grupos…" : "Sin grupo seleccionado"}
         </option>
         {options.map((option) => (
           <option key={option.id} value={option.id}>
@@ -83,7 +82,7 @@ export function AmenityGroupSelect({ value, onChange }: AmenityGroupSelectProps)
       </select>
       {status === "error" && (
         <small className="admin-field-help admin-error-text">
-          No se pudieron cargar los grupos desde Supabase. La amenidad se guardará en «General».
+          No se pudieron cargar los grupos desde Supabase. Puedes guardarla sin grupo y organizarla después.
         </small>
       )}
     </label>

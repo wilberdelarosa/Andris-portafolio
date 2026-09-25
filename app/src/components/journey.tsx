@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowUpRight, Calculator, ChatCircle, MapPin } from "@phosphor-icons/react";
 import { useExperience } from "./experience-provider";
 import { journeyCopy } from "@/content/journey-copy";
 import { editorialAccents } from "@/content/editorial-accents";
-import { MapExplorer } from "./map-explorer";
 import { Reveal } from "./ui";
 import "./journey.css";
 import {
@@ -22,6 +22,7 @@ import {
 import type { Locale } from "@/content/projects";
 
 const MotionLink = motion.create(Link);
+const MapExplorer = dynamic(() => import("./map-explorer").then((module) => module.MapExplorer), { ssr: false });
 
 function JourneyActionTitle({ text, accent }: { text: string; accent: string }) {
   const split = text.lastIndexOf(accent);
@@ -81,7 +82,7 @@ export function AdvisorPreview() {
             <Image src="/derived/hero-atmosphere-v3.webp" alt="" fill sizes="(max-width: 760px) 95vw, 45vw" className="advisor-preview-backdrop"/>
           </motion.div>
           <motion.div className="advisor-preview-depth" data-portrait-depth style={{ y: reduced ? 0 : portraitY }}>
-            <Image src="/derived/andris-white-shirt.webp" alt="Andris Peña, asesor inmobiliario" fill unoptimized sizes="(max-width: 760px) 80vw, 440px" className="advisor-preview-portrait"/>
+            <Image src="/derived/andris-white-shirt.webp" alt="Andris Peña, asesor inmobiliario" fill sizes="(max-width: 760px) 80vw, 440px" className="advisor-preview-portrait"/>
           </motion.div>
           <DecorativeLayer/>
           <span className="advisor-preview-signature" aria-hidden="true">Andris Peña</span>
@@ -158,7 +159,7 @@ function ContactCard({ locale, projectSlug }: { locale: Locale; projectSlug?: st
       <span className="journey-contact-orbit journey-contact-orbit-one" aria-hidden="true"/>
       <span className="journey-contact-orbit journey-contact-orbit-two" aria-hidden="true"/>
       <span className="journey-contact-portrait" aria-hidden="true">
-        <Image src="/derived/andris-suit.webp" alt="" fill unoptimized sizes="(max-width: 760px) 68vw, 35vw" className="journey-contact-portrait-image"/>
+        <Image src="/derived/andris-suit.webp" alt="" fill sizes="(max-width: 760px) 68vw, 35vw" className="journey-contact-portrait-image"/>
       </span>
       <ChatCircle size={29} weight="light"/>
       <div>

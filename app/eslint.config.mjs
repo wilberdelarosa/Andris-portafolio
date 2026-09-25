@@ -6,8 +6,7 @@ export default defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
-    ".next-verify/**",
-    ".next-validation/**",
+    ".next-*/**",
     ".open-next/**",
     ".wrangler/**",
     "dist/**",

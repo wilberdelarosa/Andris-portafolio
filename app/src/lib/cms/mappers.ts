@@ -13,6 +13,7 @@
  */
 import type { PropertyProject } from "../../content/projects.ts";
 import type { ApiProjectDetail, ApiProjectSummary } from "./types.ts";
+import { sanitizeAmenityEntry } from "./amenity-media.ts";
 
 export function toApiProjectSummary(
   project: PropertyProject,
@@ -60,7 +61,7 @@ export function toApiProjectDetail(project: PropertyProject): ApiProjectDetail {
     investmentBenefits: project.investmentBenefits,
     nearby: project.nearby,
     gallery: project.gallery,
-    amenities: project.amenities,
+    amenities: project.amenities.map(sanitizeAmenityEntry),
     mapUrl: project.map.url,
     paymentReference: project.paymentReference,
     source: project.source,
@@ -97,7 +98,7 @@ export function fromApiProjectDetail(detail: ApiProjectDetail): PropertyProject 
     price: detail.price,
     hero: detail.hero,
     gallery: detail.gallery,
-    amenities: detail.amenities,
+    amenities: detail.amenities.map(sanitizeAmenityEntry),
     map: {
       url: detail.mapUrl,
       coordinates: detail.map.coordinates,

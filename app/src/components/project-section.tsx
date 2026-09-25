@@ -15,10 +15,11 @@ import {
   Bed,
   CornersOut,
   Tree,
+  HouseLine,
   ShareNetwork,
 } from "@phosphor-icons/react";
 import { journeyCopy } from "@/content/journey-copy";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import "./project-showcase.css";
 import {
   EditorialTitle,
@@ -35,19 +36,25 @@ import {
 import { editorialAccents } from "@/content/editorial-accents";
 import { type PropertyProject } from "@/content/projects";
 import { useExperience } from "./experience-provider";
+import { formatBedroomOptions } from "@/lib/project-bedrooms";
 import { useProjects } from "./projects-provider";
 import { Photo, Modal } from "./ui";
 import { PropertyCard } from "./property-card";
+import { formatProjectRange } from "@/content/project-information";
+import { ActionToast } from "./action-toast";
+import { shareOrCopy } from "@/lib/share";
+import { getPublicProjectName } from "@/lib/public-project-label";
 
 export function ProjectFacts({ project }: { project: PropertyProject }) {
-  const { t } = useExperience();
-  if (!project.bedrooms.length && !project.area.max && !project.greenArea)
+  const { t, locale } = useExperience();
+  if (!project.bedrooms.length && !project.bathrooms.length && !project.area.max && !project.greenArea)
     return null;
   return (
     <div className="project-facts-wrapper" style={{ position: "relative" }}>
       <ArchitecturalCrosshair position="top-right" />
       <div className="project-facts">
-        {project.bedrooms.length > 0 && <div><Bed size={20} /><span><strong>{project.bedrooms.join(", ")}</strong><small>{t.bedrooms}</small></span></div>}
+        {project.bedrooms.length > 0 && <div><Bed size={20} /><span><strong>{formatBedroomOptions(project.bedrooms, locale)}</strong><small>{t.bedrooms}</small></span></div>}
+        {project.bathrooms.length > 0 && <div><HouseLine size={20} /><span><strong>{formatProjectRange(project.bathrooms)}</strong><small>{locale === "fr" ? "Salles de bain" : locale === "en" ? "Bathrooms" : "Baños"}</small></span></div>}
         {project.area.max > 0 && <div><CornersOut size={20} /><span><strong>{project.area.min}–{project.area.max} {project.area.unit}</strong><small>{t.area}</small></span></div>}
         {project.greenArea > 0 && (
           <div>
@@ -74,15 +81,17 @@ export function Gallery({
   start?: number;
   project: PropertyProject;
 }) {
-  const { t, locale } = useExperience();
+  const { t, locale, hideProjectNames } = useExperience();
   const [index, setIndex] = useState(start);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const photos = project.gallery;
+  const projectIndex = useProjects().projects.findIndex((item) => item.slug === project.slug);
+  const displayName = getPublicProjectName(project, projectIndex, hideProjectNames, locale);
   return (
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title={project.name}
+      title={displayName}
       description={t.renders}
       className="gallery-modal"
     >
@@ -151,13 +160,15 @@ export function Gallery({
   );
 }
 export function SaveButton({ project }: { project: PropertyProject }) {
-  const { isSaved, toggleSlug, t } = useExperience();
+  const { isSaved, toggleSlug, t, locale, hideProjectNames } = useExperience();
+  const { projects } = useProjects();
   const saved = isSaved(project.slug);
+  const displayName = getPublicProjectName(project, projects.findIndex((item) => item.slug === project.slug), hideProjectNames, locale);
   return (
     <button
       className={`icon-button save-button ${saved ? "is-saved" : ""}`}
       onClick={() => toggleSlug(project.slug)}
-      aria-label={`${saved ? t.removeSaved : t.save}: ${project.name}`}
+      aria-label={`${saved ? t.removeSaved : t.save}: ${displayName}`}
       aria-pressed={saved}
     >
       <Heart size={22} weight={saved ? "fill" : "regular"} />
@@ -165,7 +176,7 @@ export function SaveButton({ project }: { project: PropertyProject }) {
   );
 }
 export function ProjectSection() {
-  const { locale, t } = useExperience();
+  const { locale, t, hideProjectNames } = useExperience();
   const j = journeyCopy[locale];
   const { projects, loading, error } = useProjects();
   const [selected, setSelected] = useState(0);
@@ -199,17 +210,14 @@ export function ProjectSection() {
       <div className="showcase-layout">
         <DepthPanel className="showcase-stage">
           <ArchitecturalCrosshair position="top-right" />
-          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={project.slug}
-              initial={reduced ? false : { opacity: 0, scale: 0.98, y: 14 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: -10 }}
-              transition={{ duration: reduced ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+              initial={reduced ? false : { opacity: 0.94, scale: 0.995 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: reduced ? 0 : 0.16, ease: [0.22, 1, 0.36, 1] }}
             >
-              <PropertyCard project={project} featured />
+              <PropertyCard project={project} displayIndex={selected} featured />
             </motion.div>
-          </AnimatePresence>
         </DepthPanel>
         <div className="showcase-picker">
           <div className="showcase-picker-head">
@@ -229,7 +237,7 @@ export function ProjectSection() {
                   transition={{ duration: 0.2 }}
                 >
                   <Photo src={item.hero} alt="" sizes="110px" />
-                  <span><small>{item.location.split("·")[0].trim()}</small><strong>{item.name}</strong></span>
+                  <span><small>{item.location.split("·")[0].trim()}</small><strong>{getPublicProjectName(item, i, hideProjectNames, locale)}</strong></span>
                   <ArrowUpRight size={19} aria-hidden="true" />
                 </motion.button>
               </StaggerItem>
@@ -266,20 +274,26 @@ export function ProjectSection() {
   );
 }
 export function ProjectDetail({ project: initialProject }: { project?: PropertyProject }) {
-  const { t, locale } = useExperience();
+  const { t, locale, hideProjectNames } = useExperience();
   const params = useParams<{ slug?: string }>();
   const { projects } = useProjects();
+  // El HTML inicial sirve de fallback para el export estático; cuando Supabase
+  // tiene una versión nueva, la carga de cliente gana para que el detalle y
+  // sus amenidades reflejen el último cambio del CMS sin esperar otro build.
   const project =
-    initialProject ??
-    (params.slug ? projects.find((item) => item.slug === params.slug) : undefined);
+    (params.slug ? projects.find((item) => item.slug === params.slug) : undefined) ??
+    initialProject;
   const [gallery, setGallery] = useState(false);
   const [shared, setShared] = useState(false);
+  const [shareToast, setShareToast] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [start, setStart] = useState(0);
   const showGallery = (index: number) => {
     setStart(index);
     setGallery(true);
   };
   if (!project) return null;
+  const projectIndex = projects.findIndex((item) => item.slug === project.slug);
+  const displayName = getPublicProjectName(project, projectIndex < 0 ? 0 : projectIndex, hideProjectNames, locale);
   return (
     <section className="section project-detail" id="proyectos">
       <Link
@@ -293,7 +307,7 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
       <div className="detail-heading">
         <div>
           <h1>
-            {project.name}
+            {displayName}
           </h1>
           <span className="project-location">
             <MapPin size={16} />
@@ -306,11 +320,20 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
             className="icon-button"
             aria-label={shared ? t.shared : t.share}
             onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(location.href);
+              const outcome = await shareOrCopy({
+                title: displayName,
+                text: `${displayName} · ${project.location}`,
+                url: window.location.href,
+              });
+              if (outcome === "shared") {
                 setShared(true);
-              } catch {
+                setShareToast({ tone: "success", message: locale === "es" ? "Proyecto compartido." : locale === "fr" ? "Projet partagé." : "Project shared." });
+              } else if (outcome === "copied") {
+                setShared(true);
+                setShareToast({ tone: "success", message: locale === "es" ? "Enlace copiado." : locale === "fr" ? "Lien copié." : "Link copied." });
+              } else if (outcome === "failed") {
                 setShared(false);
+                setShareToast({ tone: "error", message: locale === "es" ? "No se pudo compartir el proyecto." : locale === "fr" ? "Impossible de partager le projet." : "The project could not be shared." });
               }
             }}
           >
@@ -387,6 +410,9 @@ export function ProjectDetail({ project: initialProject }: { project?: PropertyP
         start={start}
         project={project}
       />
+      {shareToast && (
+        <ActionToast tone={shareToast.tone} message={shareToast.message} onDismiss={() => setShareToast(null)} />
+      )}
     </section>
   );
 }

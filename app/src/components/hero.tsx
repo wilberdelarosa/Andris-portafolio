@@ -61,27 +61,28 @@ export function Hero() {
           style={{ y: reduced ? 0 : landscapeY }}
           aria-hidden="true"
         >
-          {/*
-            Dos encuadres del mismo lugar: el apaisado para escritorio y el
-            vertical para movil. No es la misma foto reescalada, son dos tomas
-            con composicion propia, asi que se eligen con CSS y no con `sizes`.
-          */}
-          <Image
-            src="/derived/hero-coast-wide.webp"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className={`${styles.backdrop} ${styles.backdropWide}`}
-          />
-          <Image
-            src="/derived/hero-coast-portrait.webp"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className={`${styles.backdrop} ${styles.backdropPortrait}`}
-          />
+          <picture>
+            <source
+              media="(min-width: 761px)"
+              srcSet="/derived/hero-coast-wide-w640.webp 640w, /derived/hero-coast-wide-w960.webp 960w, /derived/hero-coast-wide-w1440.webp 1440w, /derived/hero-coast-wide.webp 1800w"
+              sizes="100vw"
+              type="image/webp"
+            />
+            <source
+              media="(max-width: 760px)"
+              srcSet="/derived/hero-coast-portrait-w320.webp 320w, /derived/hero-coast-portrait-w640.webp 640w, /derived/hero-coast-portrait.webp 900w"
+              sizes="100vw"
+              type="image/webp"
+            />
+            {/* Art direction needs one matching source per viewport. */}
+            <img
+              src="/derived/hero-coast-portrait.webp"
+              alt=""
+              fetchPriority="high"
+              decoding="async"
+              className={styles.backdrop}
+            />
+          </picture>
         </motion.div>
         <div className={styles.light} aria-hidden="true" />
         <div className={styles.grade} aria-hidden="true" />
@@ -112,7 +113,6 @@ export function Hero() {
               <Image
                 src="/derived/andris-suit.webp"
                 alt="Andris Peña"
-                unoptimized
                 fill
                 priority
                 sizes="(max-width: 760px) 280px, (max-width: 1020px) 360px, 480px"

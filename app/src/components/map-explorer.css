@@ -27,8 +27,9 @@
 .explorer-map-area { position: relative; min-width: 0; min-height: 0; isolation: isolate; }
 .explorer-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--soft); font-family: var(--sans); }
 .explorer-map-area.is-muted .maplibregl-canvas { filter: grayscale(.88) saturate(.72); }
-.explorer-canvas .maplibregl-ctrl-attrib { background: var(--glass-paper); color: var(--text); font: 11px/1.35 var(--sans); }
+.explorer-canvas .maplibregl-ctrl-attrib { max-width: min(210px, calc(100% - 92px)); padding: 3px 6px; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--glass-paper) 86%, transparent); color: var(--text); font: 9px/1.2 var(--sans); }
 .explorer-canvas .maplibregl-ctrl-attrib a { color: var(--text); }
+.explorer-canvas .maplibregl-ctrl-attrib-inner { max-width: 198px; }
 .explorer-canvas:focus-visible { outline-offset: -4px; }
 .explorer-controls { position: absolute; top: 20px; right: 20px; z-index: 500; display: grid; gap: 8px; }
 .explorer-button { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 10px; background: var(--glass-paper); backdrop-filter: blur(18px); color: var(--text); }
@@ -44,7 +45,7 @@
 .explorer-tone[aria-pressed="true"] { color: var(--color-blue); background: color-mix(in srgb, var(--color-blue) 10%, transparent); }
 .explorer-dimension, .explorer-privacy { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--glass-paper); border: 1px solid var(--line); backdrop-filter: blur(12px); border-radius: 7px; font-size: 10px; }
 .explorer-dimension { top: 20px; left: 20px; color: var(--text); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.explorer-privacy { bottom: 28px; left: 16px; max-width: calc(100% - 32px); }
+.explorer-privacy { bottom: 12px; left: 12px; max-width: min(220px, calc(100% - 92px)); font-size: 9px; line-height: 1.25; opacity: .86; }
 .explorer-blocker { position: absolute; inset: 0; z-index: 450; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 50px; text-align: center; background: var(--soft); }
 .explorer-blocker p { max-width: 30ch; font-size: 17px; }
 .ap-explorer-marker { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: transparent; cursor: pointer; }
@@ -76,7 +77,7 @@
   .explorer-selected .button { margin-top: 14px; padding: 10px 12px; font-size: 12px; gap: 8px; }
   .explorer-controls { top: 12px; right: 12px; gap: 6px; }
   .explorer-dimension { top: 12px; left: 12px; }
-  .explorer-privacy { bottom: 52px; }
+  .explorer-privacy { bottom: 10px; left: 10px; max-width: 205px; }
   .explorer-button { width: 44px; height: 44px; }
   .explorer-blocker { padding: 30px; gap: 16px; }
   .explorer-compact { height: auto; }

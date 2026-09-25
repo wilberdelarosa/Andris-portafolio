@@ -1,4 +1,5 @@
-import type { Localized } from "./projects";
+import type { Localized, PropertyProject } from "./projects";
+import { formatBedroomOptions } from "../lib/project-bedrooms.ts";
 
 /**
  * Canonical information contract for a project profile.
@@ -131,9 +132,31 @@ export const projectInformation: Record<string, ProjectInformationProfile> = {
   },
 };
 
+export function formatProjectRange(values: number[]): string {
+  const sorted = [...new Set(values)].sort((a, b) => a - b);
+  if (sorted.length === 0) return "";
+  if (sorted.length === 1) return String(sorted[0]);
+  const step = sorted[1] - sorted[0];
+  const contiguous = sorted.every((value, index) => index === 0 || Math.abs(value - sorted[index - 1] - step) < 0.001);
+  return contiguous ? `${sorted[0]}–${sorted[sorted.length - 1]}` : sorted.join(", ");
+}
+
 export function getProjectInformation(
   slug: string,
   field: ProjectInformationFieldId,
+  project?: PropertyProject,
 ): ProjectInformationValue {
+  if (field === "bedrooms" && project) {
+    const value = {
+      es: formatBedroomOptions(project.bedrooms, "es"),
+      en: formatBedroomOptions(project.bedrooms, "en"),
+      fr: formatBedroomOptions(project.bedrooms, "fr"),
+    };
+    return value.es ? documented(l(value.es, value.en, value.fr)) : pending();
+  }
+  if (field === "bathrooms" && project?.bathrooms.length) {
+    const value = formatProjectRange(project.bathrooms);
+    return documented(l(value, value, value));
+  }
   return projectInformation[slug]?.[field] ?? pending();
 }

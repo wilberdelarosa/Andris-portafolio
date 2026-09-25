@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { testProjects } from "./fixtures/projects.ts";
 import type { PropertyProject } from "../src/content/projects.ts";
+import { formatProjectRange } from "../src/content/project-information.ts";
 
 test("published projects contain exactly the 3 verified real estate developments", () => {
   const projects = testProjects;
@@ -39,6 +40,13 @@ test("data audit: bathrooms and parking are unconfirmed across all 3 projects", 
     assert.deepEqual(project.bathrooms, [], `${project.slug} must not have fabricated bathrooms`);
     assert.equal(project.parking, null, `${project.slug} must not have fabricated parking`);
   }
+});
+
+test("bathroom ranges render as a readable range without inventing values", () => {
+  assert.equal(formatProjectRange([2]), "2");
+  assert.equal(formatProjectRange([4, 2, 3, 2]), "2–4");
+  assert.equal(formatProjectRange([2, 4, 5]), "2, 4, 5");
+  assert.equal(formatProjectRange([]), "");
 });
 
 test("CONFOTUR benefit is present exclusively in The Beach as verified", () => {

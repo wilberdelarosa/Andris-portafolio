@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, type PanInfo } from "motion/react";
 import { Play, Pause } from "@phosphor-icons/react";
@@ -14,15 +15,13 @@ export interface AmenitiesCarouselProps {
   locale?: Locale;
 }
 
-// 5s: mismo intervalo por defecto que usa Bootstrap Carousel
-// (`data-bs-interval`), un valor estándar y ya conocido para autoplay,
-// ni tan rápido que interrumpa la lectura del título/viñetas ni tan lento
-// que se sienta estático.
-const AUTOPLAY_INTERVAL_MS = 5000;
+// Tres segundos mantienen el movimiento perceptible sin interrumpir la
+// lectura. La pausa manual es el único control que detiene el autoplay.
+const AUTOPLAY_INTERVAL_MS = 3000;
 
 /** Separación entre tarjetas, como fracción del ancho de una tarjeta. Debe
  *  coincidir con el `xOffset` que posiciona cada tarjeta más abajo. */
-const STEP_RATIO = 0.9;
+const STEP_RATIO = 1.05;
 
 /** Fracción de un paso que hay que arrastrar para que al soltar cambie de
  *  tarjeta. Por debajo de esto el riel vuelve a su sitio sin cambiar nada. */
@@ -41,7 +40,6 @@ export function AmenitiesCarousel({ items, locale = "es" }: AmenitiesCarouselPro
   const reducedMotion = useReducedMotion();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -69,18 +67,18 @@ export function AmenitiesCarousel({ items, locale = "es" }: AmenitiesCarouselPro
     return () => observer.disconnect();
   }, []);
 
-  // Autoplay: avanza solo mientras nadie interactúa. Se detiene con
-  // `prefers-reduced-motion`, al arrastrar, al pasar el mouse por encima,
-  // o si el usuario lo pausa manualmente con el botón.
+  // Autoplay: avanza mientras no se haya pausado manualmente. Pasar el mouse
+  // ya no lo detiene: de ese modo el botón de pausa tiene un comportamiento
+  // predecible y verificable.
   useEffect(() => {
-    if (reducedMotion || !isPlaying || isHovered || isDragging || total <= 1) {
+    if (reducedMotion || !isPlaying || isDragging || total <= 1) {
       return;
     }
     const id = window.setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
     }, AUTOPLAY_INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [reducedMotion, isPlaying, isHovered, isDragging, total]);
+  }, [reducedMotion, isPlaying, isDragging, total]);
 
   if (!items || items.length === 0) return null;
 
@@ -158,8 +156,6 @@ export function AmenitiesCarousel({ items, locale = "es" }: AmenitiesCarouselPro
   return (
     <div
       className="amenities-carousel-wrapper"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="amenities-carousel-container" ref={containerRef}>
         {/*
@@ -213,9 +209,12 @@ export function AmenitiesCarousel({ items, locale = "es" }: AmenitiesCarouselPro
               >
                 <div className="amenities-carousel-card">
                   {item.image ? (
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
+                      fill
+                      sizes="(max-width: 760px) 60vw, 400px"
+                      unoptimized={!item.image.startsWith("/derived/")}
                       className="amenities-carousel-image"
                       draggable={false}
                     />

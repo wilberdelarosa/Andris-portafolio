@@ -2,8 +2,6 @@
 @import "@fontsource/cormorant-garamond/latin-500.css";
 @import "@fontsource/cormorant-garamond/latin-500-italic.css";
 @import "maplibre-gl/dist/maplibre-gl.css";
-/* Va en la hoja principal a proposito: debe existir antes de la primera pintura. */
-@import "../components/intro-curtain.css";
 @import "../components/site-refinements.css";
 :root {
   --color-ink: #0b1f3a;
@@ -381,6 +379,25 @@ em {
   font-size: 12px;
   font-weight: 600;
 }
+.header-admin-link {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  transition: color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+}
+.header-admin-link:hover,
+.header-admin-link:focus-visible {
+  color: var(--text);
+  border-color: var(--text);
+  background: var(--soft);
+}
 .mobile-menu,
 .mobile-dock,
 .mobile-expanded-nav {
@@ -580,6 +597,52 @@ em {
     transform: none;
     filter: none;
   }
+}
+
+/* Confirmaciones de acciones públicas: compartir, guardar y acciones del
+   catálogo deben tener una respuesta visible sin desplazar el contenido. */
+.action-toast {
+  position: fixed;
+  z-index: 1100;
+  right: clamp(16px, 3vw, 36px);
+  bottom: max(24px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  width: min(390px, calc(100vw - 32px));
+  padding: 13px 13px 13px 15px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 15px;
+  box-shadow: 0 18px 54px rgb(11 31 58 / 18%);
+  backdrop-filter: blur(18px);
+  animation: action-toast-in 320ms cubic-bezier(.22, 1, .36, 1) both;
+}
+.action-toast.is-success > svg { color: #12805c; }
+.action-toast.is-error > svg { color: #c2413b; }
+.action-toast.is-warning > svg { color: #aa7416; }
+.action-toast.is-info > svg { color: var(--blue); }
+.action-toast span { line-height: 1.45; }
+.action-toast button {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.action-toast button:hover { color: var(--ink); background: var(--surface); }
+@keyframes action-toast-in {
+  from { opacity: 0; transform: translateY(13px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .action-toast { animation: none; }
 }
 .offline-banner {
   padding: 12px var(--page-gutter);
@@ -1629,6 +1692,62 @@ em {
 .contact-form textarea::placeholder {
   color: var(--on-ink-muted);
   opacity: 1;
+}
+.country-combobox {
+  position: relative;
+}
+.country-combobox > input[role="combobox"] {
+  padding-right: 42px;
+}
+.country-combobox-hint {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  color: var(--on-ink-muted);
+  font-size: 18px;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-55%);
+}
+.country-combobox-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--ink-line);
+  border-radius: 12px;
+  background: var(--color-ink-soft);
+  color: var(--on-ink);
+  box-shadow: 0 14px 32px rgb(7 22 48 / 22%);
+  overscroll-behavior: contain;
+}
+.country-combobox-menu ul {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+.country-combobox-menu li {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.country-combobox-menu li:hover,
+.country-combobox-menu li.is-active {
+  background: var(--soft);
+  color: var(--text);
+}
+.country-combobox-menu p {
+  margin: 0;
+  padding: 14px;
+  color: var(--on-ink-muted);
+  font-size: 13px;
 }
 .contact-form .checkbox-label {
   display: flex;
@@ -2939,7 +3058,10 @@ em {
 .calculator-badge { font-size: 11px; letter-spacing: .02em; }
 .project-detail .project-facts { padding-block: 30px; }
 .detail-back { min-height: 44px; }
-@media (max-width: 1120px) { .desktop-nav, .header-contact { display: none; } .mobile-menu { display: inline-flex; } }
+@media (max-width: 1120px) {
+  .desktop-nav, .header-contact { display: none; }
+  .mobile-menu { display: inline-flex; }
+}
 @media (max-width: 760px) {
   .header-actions .icon-button { width: 44px; height: 44px; }
   .mobile-dock { background: var(--glass-paper); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }

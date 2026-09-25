@@ -42,6 +42,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { cmsFetch, describeError, readErrorMessage } from "@/lib/cms/session";
+import { useAdminToast } from "./admin-toast";
 
 interface PropertyCategoryRow {
   id: string;
@@ -312,6 +313,7 @@ function CategoryEditModal({
    Categorías de propiedad
 --------------------------------------------------------------------------- */
 function PropertyCategoriesSection() {
+  const { notify } = useAdminToast();
   const [rows, setRows] = useState<PropertyCategoryRow[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -340,10 +342,12 @@ function PropertyCategoriesSection() {
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState("error");
-        setFeedback({ tone: "error", message: describeError(error) });
+        const message = describeError(error);
+        setFeedback({ tone: "error", message });
+        notify({ tone: "error", message: `No se pudieron cargar las categorías: ${message}` });
       });
     return () => controller.abort();
-  }, [reloadToken]);
+  }, [notify, reloadToken]);
 
   const reload = () => setReloadToken((n) => n + 1);
 
@@ -376,11 +380,15 @@ function PropertyCategoriesSection() {
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));
-      setFeedback({ tone: "ok", message: `Categoría «${input.label_es}» creada.` });
+      const message = `Categoría «${input.label_es}» creada.`;
+      setFeedback({ tone: "ok", message });
+      notify({ tone: "success", message });
       reload();
       return true;
     } catch (error) {
-      setFeedback({ tone: "error", message: describeError(error) });
+      const message = describeError(error);
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message: `No se pudo crear la categoría: ${message}` });
       return false;
     }
   };
@@ -406,11 +414,15 @@ function PropertyCategoriesSection() {
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));
-      setFeedback({ tone: "ok", message: `Categoría «${row.label_es}» actualizada.` });
+      const message = `Categoría «${row.label_es}» actualizada.`;
+      setFeedback({ tone: "ok", message });
+      notify({ tone: "success", message });
       reload();
       return true;
     } catch (error) {
-      setFeedback({ tone: "error", message: describeError(error) });
+      const message = describeError(error);
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message: `No se pudo actualizar la categoría: ${message}` });
       return false;
     }
   };
@@ -696,6 +708,7 @@ function NewCategoryForm({
    Grupos de amenidades
 --------------------------------------------------------------------------- */
 function AmenityGroupsSection() {
+  const { notify } = useAdminToast();
   const [rows, setRows] = useState<AmenityGroupRow[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -724,10 +737,12 @@ function AmenityGroupsSection() {
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState("error");
-        setFeedback({ tone: "error", message: describeError(error) });
+        const message = describeError(error);
+        setFeedback({ tone: "error", message });
+        notify({ tone: "error", message: `No se pudieron cargar los grupos: ${message}` });
       });
     return () => controller.abort();
-  }, [reloadToken]);
+  }, [notify, reloadToken]);
 
   const reload = () => setReloadToken((n) => n + 1);
 
@@ -750,11 +765,15 @@ function AmenityGroupsSection() {
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));
-      setFeedback({ tone: "ok", message: `Grupo «${row.label_es}» actualizado.` });
+      const message = `Grupo «${row.label_es}» actualizado.`;
+      setFeedback({ tone: "ok", message });
+      notify({ tone: "success", message });
       reload();
       return true;
     } catch (error) {
-      setFeedback({ tone: "error", message: describeError(error) });
+      const message = describeError(error);
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message: `No se pudo actualizar el grupo: ${message}` });
       return false;
     }
   };
@@ -785,7 +804,9 @@ function AmenityGroupsSection() {
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));
-      setFeedback({ tone: "ok", message: `Grupo «${labelEs.trim()}» creado.` });
+      const message = `Grupo «${labelEs.trim()}» creado.`;
+      setFeedback({ tone: "ok", message });
+      notify({ tone: "success", message });
       setLabelEs("");
       setKey("");
       setLabelEn("");
@@ -794,7 +815,9 @@ function AmenityGroupsSection() {
       setCreatingGroup(false);
       reload();
     } catch (error) {
-      setFeedback({ tone: "error", message: describeError(error) });
+      const message = describeError(error);
+      setFeedback({ tone: "error", message });
+      notify({ tone: "error", message: `No se pudo crear el grupo: ${message}` });
     } finally {
       setCreating(false);
     }

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { KuulaWarmup } from "@/components/kuula-warmup";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { ProjectsProvider } from "@/components/projects-provider";
 import "./globals.css";
@@ -57,14 +56,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <head>
-        <link rel="dns-prefetch" href="https://kuula.co" />
-        <link rel="dns-prefetch" href="https://static.kuula.io" />
-        <link rel="dns-prefetch" href="https://files.kuula.io" />
-        <link rel="preconnect" href="https://kuula.co" crossOrigin="" />
-        <link rel="preconnect" href="https://static.kuula.io" crossOrigin="" />
-        <link rel="preconnect" href="https://files.kuula.io" crossOrigin="" />
-      </head>
       {/*
         Browser privacy/security extensions may add attributes to <body>
         before React hydrates (for example, bis_* markers). The attributes
@@ -73,7 +64,6 @@ export default function RootLayout({
         surface in development.
       */}
       <body suppressHydrationWarning>
-        <KuulaWarmup />
         <AnalyticsTracker />
         {/*
           Una sola carga de proyectos para toda la sesión: el layout raíz no

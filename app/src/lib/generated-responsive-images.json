@@ -1,0 +1,1766 @@
+{
+  "/derived/ambient-palm-color-v2.webp": {
+    "width": 1100,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/ambient-palm-color-v2-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/ambient-palm-color-v2-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/ambient-palm-color-v2-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/ambient-palm-color-v2-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/ambient-palm-color-v2-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/ambient-palm-color-v2-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/ambient-palm-color-v2-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/ambient-palm-color-v2-w960.webp"
+      }
+    ]
+  },
+  "/derived/ambient-palm-overlay-v1.webp": {
+    "width": 1280,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/ambient-palm-overlay-v1-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/ambient-palm-overlay-v1-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/ambient-palm-overlay-v1-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/ambient-palm-overlay-v1-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/ambient-palm-overlay-v1-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/ambient-palm-overlay-v1-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/ambient-palm-overlay-v1-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/ambient-palm-overlay-v1-w960.webp"
+      }
+    ]
+  },
+  "/derived/ambient-site-plan-v1.webp": {
+    "width": 1536,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/ambient-site-plan-v1-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/ambient-site-plan-v1-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/ambient-site-plan-v1-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/ambient-site-plan-v1-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/ambient-site-plan-v1-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/ambient-site-plan-v1-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/ambient-site-plan-v1-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/ambient-site-plan-v1-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/ambient-site-plan-v1-w1440.webp"
+      }
+    ]
+  },
+  "/derived/ambient-villa-v1.webp": {
+    "width": 1536,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/ambient-villa-v1-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/ambient-villa-v1-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/ambient-villa-v1-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/ambient-villa-v1-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/ambient-villa-v1-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/ambient-villa-v1-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/ambient-villa-v1-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/ambient-villa-v1-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/ambient-villa-v1-w1440.webp"
+      }
+    ]
+  },
+  "/derived/andris-coast.webp": {
+    "width": 800,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/andris-coast-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/andris-coast-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/andris-coast-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/andris-coast-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/andris-coast-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/andris-coast-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/andris-coast-w750.webp"
+      }
+    ]
+  },
+  "/derived/andris-suit.webp": {
+    "width": 910,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/andris-suit-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/andris-suit-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/andris-suit-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/andris-suit-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/andris-suit-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/andris-suit-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/andris-suit-w750.webp"
+      }
+    ]
+  },
+  "/derived/andris-white-shirt.webp": {
+    "width": 794,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/andris-white-shirt-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/andris-white-shirt-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/andris-white-shirt-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/andris-white-shirt-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/andris-white-shirt-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/andris-white-shirt-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/andris-white-shirt-w750.webp"
+      }
+    ]
+  },
+  "/derived/coast-backdrop.webp": {
+    "width": 800,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/coast-backdrop-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/coast-backdrop-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/coast-backdrop-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/coast-backdrop-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/coast-backdrop-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/coast-backdrop-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/coast-backdrop-w750.webp"
+      }
+    ]
+  },
+  "/derived/hero-atmosphere-v3.webp": {
+    "width": 1774,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-atmosphere-v3-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-atmosphere-v3-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-atmosphere-v3-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-atmosphere-v3-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-atmosphere-v3-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-atmosphere-v3-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-atmosphere-v3-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/hero-atmosphere-v3-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/hero-atmosphere-v3-w1440.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-portrait-640.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-portrait-640-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-portrait-640-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-portrait-640-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-portrait-640-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-portrait-640-w480.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-portrait-900.webp": {
+    "width": 900,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-portrait-900-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-portrait-900-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-portrait-900-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-portrait-900-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-portrait-900-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-coast-portrait-900-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-coast-portrait-900-w750.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-portrait.webp": {
+    "width": 900,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-portrait-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-portrait-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-portrait-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-portrait-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-portrait-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-coast-portrait-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-coast-portrait-w750.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-wide-1200.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-wide-1200-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-wide-1200-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-wide-1200-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-wide-1200-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-wide-1200-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-coast-wide-1200-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-coast-wide-1200-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/hero-coast-wide-1200-w960.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-wide-1800.webp": {
+    "width": 1800,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-wide-1800-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-wide-1800-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-wide-1800-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-wide-1800-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-wide-1800-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-coast-wide-1800-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-coast-wide-1800-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/hero-coast-wide-1800-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/hero-coast-wide-1800-w1440.webp"
+      }
+    ]
+  },
+  "/derived/hero-coast-wide.webp": {
+    "width": 1800,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/hero-coast-wide-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/hero-coast-wide-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/hero-coast-wide-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/hero-coast-wide-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/hero-coast-wide-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/hero-coast-wide-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/hero-coast-wide-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/hero-coast-wide-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/hero-coast-wide-w1440.webp"
+      }
+    ]
+  },
+  "/derived/logo-full.webp": {
+    "width": 520,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/logo-full-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/logo-full-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/logo-full-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/logo-full-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/logo-full-w480.webp"
+      }
+    ]
+  },
+  "/derived/logo-navy.webp": {
+    "width": 246,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/logo-navy-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/logo-navy-w96.webp"
+      }
+    ]
+  },
+  "/derived/logo-white.webp": {
+    "width": 256,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/logo-white-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/logo-white-w96.webp"
+      }
+    ]
+  },
+  "/derived/melcon-aerial.webp": {
+    "width": 1178,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-aerial-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-aerial-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-aerial-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-aerial-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-aerial-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-aerial-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-aerial-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-aerial-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-bedroom.webp": {
+    "width": 1173,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-bedroom-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-bedroom-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-bedroom-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-bedroom-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-bedroom-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-bedroom-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-bedroom-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-bedroom-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-facade.webp": {
+    "width": 1165,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-facade-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-facade-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-facade-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-facade-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-facade-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-facade-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-facade-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-facade-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-gardens-small.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-gardens-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-gardens-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-gardens-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-gardens-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-gardens-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/melcon-gardens.webp": {
+    "width": 1169,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-gardens-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-gardens-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-gardens-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-gardens-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-gardens-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-gardens-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-gardens-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-gardens-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-hero-small.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-hero-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-hero-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-hero-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-hero-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-hero-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/melcon-hero.webp": {
+    "width": 1183,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-hero-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-hero-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-hero-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-hero-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-hero-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-hero-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-hero-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-hero-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-interior.webp": {
+    "width": 1167,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-interior-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-interior-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-interior-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-interior-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-interior-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-interior-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-interior-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-interior-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-kitchen.webp": {
+    "width": 1166,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-kitchen-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-kitchen-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-kitchen-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-kitchen-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-kitchen-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-kitchen-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-kitchen-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-kitchen-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-living-small.webp": {
+    "width": 631,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-living-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-living-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-living-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-living-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-living-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/melcon-living.webp": {
+    "width": 1169,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-living-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-living-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-living-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-living-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-living-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-living-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-living-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-living-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-lounge.webp": {
+    "width": 1183,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-lounge-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-lounge-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-lounge-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-lounge-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-lounge-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-lounge-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-lounge-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-lounge-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-masterplan.webp": {
+    "width": 1175,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-masterplan-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-masterplan-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-masterplan-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-masterplan-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-masterplan-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-masterplan-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-masterplan-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-masterplan-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-pool-small.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-pool-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-pool-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-pool-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-pool-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-pool-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/melcon-pool.webp": {
+    "width": 1164,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-pool-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-pool-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-pool-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-pool-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-pool-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-pool-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-pool-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-pool-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-poolside.webp": {
+    "width": 1180,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-poolside-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-poolside-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-poolside-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-poolside-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-poolside-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-poolside-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-poolside-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-poolside-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-promenade.webp": {
+    "width": 1177,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-promenade-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-promenade-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-promenade-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-promenade-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-promenade-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-promenade-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-promenade-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-promenade-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-river.webp": {
+    "width": 1173,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-river-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-river-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-river-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-river-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-river-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-river-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-river-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-river-w960.webp"
+      }
+    ]
+  },
+  "/derived/melcon-suite.webp": {
+    "width": 1181,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/melcon-suite-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/melcon-suite-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/melcon-suite-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/melcon-suite-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/melcon-suite-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/melcon-suite-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/melcon-suite-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/melcon-suite-w960.webp"
+      }
+    ]
+  },
+  "/derived/resort-backdrop.webp": {
+    "width": 1672,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/resort-backdrop-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/resort-backdrop-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/resort-backdrop-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/resort-backdrop-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/resort-backdrop-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/resort-backdrop-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/resort-backdrop-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/resort-backdrop-w960.webp"
+      },
+      {
+        "width": 1440,
+        "src": "/derived/resort-backdrop-w1440.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-aerial.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-aerial-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-aerial-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-aerial-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-aerial-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-aerial-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/terra-serena-aerial-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/terra-serena-aerial-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/terra-serena-aerial-w960.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-bedroom.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-bedroom-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-bedroom-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-bedroom-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-bedroom-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-bedroom-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/terra-serena-bedroom-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/terra-serena-bedroom-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/terra-serena-bedroom-w960.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-hero-small.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-hero-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-hero-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-hero-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-hero-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-hero-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-hero.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-hero-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-hero-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-hero-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-hero-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-hero-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/terra-serena-hero-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/terra-serena-hero-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/terra-serena-hero-w960.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-living.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-living-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-living-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-living-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-living-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-living-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/terra-serena-living-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/terra-serena-living-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/terra-serena-living-w960.webp"
+      }
+    ]
+  },
+  "/derived/terra-serena-pool.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/terra-serena-pool-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/terra-serena-pool-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/terra-serena-pool-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/terra-serena-pool-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/terra-serena-pool-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/terra-serena-pool-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/terra-serena-pool-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/terra-serena-pool-w960.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-bedroom.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-bedroom-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-bedroom-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-bedroom-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-bedroom-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-bedroom-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/the-beach-bedroom-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/the-beach-bedroom-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/the-beach-bedroom-w960.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-hero-small.webp": {
+    "width": 640,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-hero-small-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-hero-small-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-hero-small-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-hero-small-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-hero-small-w480.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-hero.webp": {
+    "width": 1024,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-hero-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-hero-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-hero-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-hero-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-hero-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/the-beach-hero-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/the-beach-hero-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/the-beach-hero-w960.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-living.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-living-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-living-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-living-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-living-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-living-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/the-beach-living-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/the-beach-living-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/the-beach-living-w960.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-pool.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-pool-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-pool-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-pool-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-pool-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-pool-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/the-beach-pool-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/the-beach-pool-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/the-beach-pool-w960.webp"
+      }
+    ]
+  },
+  "/derived/the-beach-terrace.webp": {
+    "width": 1200,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/the-beach-terrace-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/the-beach-terrace-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/the-beach-terrace-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/the-beach-terrace-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/the-beach-terrace-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/the-beach-terrace-w640.webp"
+      },
+      {
+        "width": 750,
+        "src": "/derived/the-beach-terrace-w750.webp"
+      },
+      {
+        "width": 960,
+        "src": "/derived/the-beach-terrace-w960.webp"
+      }
+    ]
+  },
+  "/derived/wordmark-navy.webp": {
+    "width": 650,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/wordmark-navy-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/wordmark-navy-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/wordmark-navy-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/wordmark-navy-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/wordmark-navy-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/wordmark-navy-w640.webp"
+      }
+    ]
+  },
+  "/derived/wordmark-white.webp": {
+    "width": 650,
+    "variants": [
+      {
+        "width": 48,
+        "src": "/derived/wordmark-white-w48.webp"
+      },
+      {
+        "width": 96,
+        "src": "/derived/wordmark-white-w96.webp"
+      },
+      {
+        "width": 256,
+        "src": "/derived/wordmark-white-w256.webp"
+      },
+      {
+        "width": 320,
+        "src": "/derived/wordmark-white-w320.webp"
+      },
+      {
+        "width": 480,
+        "src": "/derived/wordmark-white-w480.webp"
+      },
+      {
+        "width": 640,
+        "src": "/derived/wordmark-white-w640.webp"
+      }
+    ]
+  }
+}

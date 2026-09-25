@@ -1,3 +1,5 @@
+import { formatBedroomOptions } from "../lib/project-bedrooms.ts";
+
 /**
  * Textos del catalogo de proyectos.
  *
@@ -28,7 +30,7 @@ export const catalogCopy = {
     pending: "Ficha en revisión",
     complete: "Ficha completa",
     bedroomsValue: (list: number[]) =>
-      list.length === 0 ? "Consultar" : `${list.join(", ")} habitaciones`,
+      list.length === 0 ? "Consultar" : formatBedroomOptions(list, "es"),
     areaValue: (min: number, max: number, unit: string) =>
       min === 0 ? "Consultar" : `${min} a ${max} ${unit}`,
     greenValue: (value: number) =>
@@ -118,7 +120,7 @@ export const catalogCopy = {
     pending: "Profile in review",
     complete: "Full profile",
     bedroomsValue: (list: number[]) =>
-      list.length === 0 ? "Ask advisor" : `${list.join(", ")} bedrooms`,
+      list.length === 0 ? "Ask advisor" : formatBedroomOptions(list, "en"),
     areaValue: (min: number, max: number, unit: string) =>
       min === 0 ? "Ask advisor" : `${min} to ${max} ${unit}`,
     greenValue: (value: number) =>
@@ -208,7 +210,7 @@ export const catalogCopy = {
     pending: "Fiche en révision",
     complete: "Fiche complète",
     bedroomsValue: (list: number[]) =>
-      list.length === 0 ? "Consulter" : `${list.join(", ")} chambres`,
+      list.length === 0 ? "Consulter" : formatBedroomOptions(list, "fr"),
     areaValue: (min: number, max: number, unit: string) =>
       min === 0 ? "Consulter" : `${min} à ${max} ${unit}`,
     greenValue: (value: number) =>

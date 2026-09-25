@@ -8,6 +8,7 @@ import {
   ArrowSquareOut,
   ArrowClockwise,
   Buildings,
+  CaretUp,
   CaretLeft,
   CaretRight,
   Calculator,
@@ -15,17 +16,22 @@ import {
   Database,
   DotsThree,
   DownloadSimple,
+  EnvelopeSimple,
+  Eye,
   FileSql,
   MagnifyingGlass,
   PencilSimple,
   PlusCircle,
+  Phone,
   SignOut,
   SquaresFour,
   Stethoscope,
+  SlidersHorizontal,
   Tag,
   Trash,
   UsersThree,
   Warning,
+  WhatsappLogo,
   X,
 } from "@phosphor-icons/react";
 import "./admin.css";
@@ -34,9 +40,11 @@ import { NotificationCenter } from "./notification-center";
 import { LoginForm } from "./login-form";
 import { DiagnosticsPanel } from "./diagnostics-panel";
 import { CategoryManager } from "./category-manager";
+import { AdminToastProvider, useAdminToast } from "./admin-toast";
+import { SiteSettingsPanel } from "./site-settings-panel";
 
 import { getContentRepository } from "@/lib/cms/repository";
-import { deleteAllLeads, deleteLead, listLeads } from "@/lib/cms/lead-writer";
+import { deleteAllLeads, deleteLead, listLeads, markLeadRead } from "@/lib/cms/lead-writer";
 import {
   clearQuotes,
   deleteQuote,
@@ -70,6 +78,7 @@ type Tab =
   | "leads"
   | "cotizaciones"
   | "esquema"
+  | "configuracion"
   | "diagnostico";
 
 /**
@@ -86,6 +95,7 @@ const TABS: { id: Tab; label: string; icon: typeof SquaresFour }[] = [
   { id: "categorias", label: "Categorías", icon: Tag },
   { id: "cotizaciones", label: "Cotizaciones", icon: Calculator },
   { id: "esquema", label: "Esquema", icon: Database },
+  { id: "configuracion", label: "Configuración", icon: SlidersHorizontal },
   { id: "diagnostico", label: "Diagnóstico", icon: Stethoscope },
 ];
 
@@ -185,6 +195,34 @@ export function AdminStudio() {
   }, [connection.provider, revision, session]);
 
   useEffect(() => {
+    if (connection.provider !== "supabase" || !session) return;
+    let cancelled = false;
+    const refreshLeads = () => {
+      if (document.visibilityState !== "visible") return;
+      void listLeads()
+        .then((rows) => {
+          if (!cancelled) {
+            setLeads(rows);
+            setLeadsError(null);
+          }
+        })
+        .catch(() => {
+          // Keep the last known list visible during a temporary network issue.
+        });
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") refreshLeads();
+    };
+    const interval = window.setInterval(refreshLeads, 30_000);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [connection.provider, session]);
+
+  useEffect(() => {
     const syncTab = () => {
       const hash = location.hash.replace("#", "") as Tab;
       if (TABS.some((item) => item.id === hash)) setTab(hash);
@@ -223,6 +261,63 @@ export function AdminStudio() {
   }
 
   return (
+    <AdminToastProvider>
+      <AdminStudioShell
+        active={active}
+        connection={connection}
+        go={go}
+        leads={leads}
+        leadsError={leadsError}
+        quotes={quotes}
+        quotesError={quotesError}
+        reduced={reduced}
+        refresh={refresh}
+        revision={revision}
+        session={session}
+        showMoreMenu={showMoreMenu}
+        setShowMoreMenu={setShowMoreMenu}
+        stats={stats}
+        tab={tab}
+      />
+    </AdminToastProvider>
+  );
+}
+
+function AdminStudioShell({
+  active,
+  connection,
+  go,
+  leads,
+  leadsError,
+  quotes,
+  quotesError,
+  reduced,
+  refresh,
+  revision,
+  session,
+  showMoreMenu,
+  setShowMoreMenu,
+  stats,
+  tab,
+}: {
+  active: { id: Tab; label: string; icon: typeof SquaresFour };
+  connection: CmsConnection;
+  go: (next: Tab) => void;
+  leads: CmsLead[];
+  leadsError: string | null;
+  quotes: EditorQuote[];
+  quotesError: string | null;
+  reduced: boolean | null;
+  refresh: () => void;
+  revision: number;
+  session: NonNullable<ReturnType<typeof getSessionSnapshot>>;
+  showMoreMenu: boolean;
+  setShowMoreMenu: (value: boolean) => void;
+  stats: ProjectStats | null;
+  tab: Tab;
+}) {
+  const unreadLeads = leads.reduce((count, lead) => count + (lead.readAt ? 0 : 1), 0);
+  return (
     <div className="admin-shell">
       {/* Barra lateral de escritorio */}
       <aside className="admin-side">
@@ -243,6 +338,11 @@ export function AdminStudio() {
             >
               <item.icon size={20} weight={item.id === tab ? "fill" : "regular"} />
               {item.label}
+              {item.id === "leads" && unreadLeads > 0 && (
+                <span className="admin-unread-count" aria-label={`${unreadLeads} leads sin leer`}>
+                  {unreadLeads > 99 ? "99+" : unreadLeads}
+                </span>
+              )}
             </button>
           ))}
           <button className="admin-nav-logout" onClick={() => void signOut()}>
@@ -314,6 +414,7 @@ export function AdminStudio() {
                 <QuotesPanel quotes={quotes} error={quotesError} onChanged={refresh} />
               )}
               {tab === "esquema" && <SchemaPanel />}
+              {tab === "configuracion" && <SiteSettingsPanel />}
               {tab === "diagnostico" && <DiagnosticsPanel />}
             </motion.div>
           </AnimatePresence>
@@ -330,6 +431,11 @@ export function AdminStudio() {
           >
             <item.icon size={22} weight={item.id === tab ? "fill" : "regular"} />
             {item.label}
+            {item.id === "leads" && unreadLeads > 0 && (
+              <span className="admin-unread-count" aria-label={`${unreadLeads} leads sin leer`}>
+                {unreadLeads > 99 ? "99+" : unreadLeads}
+              </span>
+            )}
           </button>
         ))}
         <div style={{ position: "relative", display: "flex", flex: 1 }}>
@@ -551,6 +657,7 @@ function ProjectsPanel({
   revision: number;
   onChanged: () => void;
 }) {
+  const { notify } = useAdminToast();
   const [mode, setMode] = useState<PanelMode>({ kind: "list" });
 
   const [search, setSearch] = useState("");
@@ -642,6 +749,7 @@ function ProjectsPanel({
       const project = await loadProjectForEdit(row.id);
       setMode({ kind: "edit", project });
     } catch (cause) {
+      notify({ tone: "error", message: `No se pudo abrir «${row.name}» para editar: ${describeError(cause)}` });
       setNotice({
         tone: "error",
         text: `No se pudo abrir «${row.name}» para editar: ${describeError(cause)}`,
@@ -661,11 +769,13 @@ function ProjectsPanel({
         tone: "ok",
         text: `«${row.name}» se eliminó de Supabase junto con su ficha completa.`,
       });
+      notify({ tone: "success", message: `«${row.name}» se eliminó correctamente.` });
       // Si la página se queda vacía al borrar el último elemento, se retrocede.
       if (rows.length === 1 && page > 0) setPage(page - 1);
       else reload();
       onChanged();
     } catch (cause) {
+      notify({ tone: "error", message: `No se pudo eliminar «${row.name}»: ${describeError(cause)}` });
       setNotice({
         tone: "error",
         text: `No se pudo eliminar «${row.name}»: ${describeError(cause)}`,
@@ -924,6 +1034,26 @@ function ProjectsPanel({
 /* ---------------------------------------------------------------------------
    Leads
 --------------------------------------------------------------------------- */
+function safeLeadSourceUrl(value?: string): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value, "https://andrispenarealty.com");
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function getWhatsAppNumber(phone: string): string | null {
+  const trimmed = phone.trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (trimmed.startsWith("+")) return digits;
+  if (trimmed.startsWith("00")) return digits.replace(/^00/, "");
+  if (digits.length === 11 && digits.startsWith("1")) return digits;
+  if (digits.length === 10 && /^(809|829|849)/.test(digits)) return `1${digits}`;
+  return null;
+}
+
 function LeadsPanel({
   leads,
   error,
@@ -933,8 +1063,10 @@ function LeadsPanel({
   error: string | null;
   onChanged: () => void;
 }) {
+  const { notify } = useAdminToast();
   const [confirmClear, setConfirmClear] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
   /**
    * El error del borrado se muestra aquí mismo. Antes el panel borraba contra
    * `localStorage`, que nunca falla, así que no había nada que informar; ahora
@@ -947,6 +1079,7 @@ function LeadsPanel({
     setActionError(null);
     try {
       await task();
+      notify({ tone: "success", message: "La operación sobre los leads se completó correctamente." });
       onChanged();
     } catch (cause) {
       setActionError(describeError(cause));
@@ -956,13 +1089,14 @@ function LeadsPanel({
   };
 
   const exportCsv = () => {
-    const header = "fecha;nombre;email;telefono;pais;presupuesto;plazo;proyecto;interes;canal;estado;mensaje";
+    const header = "fecha;visto;nombre;email;telefono;pais;presupuesto;plazo;proyecto;interes;canal;estado;mensaje;pagina";
     const rows = leads.map((lead) =>
       [
-        lead.createdAt, lead.name, lead.email, lead.phone, lead.country,
+        lead.createdAt, lead.readAt ? "sí" : "no", lead.name, lead.email, lead.phone, lead.country,
         lead.budget, lead.timeframe, lead.project, lead.interest,
         lead.channel, lead.status,
         lead.message.replace(/[\n;]/g, " "),
+        lead.pageUrl ?? "",
       ]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(";"),
@@ -974,6 +1108,22 @@ function LeadsPanel({
     );
   };
 
+  const toggleLead = async (lead: CmsLead) => {
+    const opening = expandedLeadId !== lead.id;
+    setExpandedLeadId(opening ? lead.id : null);
+    setActionError(null);
+    if (!opening || lead.readAt) return;
+    try {
+      await markLeadRead(lead.id);
+      onChanged();
+    } catch (cause) {
+      setActionError(describeError(cause));
+    }
+  };
+
+  const leadMessage = (lead: CmsLead) =>
+    `Hola ${lead.name}, soy Andris Peña. Recibí tu consulta${lead.project ? ` sobre ${lead.project}` : ""}. ¿Cómo puedo ayudarte?`;
+
   return (
     <>
       <div className="admin-page-head">
@@ -981,12 +1131,16 @@ function LeadsPanel({
         <h1>Leads</h1>
         <p>
           Cada consulta enviada desde el formulario de contacto queda
-          registrada en Supabase, con su canal y estado de entrega.
+          registrada en Supabase, con su canal y estado de entrega. La bandeja
+          se actualiza automáticamente cada 30 segundos.
         </p>
       </div>
 
       <div className="admin-card">
         <div className="admin-actions" style={{ marginTop: 0, marginBottom: leads.length ? 14 : 0 }}>
+          <button className="button button-outline" onClick={onChanged}>
+            <ArrowClockwise size={16} /> Actualizar
+          </button>
           <button className="button button-outline" onClick={exportCsv} disabled={!leads.length}>
             <DownloadSimple size={16} /> Exportar CSV
           </button>
@@ -1035,7 +1189,7 @@ function LeadsPanel({
         )}
         {actionError && (
           <p className="admin-error-text" role="alert">
-            No se pudo completar el borrado: {actionError}
+            No se pudo completar la acción: {actionError}
           </p>
         )}
 
@@ -1048,73 +1202,96 @@ function LeadsPanel({
             </div>
           ) : (
           <>
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Nombre</th>
-                    <th>Proyecto</th>
-                    <th>Contacto</th>
-                    <th>Estado</th>
-                    <th style={{ textAlign: "right" }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leads.map((lead) => (
-                    <tr key={lead.id}>
-                      <td className="num">{dateTime.format(new Date(lead.createdAt))}</td>
-                      <td className="strong">{lead.name}</td>
-                      <td>{lead.project}</td>
-                      <td>
-                        {lead.email}
-                        <br />
-                        <small style={{ color: "var(--muted)" }}>{lead.phone}</small>
-                      </td>
-                      <td>
-                        <LeadStatusChip status={lead.status} />
-                      </td>
-                      <td>
-                        <div className="admin-row-actions">
-                          <button
-                            className="icon-action danger"
-                            aria-label={`Eliminar lead de ${lead.name}`}
-                            disabled={busy}
-                            onClick={() => void run(() => deleteLead(lead.id))}
-                          >
-                            <Trash size={17} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="admin-list-cards">
-              {leads.map((lead) => (
-                <article key={lead.id} className="admin-lead-card">
-                  <div className="row">
-                    <strong>{lead.name}</strong>
+            <div className="admin-leads-list">
+              {leads.map((lead) => {
+                const sourceUrl = safeLeadSourceUrl(lead.pageUrl);
+                const phoneDigits = lead.phone.replace(/\D/g, "");
+                const whatsappNumber = getWhatsAppNumber(lead.phone);
+                return (
+                <article key={lead.id} className={`admin-lead-card${lead.readAt ? "" : " is-unread"}`}>
+                  <div className="admin-lead-card-head">
+                    <div className="admin-lead-person">
+                      {!lead.readAt && <span className="admin-lead-unread-dot" aria-label="Nuevo sin leer" />}
+                      <strong>{lead.name || "Consulta sin nombre"}</strong>
+                    </div>
                     <LeadStatusChip status={lead.status} />
                   </div>
-                  <div className="row">
-                    <span>{lead.project}</span>
-                    <small>{dateTime.format(new Date(lead.createdAt))}</small>
+                  <div className="admin-lead-meta">
+                    <span>{lead.project || "Consulta general"}</span>
+                    <time dateTime={lead.createdAt}>{dateTime.format(new Date(lead.createdAt))}</time>
                   </div>
-                  <div className="row">
-                    <small>{lead.email} · {lead.phone}</small>
+                  <div className="admin-lead-summary">
+                    {lead.email && <a href={`mailto:${encodeURIComponent(lead.email)}`}>{lead.email}</a>}
+                    {phoneDigits && <a href={`tel:${lead.phone.replace(/[^+\d]/g, "")}`}>{lead.phone}</a>}
+                    {!lead.email && !lead.phone && <span>Sin datos de contacto</span>}
+                  </div>
+                  <div className="admin-lead-actions">
+                    <button
+                      type="button"
+                      className="button button-outline admin-lead-details-toggle"
+                      aria-expanded={expandedLeadId === lead.id}
+                      aria-controls={`lead-details-${lead.id}`}
+                      onClick={() => void toggleLead(lead)}
+                    >
+                      {expandedLeadId === lead.id ? <CaretUp size={17} /> : <Eye size={17} />}
+                      {expandedLeadId === lead.id ? "Ocultar detalles" : "Ver detalles"}
+                    </button>
+                    {whatsappNumber && (
+                      <a
+                        className="button admin-lead-contact whatsapp"
+                        href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(leadMessage(lead))}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <WhatsappLogo size={18} /> WhatsApp
+                      </a>
+                    )}
+                    {lead.email && (
+                      <a
+                        className="button admin-lead-contact"
+                        href={`mailto:${encodeURIComponent(lead.email)}?subject=${encodeURIComponent("Seguimiento a tu consulta")}&body=${encodeURIComponent(leadMessage(lead))}`}
+                      >
+                        <EnvelopeSimple size={17} /> Correo
+                      </a>
+                    )}
+                    {phoneDigits && (
+                      <a className="admin-lead-call" href={`tel:${lead.phone.replace(/[^+\d]/g, "")}`} aria-label={`Llamar a ${lead.name}`}>
+                        <Phone size={18} />
+                      </a>
+                    )}
                     <button
                       className="icon-action danger"
                       aria-label={`Eliminar lead de ${lead.name}`}
                       disabled={busy}
                       onClick={() => void run(() => deleteLead(lead.id))}
                     >
-                      <Trash size={16} />
+                      <Trash size={17} />
                     </button>
                   </div>
+                  {expandedLeadId === lead.id && (
+                    <div className="admin-lead-details" id={`lead-details-${lead.id}`}>
+                      <dl>
+                        <div><dt>Correo electrónico</dt><dd>{lead.email || "—"}</dd></div>
+                        <div><dt>Teléfono</dt><dd>{lead.phone || "—"}</dd></div>
+                        <div><dt>País de residencia</dt><dd>{lead.country || "—"}</dd></div>
+                        <div><dt>Presupuesto</dt><dd>{lead.budget || "—"}</dd></div>
+                        <div><dt>Plazo de adquisición</dt><dd>{lead.timeframe || "—"}</dd></div>
+                        <div><dt>Proyecto</dt><dd>{lead.project || "Consulta general"}</dd></div>
+                        <div><dt>Interés</dt><dd>{lead.interest || "—"}</dd></div>
+                        <div><dt>Canal de origen</dt><dd>{lead.channel === "whatsapp" ? "WhatsApp" : lead.channel === "email" ? "Correo" : "Resumen de consulta"}</dd></div>
+                        <div><dt>Estado de entrega</dt><dd><LeadStatusChip status={lead.status} /></dd></div>
+                        <div><dt>Recibido</dt><dd>{dateTime.format(new Date(lead.createdAt))}</dd></div>
+                        {sourceUrl && <div className="admin-lead-page"><dt>Página de origen</dt><dd><a href={sourceUrl} target="_blank" rel="noopener noreferrer">Abrir página <ArrowSquareOut size={14} /></a></dd></div>}
+                      </dl>
+                      <div className="admin-lead-message">
+                        <span>Mensaje del prospecto</span>
+                        <p>{lead.message || "No dejó un mensaje adicional."}</p>
+                      </div>
+                    </div>
+                  )}
                 </article>
-              ))}
+                );
+              })}
             </div>
           </>
           ))}
@@ -1150,6 +1327,7 @@ function QuotesPanel({
   error: string | null;
   onChanged: () => void;
 }) {
+  const { notify } = useAdminToast();
   const [confirmClear, setConfirmClear] = useState(false);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -1163,6 +1341,7 @@ function QuotesPanel({
     setActionError(null);
     try {
       await task();
+      notify({ tone: "success", message: "La operación sobre las cotizaciones se completó correctamente." });
       onChanged();
     } catch (cause) {
       setActionError(describeError(cause));
@@ -1329,6 +1508,11 @@ const MIGRATIONS = [
   { file: "0004_storage_bucket.sql", title: "0004 — bucket de imágenes", detail: "necesaria para subir fotos" },
   { file: "0005_categories_and_tags.sql", title: "0005 — catálogo de etiquetas", detail: "sugerencias de amenidades y tipologías" },
   { file: "0006_cms_studio_access.sql", title: "0006 — permisos del estudio", detail: "necesaria para crear proyectos y ver leads" },
+  { file: "0007_property_categories_and_amenity_groups.sql", title: "0007 — catálogo de amenidades", detail: "categorías y grupos reutilizables" },
+  { file: "0008_api_projects_v1_property_category.sql", title: "0008 — API por categoría", detail: "categoría pública de cada proyecto" },
+  { file: "0009_api_projects_v1_bedrooms_fix.sql", title: "0009 — API con habitaciones", detail: "tipologías y habitaciones públicas" },
+  { file: "0010_api_projects_v1_bathrooms.sql", title: "0010 — rangos de baños", detail: "mínimo y máximo por tipología" },
+  { file: "0011_site_visibility_settings.sql", title: "0011 — visibilidad pública", detail: "nombres públicos controlados desde el CMS" },
 ];
 
 function SchemaPanel() {

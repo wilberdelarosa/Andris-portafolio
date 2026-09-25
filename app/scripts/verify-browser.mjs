@@ -288,7 +288,10 @@ async function checkContactPreview() {
   await form.locator("details.contact-more summary").click();
   await form.locator('input[name="email"]').fill("qa@example.com");
   await form.locator('input[name="phone"]').fill("+1 809 000 0000");
-  await form.locator('input[name="country"]').fill("República Dominicana");
+  const country = form.getByRole("combobox", { name: /País de residencia/i });
+  await country.fill("República Dominicana");
+  await form.getByRole("option", { name: "República Dominicana" }).click();
+  assert.equal(await form.locator('input[type="hidden"][name="country"]').inputValue(), "República Dominicana");
   await form.locator('select[name="budget"]').selectOption({ index: 1 });
   await form.locator('select[name="timeframe"]').selectOption({ index: 1 });
   await form
@@ -449,6 +452,30 @@ try {
     checkContactPreview,
   );
   await check("Idiomas ES / EN / FR desde la interfaz", checkLanguages);
+  await check("Hero solicita solo el WebP del dispositivo", async () => {
+    const selected = {};
+    for (const [name, width, expected, excluded] of [
+      ["mobile", 375, "portrait", "wide"],
+      ["desktop", 1440, "wide", "portrait"],
+    ]) {
+      const testContext = await browser.newContext({ viewport: { width, height: 900 } });
+      const testPage = await testContext.newPage();
+      const requested = [];
+      testPage.on("request", (request) => {
+        if (request.url().includes("/derived/hero-coast-")) requested.push(request.url());
+      });
+      try {
+        await testPage.goto(new URL("/", baseURL).href, { waitUntil: "load" });
+        const source = await testPage.locator('picture img[src*="hero-coast"]').evaluate((image) => image.currentSrc);
+        assert.match(source, new RegExp(`hero-coast-${expected}.*\\.webp$`));
+        assert.equal(requested.some((url) => url.includes(`hero-coast-${excluded}`)), false);
+        selected[name] = new URL(source).pathname;
+      } finally {
+        await testContext.close();
+      }
+    }
+    return selected;
+  });
   await check("Ruta inexistente devuelve 404", async () => {
     expected404 = true;
     try {

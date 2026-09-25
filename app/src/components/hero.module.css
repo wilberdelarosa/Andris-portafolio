@@ -24,28 +24,20 @@
   pointer-events: none;
 }
 .backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: 50% 38%;
   opacity: 1;
   /* Realza el turquesa del agua y el verde de las palmas sin virar la piel. */
   filter: saturate(1.22) contrast(1.04);
 }
 
-/* El encuadre apaisado manda desde tablet; debajo entra el vertical. */
-.backdropWide {
-  object-position: 50% 46%;
-  display: none;
-}
-
-.backdropPortrait {
-  object-position: 50% 38%;
-}
-
 @media (min-width: 761px) {
-  .backdropWide {
-    display: block;
-  }
-  .backdropPortrait {
-    display: none;
+  .backdrop {
+    object-position: 50% 46%;
   }
 }
 
@@ -398,28 +390,22 @@
     transform: translateY(0);
   }
 }
-/*
- * Los retardos suman `--intro-hold`, el tiempo que ocupa la cortina de entrada.
- * Asi la portada no se anima detras de ella: arranca justo cuando los panos
- * suben. Cuando la cortina no se muestra, esa variable vale 0s y todo entra de
- * inmediato.
- */
 @media (prefers-reduced-motion: no-preference) {
   .backdrop {
-    animation: sceneEnter 2.4s var(--intro-hold, 0s) var(--ease) backwards;
+    animation: sceneEnter 0.7s var(--ease) both;
   }
   .firstName > span {
-    animation: nameEnter 1.05s calc(var(--intro-hold, 0s) + 0.05s) var(--ease) backwards;
+    animation: nameEnter 0.5s var(--ease) both;
   }
   .portraitEntrance {
-    animation: portraitEnter 1.15s calc(var(--intro-hold, 0s) + 0.14s) var(--ease) backwards;
+    animation: portraitEnter 0.6s var(--ease) both;
   }
   .lastName > span {
-    animation: nameEnter 1s calc(var(--intro-hold, 0s) + 0.27s) var(--ease) backwards;
+    animation: nameEnter 0.5s var(--ease) both;
   }
   .intro,
   .advice {
-    animation: copyEnter 0.76s calc(var(--intro-hold, 0s) + 0.35s) var(--ease) backwards;
+    animation: copyEnter 0.45s var(--ease) both;
   }
 }
 @media (hover: hover) and (pointer: fine) {

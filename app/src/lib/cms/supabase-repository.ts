@@ -11,9 +11,8 @@
  * `getProject()` respondia 400 contra la base real. Aqui se leen las dos
  * columnas de verdad y se componen en el DTO.
  *
- * `detail_extra` todavia no incluye banos, parqueos, area verde, reserva,
- * tipologias, beneficios ni cercanias: esos campos salen en su forma "sin
- * confirmar" hasta que la vista los exponga. Nunca se inventan valores.
+ * La vista publica expone los datos que tienen contrato estable. Los campos
+ * que aun no tienen evidencia se mantienen vacios; nunca se inventan valores.
  *
  * No usar alias `@/` aqui.
  */
@@ -27,6 +26,7 @@ import type {
 } from "./types.ts";
 import { API_VERSION, CMS_SCHEMA_VERSION } from "./types.ts";
 import type { ContentRepository } from "./repository.ts";
+import { sanitizeAmenityImage } from "./amenity-media.ts";
 
 /**
  * Parte del DTO que la vista compone hoy. `amenities` llega sin tipar porque
@@ -37,6 +37,7 @@ interface ApiDetailExtra {
   description?: Localized;
   gallery?: ApiProjectDetail["gallery"];
   amenities?: unknown[];
+  bathrooms?: number[];
   paymentReference?: ApiProjectDetail["paymentReference"];
   source?: string | null;
 }
@@ -79,7 +80,7 @@ function normalizeApiAmenity(raw: unknown): AmenityEntry | null {
     return {
       key: typeof raw.key === "string" ? raw.key : undefined,
       name,
-      image: typeof raw.image === "string" ? raw.image : null,
+      image: sanitizeAmenityImage(raw.image),
       features: isRecord(featuresRaw)
         ? {
             es: toFeatureList(featuresRaw.es),
@@ -182,8 +183,9 @@ function toDetail(row: ApiProjectRow): ApiProjectDetail | null {
         commercialStatus: "pending",
       },
     source: extra.source ?? "",
-    // Sin exponer todavía en la vista: se declaran como pendientes.
-    bathrooms: [],
+    bathrooms: Array.isArray(extra.bathrooms)
+      ? extra.bathrooms.filter((value): value is number => typeof value === "number" && Number.isFinite(value))
+      : [],
     parking: null,
     greenArea: 0,
     reservation: { amount: null, currency: "USD", note: null },
@@ -204,6 +206,12 @@ export const supabaseRepository: ContentRepository = {
       .map((row) => row.summary)
       .filter((summary): summary is ApiProjectSummary => Boolean(summary))
       .map(normalizeSummary);
+  },
+  async listProjectDetails() {
+    const rows = await fetchRows("select=slug,summary,detail_extra&order=summary->>name.asc");
+    return rows
+      .map(toDetail)
+      .filter((detail): detail is ApiProjectDetail => detail !== null);
   },
   async getProject(slug: string) {
     const rows = await fetchRows(
